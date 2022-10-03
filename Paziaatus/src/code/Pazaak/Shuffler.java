@@ -1,4 +1,4 @@
-package pcg;
+package Pazaak;
 
 import java.util.ArrayList;
 import java.util.Random;

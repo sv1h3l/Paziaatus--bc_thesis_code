@@ -1,4 +1,4 @@
-package pcg;
+package main;
 
 import javafx.fxml.FXML;
 
@@ -15,7 +15,11 @@ import javafx.scene.text.Text;
 import java.io.File;
 import java.util.List;
 
-public class PazaakController
+import Pazaak.CardsImages;
+import Pazaak.Pazaak;
+import Pazaak.RealCard;
+
+public class PaziaatusController
 {
     private Pazaak pazaak;
 
@@ -85,7 +89,6 @@ public class PazaakController
 
     @FXML public void endTurn() throws InterruptedException
     {
-        pazaak.playerIsOnTurn = false;
         btnEndTurn.setDisable(true);
         btnStand.setDisable(true);
         pazaak.opponentsTurn();
@@ -93,7 +96,7 @@ public class PazaakController
 
     @FXML public void stand() throws InterruptedException
     {
-        pazaak.playerStand = true;
+        pazaak.setPlayerStand(true);
         btnEndTurn.setDisable(true);
         btnStand.setDisable(true);
         pazaak.opponentsTurn();
@@ -101,10 +104,10 @@ public class PazaakController
 
     @FXML public void firstCardClicked()
     {
-        if(!pazaak.player.cardsForMatch.get(0).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(0).isUsed())
         {
-            pazaak.playersScore = pazaak.useCard(pazaak.player.cardsForMatch.get(0), pazaak.cardsOnPlayersTable);
-            pazaak.player.cardsForMatch.get(0).used();
+            pazaak.setPlayersScore(pazaak.useCard(pazaak.getPlayer().getCardsForMatch().get(0), pazaak.getCardsOnPlayersTable()));
+            pazaak.getPlayer().getCardsForMatch().get(0).used();
             visualization();
         }
     }
@@ -112,102 +115,102 @@ public class PazaakController
 
     @FXML public void secondCardClicked()
     {
-        if (!pazaak.player.cardsForMatch.get(1).isUsed())
+        if (!pazaak.getPlayer().getCardsForMatch().get(1).isUsed())
         {
-            pazaak.playersScore = pazaak.useCard(pazaak.player.cardsForMatch.get(1), pazaak.cardsOnPlayersTable);
-            pazaak.player.cardsForMatch.get(1).used();
+        	pazaak.setPlayersScore(pazaak.useCard(pazaak.getPlayer().getCardsForMatch().get(1), pazaak.getCardsOnPlayersTable()));
+            pazaak.getPlayer().getCardsForMatch().get(1).used();
             visualization();
         }
     }
 
     @FXML public void thirdCardClicked()
     {
-        if(!pazaak.player.cardsForMatch.get(2).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(2).isUsed())
         {
-            pazaak.playersScore = pazaak.useCard(pazaak.player.cardsForMatch.get(2), pazaak.cardsOnPlayersTable);
-            pazaak.player.cardsForMatch.get(2).used();
+            pazaak.setPlayersScore(pazaak.useCard(pazaak.getPlayer().getCardsForMatch().get(2), pazaak.getCardsOnPlayersTable()));
+            pazaak.getPlayer().getCardsForMatch().get(2).used();
             visualization();
         }
     }
 
     @FXML public void fourthCardClicked()
     {
-        if(!pazaak.player.cardsForMatch.get(3).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(3).isUsed())
         {
-            pazaak.playersScore = pazaak.useCard(pazaak.player.cardsForMatch.get(3), pazaak.cardsOnPlayersTable);
-            pazaak.player.cardsForMatch.get(3).used();
+            pazaak.setPlayersScore(pazaak.useCard(pazaak.getPlayer().getCardsForMatch().get(3), pazaak.getCardsOnPlayersTable()));
+            pazaak.getPlayer().getCardsForMatch().get(3).used();
             visualization();
         }
     }
 
     @FXML public void clickPlayersHandLeft1()
     {
-        if(!pazaak.player.cardsForMatch.get(0).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(0).isUsed())
         {
-            pazaak.player.cardsForMatch.get(0).makeLeftTurn();
+            pazaak.getPlayer().getCardsForMatch().get(0).makeLeftTurn();
             visualization();
         }
     }
 
     @FXML public void clickPlayersHandLeft2()
     {
-        if(!pazaak.player.cardsForMatch.get(1).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(1).isUsed())
         {
-            pazaak.player.cardsForMatch.get(1).makeLeftTurn();
+            pazaak.getPlayer().getCardsForMatch().get(1).makeLeftTurn();
             visualization();
         }
     }
 
     @FXML public void clickPlayersHandLeft3()
     {
-        if(!pazaak.player.cardsForMatch.get(2).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(2).isUsed())
         {
-            pazaak.player.cardsForMatch.get(2).makeLeftTurn();
+            pazaak.getPlayer().getCardsForMatch().get(2).makeLeftTurn();
             visualization();
         }
     }
 
     @FXML public void clickPlayersHandLeft4()
     {
-        if(!pazaak.player.cardsForMatch.get(3).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(3).isUsed())
         {
-            pazaak.player.cardsForMatch.get(3).makeLeftTurn();
+            pazaak.getPlayer().getCardsForMatch().get(3).makeLeftTurn();
             visualization();
         }
     }
 
     @FXML public void clickPlayersHandRight1()
     {
-        if(!pazaak.player.cardsForMatch.get(0).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(0).isUsed())
         {
-            pazaak.player.cardsForMatch.get(0).makeRightTurn();
+            pazaak.getPlayer().getCardsForMatch().get(0).makeRightTurn();
             visualization();
         }
     }
 
     @FXML public void clickPlayersHandRight2()
     {
-        if(!pazaak.player.cardsForMatch.get(1).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(1).isUsed())
         {
-            pazaak.player.cardsForMatch.get(1).makeRightTurn();
+            pazaak.getPlayer().getCardsForMatch().get(1).makeRightTurn();
             visualization();
         }
     }
 
     @FXML public void clickPlayersHandRight3()
     {
-        if(!pazaak.player.cardsForMatch.get(2).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(2).isUsed())
         {
-            pazaak.player.cardsForMatch.get(2).makeRightTurn();
+            pazaak.getPlayer().getCardsForMatch().get(2).makeRightTurn();
             visualization();
         }
     }
 
     @FXML public void clickPlayersHandRight4()
     {
-        if(!pazaak.player.cardsForMatch.get(3).isUsed())
+        if(!pazaak.getPlayer().getCardsForMatch().get(3).isUsed())
         {
-            pazaak.player.cardsForMatch.get(3).makeRightTurn();
+            pazaak.getPlayer().getCardsForMatch().get(3).makeRightTurn();
             visualization();
         }
     }
@@ -272,55 +275,55 @@ public class PazaakController
         dialog.showAndWait();
     }
 
-    protected void visualization()
+    public void visualization()
     {
         int i;
 
-        playersScore.setText(pazaak.getPlayersScore());
+        playersScore.setText(String.valueOf(pazaak.getPlayersScore()));
         opponentsScore.setText(pazaak.getOpponentsScore());
 
         circleColorizer(pazaak.getPlayersSets(), false);
         circleColorizer(pazaak.getOpponentsSets(), true);
 
-        for(i = 0; i < pazaak.cardsOnPlayersTable.size(); i++)
+        for(i = 0; i < pazaak.getCardsOnPlayersTable().size(); i++)
         {
             switch (i)
             {
-                case 0 -> imgPlayersTable1.setImage(whichSideOfCard(pazaak.cardsOnPlayersTable, i));
-                case 1 -> imgPlayersTable2.setImage(whichSideOfCard(pazaak.cardsOnPlayersTable, i));
-                case 2 -> imgPlayersTable3.setImage(whichSideOfCard(pazaak.cardsOnPlayersTable, i));
-                case 3 -> imgPlayersTable4.setImage(whichSideOfCard(pazaak.cardsOnPlayersTable, i));
-                case 4 -> imgPlayersTable5.setImage(whichSideOfCard(pazaak.cardsOnPlayersTable, i));
-                case 5 -> imgPlayersTable6.setImage(whichSideOfCard(pazaak.cardsOnPlayersTable, i));
-                case 6 -> imgPlayersTable7.setImage(whichSideOfCard(pazaak.cardsOnPlayersTable, i));
-                case 7 -> imgPlayersTable8.setImage(whichSideOfCard(pazaak.cardsOnPlayersTable, i));
-                case 8 -> imgPlayersTable9.setImage(whichSideOfCard(pazaak.cardsOnPlayersTable, i));
+                case 0 -> imgPlayersTable1.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
+                case 1 -> imgPlayersTable2.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
+                case 2 -> imgPlayersTable3.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
+                case 3 -> imgPlayersTable4.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
+                case 4 -> imgPlayersTable5.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
+                case 5 -> imgPlayersTable6.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
+                case 6 -> imgPlayersTable7.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
+                case 7 -> imgPlayersTable8.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
+                case 8 -> imgPlayersTable9.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
             }
         }
 
-        for(i = 0; i < pazaak.cardsOnOpponentsTable.size(); i++)
+        for(i = 0; i < pazaak.getCardsOnOpponentsTable().size(); i++)
         {
             switch (i)
             {
-                case 0 -> imgOpponentsTable1.setImage(whichSideOfCard(pazaak.cardsOnOpponentsTable, i));
-                case 1 -> imgOpponentsTable2.setImage(whichSideOfCard(pazaak.cardsOnOpponentsTable, i));
-                case 2 -> imgOpponentsTable3.setImage(whichSideOfCard(pazaak.cardsOnOpponentsTable, i));
-                case 3 -> imgOpponentsTable4.setImage(whichSideOfCard(pazaak.cardsOnOpponentsTable, i));
-                case 4 -> imgOpponentsTable5.setImage(whichSideOfCard(pazaak.cardsOnOpponentsTable, i));
-                case 5 -> imgOpponentsTable6.setImage(whichSideOfCard(pazaak.cardsOnOpponentsTable, i));
-                case 6 -> imgOpponentsTable7.setImage(whichSideOfCard(pazaak.cardsOnOpponentsTable, i));
-                case 7 -> imgOpponentsTable8.setImage(whichSideOfCard(pazaak.cardsOnOpponentsTable, i));
-                case 8 -> imgOpponentsTable9.setImage(whichSideOfCard(pazaak.cardsOnOpponentsTable, i));
+                case 0 -> imgOpponentsTable1.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
+                case 1 -> imgOpponentsTable2.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
+                case 2 -> imgOpponentsTable3.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
+                case 3 -> imgOpponentsTable4.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
+                case 4 -> imgOpponentsTable5.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
+                case 5 -> imgOpponentsTable6.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
+                case 6 -> imgOpponentsTable7.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
+                case 7 -> imgOpponentsTable8.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
+                case 8 -> imgOpponentsTable9.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
             }
         }
 
-        for(i = 0; i < pazaak.player.cardsForMatch.size(); i++)
+        for(i = 0; i < pazaak.getPlayer().getCardsForMatch().size(); i++)
         {
             switch (i)
             {
                 case 0 -> {
-                    if (!pazaak.player.cardsForMatch.get(i).isUsed())
-                        imgPlayersHand1.setImage(whichSideOfCard(pazaak.player.cardsForMatch, i));
+                    if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
+                        imgPlayersHand1.setImage(whichSideOfCard(pazaak.getPlayer().getCardsForMatch(), i));
                     else
                     {
                         imgPlayersHand1.setImage(null);
@@ -329,8 +332,8 @@ public class PazaakController
                     }
                 }
                 case 1 -> {
-                    if (!pazaak.player.cardsForMatch.get(i).isUsed())
-                        imgPlayersHand2.setImage(whichSideOfCard(pazaak.player.cardsForMatch, i));
+                    if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
+                        imgPlayersHand2.setImage(whichSideOfCard(pazaak.getPlayer().getCardsForMatch(), i));
                     else
                     {
                         imgPlayersHand2.setImage(null);
@@ -339,8 +342,8 @@ public class PazaakController
                     }
                 }
                 case 2 -> {
-                    if (!pazaak.player.cardsForMatch.get(i).isUsed())
-                        imgPlayersHand3.setImage(whichSideOfCard(pazaak.player.cardsForMatch, i));
+                    if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
+                        imgPlayersHand3.setImage(whichSideOfCard(pazaak.getPlayer().getCardsForMatch(), i));
                     else
                     {
                         imgPlayersHand3.setImage(null);
@@ -349,8 +352,8 @@ public class PazaakController
                     }
                 }
                 case 3 -> {
-                    if (!pazaak.player.cardsForMatch.get(i).isUsed())
-                        imgPlayersHand4.setImage(whichSideOfCard(pazaak.player.cardsForMatch, i));
+                    if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
+                        imgPlayersHand4.setImage(whichSideOfCard(pazaak.getPlayer().getCardsForMatch(), i));
                     else
                     {
                         imgPlayersHand4.setImage(null);
@@ -361,27 +364,27 @@ public class PazaakController
             }
         }
 
-        for(i = 0; i < pazaak.opponent.cardsForMatch.size(); i++)
+        for(i = 0; i < pazaak.getOpponent().getCardsForMatch().size(); i++)
         {
             switch (i)
             {
                 case 0 -> {
-                    if (!pazaak.opponent.cardsForMatch.get(i).isUsed())
+                    if (!pazaak.getOpponent().getCardsForMatch().get(i).isUsed())
                         imgOpponentsHand1.setImage(new Image(String.valueOf(new File(CardsImages.BACK.getFirstImage()).toURI())));
                     else imgOpponentsHand1.setImage(null);
                 }
                 case 1 -> {
-                    if (!pazaak.opponent.cardsForMatch.get(i).isUsed())
+                    if (!pazaak.getOpponent().getCardsForMatch().get(i).isUsed())
                         imgOpponentsHand2.setImage(new Image(String.valueOf(new File(CardsImages.BACK.getFirstImage()).toURI())));
                     else imgOpponentsHand2.setImage(null);
                 }
                 case 2 -> {
-                    if (!pazaak.opponent.cardsForMatch.get(i).isUsed())
+                    if (!pazaak.getOpponent().getCardsForMatch().get(i).isUsed())
                         imgOpponentsHand3.setImage(new Image(String.valueOf(new File(CardsImages.BACK.getFirstImage()).toURI())));
                     else imgOpponentsHand3.setImage(null);
                 }
                 case 3 -> {
-                    if (!pazaak.opponent.cardsForMatch.get(i).isUsed())
+                    if (!pazaak.getOpponent().getCardsForMatch().get(i).isUsed())
                         imgOpponentsHand4.setImage(new Image(String.valueOf(new File(CardsImages.BACK.getFirstImage()).toURI())));
                     else imgOpponentsHand4.setImage(null);
                 }
@@ -444,7 +447,7 @@ public class PazaakController
         leftGreen.setFill(Color.GREY);
     }
 
-    protected void clearImages()
+    public void clearImages()
     {
         imgPlayersTable1.setImage(null);
         imgPlayersTable2.setImage(null);
@@ -467,7 +470,7 @@ public class PazaakController
         imgOpponentsTable9.setImage(null);
     }
 
-    protected void hideAllHandButtons()
+    public void hideAllHandButtons()
     {
         btnPlayersHandLeft1.setVisible(false);
         btnPlayersHandLeft2.setVisible(false);
@@ -490,32 +493,32 @@ public class PazaakController
     {
         deactivateOldHandButtons();
 
-        for (int i = 0; i < pazaak.player.cardsForMatch.size(); i++)
+        for (int i = 0; i < pazaak.getPlayer().getCardsForMatch().size(); i++)
         {
             switch (i)
             {
                 case 0 -> {
-                    if(!pazaak.player.cardsForMatch.get(i).getCard().getImages().getSecondImage().equals(""))
+                    if(!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getSecondImage().equals(""))
                         btnPlayersHandLeft1.setVisible(true);
-                    if(!pazaak.player.cardsForMatch.get(i).getCard().getImages().getThirdImage().equals(""))
+                    if(!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getThirdImage().equals(""))
                         btnPlayersHandRight1.setVisible(true);
                 }
                 case 1 -> {
-                    if(!pazaak.player.cardsForMatch.get(i).getCard().getImages().getSecondImage().equals(""))
+                    if(!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getSecondImage().equals(""))
                         btnPlayersHandLeft2.setVisible(true);
-                    if(!pazaak.player.cardsForMatch.get(i).getCard().getImages().getThirdImage().equals(""))
+                    if(!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getThirdImage().equals(""))
                         btnPlayersHandRight2.setVisible(true);
                 }
                 case 2 -> {
-                    if(!pazaak.player.cardsForMatch.get(i).getCard().getImages().getSecondImage().equals(""))
+                    if(!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getSecondImage().equals(""))
                         btnPlayersHandLeft3.setVisible(true);
-                    if(!pazaak.player.cardsForMatch.get(i).getCard().getImages().getThirdImage().equals(""))
+                    if(!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getThirdImage().equals(""))
                         btnPlayersHandRight3.setVisible(true);
                 }
                 case 3 -> {
-                    if(!pazaak.player.cardsForMatch.get(i).getCard().getImages().getSecondImage().equals(""))
+                    if(!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getSecondImage().equals(""))
                         btnPlayersHandLeft4.setVisible(true);
-                    if(!pazaak.player.cardsForMatch.get(i).getCard().getImages().getThirdImage().equals(""))
+                    if(!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getThirdImage().equals(""))
                         btnPlayersHandRight4.setVisible(true);
                 }
             }

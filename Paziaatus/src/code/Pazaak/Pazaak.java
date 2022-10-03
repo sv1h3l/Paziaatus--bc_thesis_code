@@ -1,29 +1,31 @@
-package pcg;
+package Pazaak;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import beings.*;
+import main.PaziaatusController;
+
 public class Pazaak
 {
-    private PazaakController controller;
+    private PaziaatusController controller;
     private int playersSets;
     private int opponentsSets;
-    protected int playersScore;
+    private int playersScore;
     private int opponentsScore;
-    protected List<RealCard> cardsOnPlayersTable;
-    protected List<RealCard> cardsOnOpponentsTable;
-    protected boolean playerStand;
+    private List<RealCard> cardsOnPlayersTable;
+    private List<RealCard> cardsOnOpponentsTable;
+    private boolean playerStand;
     private boolean opponentStand;
-    protected boolean playerIsOnTurn;
     private MainDeck mainDeck;
     private SideDeck sideDeck;
-    protected Person player;
-    protected Person opponent;
+    private PazaakPlayer player;
+    private PazaakPlayer opponent;
     private boolean end;
 
-    public Pazaak(PazaakController controller)
+    public Pazaak(PaziaatusController controller)
     {
-        this.controller             = controller;
+        this.controller         	= controller;
         this.playersSets            = 0;
         this.opponentsSets          = 0;
         this.playersScore           = 0;
@@ -32,15 +34,14 @@ public class Pazaak
         this.cardsOnOpponentsTable  = new ArrayList<>();
         this.playerStand            = false;
         this.opponentStand          = false;
-        this.playerIsOnTurn         = true;
         this.mainDeck               = new MainDeck();
         this.sideDeck               = new SideDeck();
-        this.player                 = new Person();
-        this.opponent               = new Person();
+        this.player                 = new PazaakPlayer();
+        this.opponent               = new PazaakPlayer();
         this.end                    = false;
     }
 
-    protected void newGame()
+    public void newGame()
     {
         mainDeck.fillAndShuffleMainDeck();
 
@@ -56,29 +57,31 @@ public class Pazaak
         controller.visualization();
     }
 
-    protected void opponentsTurn()
+    
+    
+    public void opponentsTurn()
     {
         if (!opponentStand)
         {
             opponentsScore = useCard(mainDeck.getAndRemoveCard(), cardsOnOpponentsTable);
 
-            if(playersScore > 20)
+            if(getPlayersScore() > 20)
             {
                 opponentStand = true;
             }
 
-            if(opponentsScore < 20 && opponentsScore > playersScore && playerStand)
+            if(opponentsScore < 20 && opponentsScore > getPlayersScore() && playerStand)
             {
                 opponentStand = true;
             }
 
             else
             {
-                for (int i = 0; i < opponent.cardsForMatch.size(); i++)
+                for (int i = 0; i < opponent.getCardsForMatch().size(); i++)
                 {
                     if (opponentConsidersUsingACard(opponent.getCardForMatch(i)))
                     {
-                        opponent.cardsForMatch.get(i).used();
+                        opponent.getCardsForMatch().get(i).used();
                     }
                 }
                 if (opponentsScore == 18 || opponentsScore == 19 || opponentsScore == 20)
@@ -211,7 +214,7 @@ public class Pazaak
 
     private void endOfTurn()
     {
-        if(playersScore>20)
+        if(getPlayersScore()>20)
         {
             playerStand = true;
         }
@@ -223,17 +226,17 @@ public class Pazaak
 
         if(playerStand && opponentStand)
         {
-            if (opponentsScore == playersScore)
+            if (opponentsScore == getPlayersScore())
             {
                 controller.dialogDraw();
                 newGameSet();
             }
-            else if(playersScore > 20 && opponentsScore > 20)
+            else if(getPlayersScore() > 20 && opponentsScore > 20)
             {
                 controller.dialogDraw();
                 newGameSet();
             }
-            else if(playersScore > 20)
+            else if(getPlayersScore() > 20)
             {
                 opponentsSets++;
                 controller.dialogOpponentWinsTheSet();
@@ -245,7 +248,7 @@ public class Pazaak
                 controller.dialogPlayerWinsTheSet();
                 newGameSet();
             }
-            else if (opponentsScore < playersScore)
+            else if (opponentsScore < getPlayersScore())
             {
                 playersSets++;
                 controller.dialogPlayerWinsTheSet();
@@ -309,7 +312,7 @@ public class Pazaak
         controller.clearImages();
     }
 
-    protected int useCard(RealCard card, List<RealCard> personsCardsOnTable)
+    public int useCard(RealCard card, List<RealCard> personsCardsOnTable)
     {
         personsCardsOnTable.add(card);
         return calculateScore(personsCardsOnTable);
@@ -405,14 +408,45 @@ public class Pazaak
         return opponentsSets;
     }
 
-    public String getPlayersScore()
+    public int getPlayersScore()
     {
-        return String.valueOf(playersScore);
+        return playersScore;
     }
 
     public String getOpponentsScore()
     {
         return String.valueOf(opponentsScore);
     }
+
+	public List<RealCard> getCardsOnPlayersTable()
+	{
+		return cardsOnPlayersTable;
+	}
+
+	public List<RealCard> getCardsOnOpponentsTable()
+	{
+		return cardsOnOpponentsTable;
+	}
+
+	public PazaakPlayer getPlayer()
+	{
+		return player;
+	}
+
+	public PazaakPlayer getOpponent()
+	{
+		return opponent;
+	}
+
+	public void setPlayerStand(boolean playerStand)
+	{
+		this.playerStand = playerStand;
+	}
+
+	public void setPlayersScore(int playersScore)
+	{
+		this.playersScore = playersScore;
+	}
+
+	
 }
-/**/

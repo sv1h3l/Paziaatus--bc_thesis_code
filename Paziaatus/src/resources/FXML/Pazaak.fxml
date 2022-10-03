@@ -13,18 +13,18 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="782.0" prefWidth="855.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pcg.PazaakController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="782.0" prefWidth="855.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.PaziaatusController">
    <children>
       <ImageView id="background" fitHeight="782.0" fitWidth="855.0" pickOnBounds="true">
          <image>
-            <Image url="@images/background.png" />
+            <Image url="images/background.png" />
          </image>
       </ImageView>
       <Line id="verticalLine" endX="427.5" endY="745.0" startX="427.5" stroke="#6b6b6b" />
       <Line id="topHorizontalLine" endX="855.0" endY="35.0" startY="35.0" stroke="#6b6b6b" style="-fx-stroke-dash-array: 8;" />
       <Line id="middleHorizontalLine" endX="855.0" endY="594.0" startY="594.0" stroke="#6b6b6b" style="-fx-stroke-dash-array: 8;" />
       <Line id="bottomHorizontalLine" endX="855.0" endY="745.0" startX="427.5" startY="745.0" stroke="#6b6b6b" />
-      <GridPane fx:id="playersTable" layoutX="5.0" layoutY="5.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="589.0" prefWidth="420.0">
+      <GridPane layoutX="5.0" layoutY="5.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="589.0" prefWidth="420.0">
          <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="140.0" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="140.0" />
@@ -153,7 +153,7 @@
                <graphic>
                   <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@images/change.png" />
+                        <Image url="images/change.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -162,7 +162,7 @@
                <graphic>
                   <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@images/change.png" />
+                        <Image url="images/change.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -174,7 +174,7 @@
                <graphic>
                   <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@images/change.png" />
+                        <Image url="images/change.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -186,7 +186,7 @@
                <graphic>
                   <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@images/change.png" />
+                        <Image url="images/change.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -198,7 +198,7 @@
                <graphic>
                   <ImageView disable="true" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@images/change.png" />
+                        <Image url="images/change.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -210,7 +210,7 @@
                <graphic>
                   <ImageView disable="true" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@images/change.png" />
+                        <Image url="images/change.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -222,7 +222,7 @@
                <graphic>
                   <ImageView disable="true" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@images/change.png" />
+                        <Image url="images/change.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -234,7 +234,7 @@
                <graphic>
                   <ImageView disable="true" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@images/change.png" />
+                        <Image url="images/change.png" />
                      </image>
                   </ImageView>
                </graphic>

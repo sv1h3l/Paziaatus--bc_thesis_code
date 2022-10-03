@@ -1,13 +1,18 @@
-package pcg;
+package beings;
 
 import java.util.ArrayList;
 
-public class Person
-{
-    private static final int NUMVER_OF_CARDS_IN_HAND = 4;
-    protected ArrayList<RealCard> cardsForMatch;
+import Pazaak.RealCard;
+import Pazaak.Shuffler;
 
-    public Person()
+public class PazaakPlayer
+{
+    private static final int NUMBER_OF_CARDS_IN_HAND = 4;
+    private ArrayList<RealCard> cardsForMatch;
+    /*private Item artifact;
+    private Item implant;*/
+
+    public PazaakPlayer()
     {
         cardsForMatch = null;
     }
@@ -19,14 +24,24 @@ public class Person
 
         duplicatedSideDeck = Shuffler.shuffle(duplicatedSideDeck);
 
-        for(int i = 0; i < NUMVER_OF_CARDS_IN_HAND; i++)
+        for(int i = 0; i < NUMBER_OF_CARDS_IN_HAND; i++)
         {
             cardsForMatch.add(duplicatedSideDeck.get(i));
         }
         this.cardsForMatch = cardsForMatch;
     }
+    
+    public ArrayList<RealCard> getCardsForMatch()
+	{
+		return cardsForMatch;
+	}
 
-    public RealCard getCardForMatch(int i)
+	public void setCardsForMatch(ArrayList<RealCard> cardsForMatch)
+	{
+		this.cardsForMatch = cardsForMatch;
+	}
+
+	public RealCard getCardForMatch(int i)
     {
         return cardsForMatch.get(i);
     }
