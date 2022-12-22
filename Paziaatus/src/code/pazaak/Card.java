@@ -1,4 +1,4 @@
-package Pazaak;
+package pazaak;
 
 public enum Card
 {

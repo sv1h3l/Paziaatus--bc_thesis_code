@@ -2,8 +2,8 @@ package beings;
 
 import java.util.ArrayList;
 
-import Pazaak.RealCard;
-import Pazaak.Shuffler;
+import pazaak.RealCard;
+import pazaak.Shuffler;
 
 public class PazaakPlayer
 {
