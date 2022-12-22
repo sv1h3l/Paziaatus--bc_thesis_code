@@ -1,4 +1,4 @@
-package pazaak;
+package Pazaak;
 
 public class RealCard
 {

@@ -11,12 +11,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
-import pazaak.CardsImages;
-import pazaak.Pazaak;
-import pazaak.RealCard;
 
 import java.io.File;
 import java.util.List;
+
+import Pazaak.CardsImages;
+import Pazaak.Pazaak;
+import Pazaak.RealCard;
 
 public class PaziaatusController
 {

@@ -1,4 +1,4 @@
-package pazaak;
+package Pazaak;
 
 import java.util.ArrayList;
 import java.util.List;

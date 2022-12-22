@@ -2,9 +2,13 @@ package beings;
 
 public class Player extends PazaakPlayer
 {
+	private int inventoryCapacity;
+	private int maxHealthPoints;
+	private int maxFullnessPoints;
+	private int maxHydrationPoints;
 	private int actualHealthPoints;
-	private int actualFullnessPoints;
-	private int actualHydrationPoints;
+	private int actualHealthPointsFullnessPoints;
+	private int actualHealthPointsHydrationPoints;
 	private int stressValue;
 	private String planet;
 	private int weightLevel;
