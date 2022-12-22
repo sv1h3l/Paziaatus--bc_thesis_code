@@ -1,0 +1,29 @@
+{
+	"folders": {},
+	"connections": {
+		"h2_embedded-1852a833a2f-b001e6dd8e2500b": {
+			"provider": "h2",
+			"driver": "h2_embedded",
+			"name": "h2-db",
+			"save-password": true,
+			"read-only": false,
+			"configuration": {
+				"url": "jdbc:h2:file:~\\Hacker-Hajzy\\IT\\Java\\Eclipse\\workspace\\git\\bc-thesis-code\\Paziaatus\\src\\resources\\database\\h2-db",
+				"configurationType": "URL",
+				"type": "dev",
+				"auth-model": "native"
+			}
+		}
+	},
+	"connection-types": {
+		"dev": {
+			"name": "Development",
+			"color": "255,255,255",
+			"description": "Regular development database",
+			"auto-commit": true,
+			"confirm-execute": false,
+			"confirm-data-change": false,
+			"auto-close-transactions": false
+		}
+	}
+}
