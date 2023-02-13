@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.effect.BoxBlur?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<Pane stylesheets="style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.PaziaatusController">
+   <children>
+      <ImageView fitHeight="900.0" fitWidth="1600.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/background.jpg" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="90.0" fitWidth="90.0" layoutX="1484.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fitHeight="90.0" fitWidth="90.0" layoutX="1484.0" layoutY="134.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fitHeight="90.0" fitWidth="90.0" layoutX="1484.0" layoutY="251.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fitHeight="50.0" fitWidth="50.0" layoutX="1529.0" layoutY="367.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@images/icons/cog.png" />
+         </image>
+      </ImageView>
+      <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0">
+         <children>
+            <ImageView fx:id="imgOpponentsTable1" fitHeight="152.5" fitWidth="104.75" layoutX="137.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsTable2" fitHeight="152.5" fitWidth="104.75" layoutX="328.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsTable3" fitHeight="152.5" fitWidth="104.75" layoutX="519.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsTable4" fitHeight="152.5" fitWidth="104.75" layoutX="137.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsTable5" fitHeight="152.5" fitWidth="104.75" layoutX="328.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsTable6" fitHeight="152.5" fitWidth="104.75" layoutX="519.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsTable7" fitHeight="152.5" fitWidth="104.75" layoutX="137.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsTable8" fitHeight="152.5" fitWidth="104.75" layoutX="328.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsTable9" fitHeight="152.5" fitWidth="104.75" layoutX="519.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersTable1" fitHeight="152.5" fitWidth="104.75" layoutX="875.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersTable2" fitHeight="152.5" fitWidth="104.75" layoutX="1066.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersTable3" fitHeight="152.5" fitWidth="104.75" layoutX="1257.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersTable4" fitHeight="152.5" fitWidth="104.75" layoutX="875.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersTable5" fitHeight="152.5" fitWidth="104.75" layoutX="1066.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersTable6" fitHeight="152.5" fitWidth="104.75" layoutX="1257.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersTable7" fitHeight="152.5" fitWidth="104.75" layoutX="875.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersTable8" fitHeight="152.5" fitWidth="104.75" layoutX="1066.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersTable9" fitHeight="152.5" fitWidth="104.75" layoutX="1257.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersHand1" fitHeight="152.5" fitWidth="104.75" layoutX="856.0" layoutY="652.0" onMouseClicked="#firstCardClicked" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersHand2" fitHeight="152.5" fitWidth="104.75" layoutX="996.0" layoutY="652.0" onMouseClicked="#secondCardClicked" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersHand3" fitHeight="152.5" fitWidth="104.75" layoutX="1136.0" layoutY="652.0" onMouseClicked="#thirdCardClicked" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgPlayersHand4" fitHeight="152.5" fitWidth="104.75" layoutX="1276.0" layoutY="652.0" onMouseClicked="#fourthCardClicked" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsHand1" fitHeight="152.5" fitWidth="104.75" layoutX="119.0" layoutY="652.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsHand2" fitHeight="152.5" fitWidth="104.75" layoutX="259.0" layoutY="652.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsHand3" fitHeight="152.5" fitWidth="104.75" layoutX="399.0" layoutY="652.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imgOpponentsHand4" fitHeight="152.5" fitWidth="104.75" layoutX="539.0" layoutY="652.0" pickOnBounds="true" preserveRatio="true" />
+            <Text fx:id="playersScore" layoutX="896.0" layoutY="615.0" stroke="WHITE" strokeType="OUTSIDE" strokeWidth="3.0" text="0" textAlignment="CENTER">
+               <font>
+                  <Font size="30.0" />
+               </font>
+            </Text>
+            <Text fx:id="opponentsScore" layoutX="537.0" layoutY="615.0" stroke="WHITE" strokeType="OUTSIDE" strokeWidth="3.0" text="0" textAlignment="CENTER">
+               <font>
+                  <Font size="30.0" />
+               </font>
+            </Text>
+            <ImageView fx:id="point1En" fitHeight="16.0" fitWidth="48.0" layoutX="132.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+               <image>
+                  <Image url="@images/pointEn.png" />
+               </image></ImageView>
+            <ImageView fx:id="point2En" fitHeight="16.0" fitWidth="48.0" layoutX="181.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+               <image>
+                  <Image url="@images/pointEn.png" />
+               </image></ImageView>
+            <ImageView fx:id="point3En" fitHeight="16.0" fitWidth="48.0" layoutX="230.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+               <image>
+                  <Image url="@images/pointEn.png" />
+               </image></ImageView>
+            <ImageView fx:id="point3Pl" fitHeight="16.0" fitWidth="48.0" layoutX="1223.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+               <image>
+                  <Image url="@images/pointPl.png" />
+               </image></ImageView>
+            <ImageView fx:id="point2Pl" fitHeight="16.0" fitWidth="48.0" layoutX="1272.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+               <image>
+                  <Image url="@images/pointPl.png" />
+               </image></ImageView>
+            <ImageView fx:id="point1Pl" fitHeight="16.0" fitWidth="48.0" layoutX="1321.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+               <image>
+                  <Image url="@images/pointPl.png" />
+               </image></ImageView>
+            <Button fx:id="btnPlayersHandLeft1" layoutX="869.0" layoutY="814.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#clickPlayersHandLeft1" prefHeight="20.0" prefWidth="20.0" textAlignment="CENTER" visible="false">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/change.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button fx:id="btnPlayersHandRight1" layoutX="929.0" layoutY="814.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#clickPlayersHandRight1" prefHeight="20.0" prefWidth="20.0" textAlignment="CENTER" visible="false">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/change.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button fx:id="btnPlayersHandLeft2" layoutX="1009.0" layoutY="814.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#clickPlayersHandLeft2" prefHeight="20.0" prefWidth="20.0" textAlignment="CENTER" visible="false">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/change.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button fx:id="btnPlayersHandRight2" layoutX="1069.0" layoutY="814.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#clickPlayersHandRight2" prefHeight="20.0" prefWidth="20.0" textAlignment="CENTER" visible="false">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/change.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button fx:id="btnPlayersHandLeft3" layoutX="1149.0" layoutY="814.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#clickPlayersHandLeft3" prefHeight="20.0" prefWidth="20.0" textAlignment="CENTER" visible="false">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/change.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button fx:id="btnPlayersHandRight3" layoutX="1209.0" layoutY="814.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#clickPlayersHandRight3" prefHeight="20.0" prefWidth="20.0" textAlignment="CENTER" visible="false">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/change.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button fx:id="btnPlayersHandLeft4" layoutX="1289.0" layoutY="814.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#clickPlayersHandLeft4" prefHeight="20.0" prefWidth="20.0" textAlignment="CENTER" visible="false">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/change.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button fx:id="btnPlayersHandRight4" layoutX="1349.0" layoutY="814.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#clickPlayersHandRight4" prefHeight="20.0" prefWidth="20.0" textAlignment="CENTER" visible="false">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/change.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button fx:id="btnStart" layoutX="355.0" layoutY="356.0" mnemonicParsing="false" onAction="#start" text="START" />
+            <Button fx:id="btnStand" disable="true" layoutX="1477.0" layoutY="536.0" mnemonicParsing="false" onAction="#stand" text="STÁT" />
+            <Button fx:id="btnEndTurn" disable="true" layoutX="1475.0" layoutY="496.0" mnemonicParsing="false" onAction="#endTurn" text="DALŠÍ" />
+         </children>
+      </Pane>
+   </children>
+   <effect>
+      <BoxBlur height="2.0" iterations="0" width="2.0" />
+   </effect>
+</Pane>

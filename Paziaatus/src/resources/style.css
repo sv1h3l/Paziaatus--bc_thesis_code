@@ -1,0 +1,9 @@
+ @font-face {
+    font-family: SofachromeRg-Regular;
+    src: url('sofachrome.otf');
+}
+
+#playersScore, #opponentsScore
+{
+ -fx-font-family: 'SofachromeRg-Regular';
+}

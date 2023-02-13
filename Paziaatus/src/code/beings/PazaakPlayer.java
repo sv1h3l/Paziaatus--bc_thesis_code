@@ -2,13 +2,14 @@ package beings;
 
 import java.util.ArrayList;
 
-import Pazaak.RealCard;
-import Pazaak.Shuffler;
+import pazaak.RealCard;
+import pazaak.Shuffler;
 
 public class PazaakPlayer
 {
     private static final int NUMBER_OF_CARDS_IN_HAND = 4;
     private ArrayList<RealCard> cardsForMatch;
+    public RealCard lockedOpponentsPlayedCard;
     /*private Item artifact;
     private Item implant;*/
 
@@ -30,6 +31,7 @@ public class PazaakPlayer
         }
         this.cardsForMatch = cardsForMatch;
     }
+    
     
     public ArrayList<RealCard> getCardsForMatch()
 	{

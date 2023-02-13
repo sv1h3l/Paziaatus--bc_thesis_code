@@ -1,4 +1,4 @@
-package Pazaak;
+package pazaak;
 
 public class RealCard
 {
@@ -28,6 +28,16 @@ public class RealCard
     public boolean hasInactiveRightTurn()
     {
         return inactiveRightTurn;
+    }
+    
+    public void resetLeftTurn()
+    {
+        inactiveLeftTurn = true;
+    }
+    
+    public void resetRightTurn()
+    {
+    	inactiveRightTurn = true;
     }
 
     public void setLeftTurnActive()

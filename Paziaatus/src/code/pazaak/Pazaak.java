@@ -1,4 +1,4 @@
-package Pazaak;
+package pazaak;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,26 +22,28 @@ public class Pazaak
     private PazaakPlayer player;
     private PazaakPlayer opponent;
     private boolean end;
+    private boolean opponentPlayedCard;
+    private int whichCardOpPlayed;
 
     public Pazaak(PaziaatusController controller)
     {
-        this.controller         	= controller;
-        this.playersSets            = 0;
-        this.opponentsSets          = 0;
-        this.playersScore           = 0;
-        this.opponentsScore         = 0;
-        this.cardsOnPlayersTable    = new ArrayList<>();
-        this.cardsOnOpponentsTable  = new ArrayList<>();
-        this.playerStand            = false;
-        this.opponentStand          = false;
-        this.mainDeck               = new MainDeck();
-        this.sideDeck               = new SideDeck();
-        this.player                 = new PazaakPlayer();
-        this.opponent               = new PazaakPlayer();
-        this.end                    = false;
+        this.controller =				controller;
+        this.playersSets =				0;
+        this.opponentsSets =			0;
+        this.playersScore =				0;
+        this.opponentsScore =			0;
+        this.cardsOnPlayersTable =		new ArrayList<>();
+        this.cardsOnOpponentsTable =	new ArrayList<>();
+        this.playerStand =				false;
+        this.opponentStand =			false;
+        this.mainDeck =					new MainDeck();
+        this.sideDeck =					new SideDeck();
+        this.player =					new PazaakPlayer();
+        this.opponent =					new PazaakPlayer();
+        this.end =						false;
     }
 
-    public void newGame()
+    public void newGame() throws InterruptedException
     {
         mainDeck.fillAndShuffleMainDeck();
 
@@ -50,188 +52,242 @@ public class Pazaak
         sideDeck.fillSideDeck();
         opponent.makeCardsForMatch(sideDeck.getSideDeck());
 
+        controller.showHandCards();
         controller.activateHandButtons();
-
+        controller.visualizationPlayersSide();
+        
         playersScore = useCard(mainDeck.getAndRemoveCard(), cardsOnPlayersTable);
 
-        controller.visualization();
+        controller.visualizeWithShortDelayPlsTable.play();
+        controller.visualizationOpponentsSide();
     }
 
-    
-    
-    public void opponentsTurn()
+    public void opponentsTurn() throws InterruptedException
     {
+    	opponentPlayedCard = false;
+    	int temporaryScoreOfOpponentsCards = 0;
+    	
         if (!opponentStand)
         {
             opponentsScore = useCard(mainDeck.getAndRemoveCard(), cardsOnOpponentsTable);
-
-            if(getPlayersScore() > 20)
+            controller.visualizeWithDelayOpsTable.play();
+            temporaryScoreOfOpponentsCards = opponentsScore;
+            
+            if (opponentConsidersUsingACard(opponent.getCardsForMatch()))
             {
+            	opponentPlayedCard = true;
+            	temporaryScoreOfOpponentsCards = calculateScore(cardsOnOpponentsTable, true);
+                
+                controller.opponentPlayedCard.play();
+            }
+            
+            if(temporaryScoreOfOpponentsCards == 20)
+            	opponentStand = true;
+            else if(getPlayersScore() > 20)
                 opponentStand = true;
-            }
-
-            if(opponentsScore < 20 && opponentsScore > getPlayersScore() && playerStand)
-            {
+            else if(temporaryScoreOfOpponentsCards > getPlayersScore() && playerStand)
                 opponentStand = true;
-            }
-
-            else
-            {
-                for (int i = 0; i < opponent.getCardsForMatch().size(); i++)
-                {
-                    if (opponentConsidersUsingACard(opponent.getCardForMatch(i)))
-                    {
-                        opponent.getCardsForMatch().get(i).used();
-                    }
-                }
-                if (opponentsScore == 18 || opponentsScore == 19 || opponentsScore == 20)
-                {
-                    opponentStand = true;
-                }
-            }
+            else if((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18) && temporaryScoreOfOpponentsCards == getPlayersScore() && playerStand)
+            	opponentStand = true;
+            else if((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18) && temporaryScoreOfOpponentsCards < getPlayersScore() && playerStand)
+            	opponentStand = false;
+            else if((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18) && temporaryScoreOfOpponentsCards > getPlayersScore())
+            	opponentStand = true;
+            else if(temporaryScoreOfOpponentsCards > 20)
+            	opponentStand = true;
+            
+            if(opponentStand)
+            	controller.darkenOpponentsCards();
         }
-        controller.visualization();
-        endOfTurn();
+        
+        
+        if (!opponentPlayedCard)
+        	temporaryScoreOfOpponentsCards = 0;
+        
+        endOfTurn(temporaryScoreOfOpponentsCards);
+    }
+    
+    public boolean opponentConsidersUsingACard(List<RealCard> cards)
+    {
+    	int scoreIfCardIsUsed[] = new int[4], index = 0;
+    	
+    	List<RealCard> opponentConsidersToUseOneOfTheseCards = new ArrayList<>();
+    	
+    	for (RealCard card : cards)
+    	{
+    		card.resetLeftTurn();
+    		card.resetRightTurn();
+    		
+		    if (card.getCard().isItDoubleCard() &&
+		            (opponentsScore == 10 || opponentsScore == 9))
+		    {
+		    	scoreIfCardIsUsed[index++] = opponentsScore*2;
+		    	opponentConsidersToUseOneOfTheseCards.add(card);
+		    }
+		
+		    else if (card.getCard().getSecondValue() == 0)
+		    {
+		        if (!card.getCard().isItMinusCard())
+		        {
+		            if (opponentsScore + card.getCard().getFirstValue() == 20 ||
+		                    opponentsScore + card.getCard().getFirstValue() == 19)
+		            {
+		            	scoreIfCardIsUsed[index++] = opponentsScore + card.getCard().getFirstValue();
+		            	opponentConsidersToUseOneOfTheseCards.add(card);
+		            }
+		        }
+		        else
+		        {
+		            if (opponentsScore > 20 &&
+		                    opponentsScore - card.getCard().getFirstValue() < 21)
+		            {
+		            	scoreIfCardIsUsed[index++] = opponentsScore - card.getCard().getFirstValue();
+		            	opponentConsidersToUseOneOfTheseCards.add(card);
+		            }
+		        }
+		    }
+		
+		    else if (card.getCard().getFirstValue() == 1
+		            && card.getCard().getSecondValue() == 2)
+		    {
+		        if (opponentsScore == 18 || opponentsScore == 17 || opponentsScore == 16)
+		        {
+		            card.setLeftTurnActive();
+		            scoreIfCardIsUsed[index++] = opponentsScore + 2;
+		            opponentConsidersToUseOneOfTheseCards.add(card);
+		        }
+		        else if (opponentsScore == 19)
+		        {
+		        	scoreIfCardIsUsed[index++] = 20;
+		        	opponentConsidersToUseOneOfTheseCards.add(card);
+		        }
+		        else if (opponentsScore == 21)
+		        {
+		            card.setRightTurnActive();
+		            scoreIfCardIsUsed[index++] = 20;
+		            opponentConsidersToUseOneOfTheseCards.add(card);
+		        }
+		        else if (opponentsScore == 22)
+		        {
+		            card.setLeftTurnActive();
+		            card.setRightTurnActive();
+		            scoreIfCardIsUsed[index++] = 20;
+		            opponentConsidersToUseOneOfTheseCards.add(card);
+		        }
+		    }
+		
+		    else if (card.getCard().equals(Card.TWO_AND_FOUR) && opponentsScore > 20)
+		    {
+		        int countOf2 = 0, countOf4 = 0;
+		        for (RealCard cardFromTable : cardsOnOpponentsTable)
+		        {
+		            if (cardFromTable.getCard().getFirstValue() == 2)
+		                countOf2++;
+		            else if ( cardFromTable.getCard().getFirstValue() == 4)
+		                countOf4++;
+		        }
+		        if (opponentsScore-((countOf2*2+countOf4*4)*2) < 21 )
+		        {
+		        	scoreIfCardIsUsed[index++] = opponentsScore -((countOf2*2+countOf4*4)*2);
+		        	opponentConsidersToUseOneOfTheseCards.add(card);
+		        }
+		    }
+		
+		    else if (card.getCard().equals(Card.THREE_AND_SIX) && opponentsScore > 20)
+		    {
+		        int countOf3 = 0, countOf6 = 0;
+		        for (RealCard cardFromTable : cardsOnOpponentsTable)
+		        {
+		            if (cardFromTable.getCard().getFirstValue() == 3)
+		                countOf3++;
+		            else if ( cardFromTable.getCard().getFirstValue() == 6)
+		                countOf6++;
+		        }
+		        if (opponentsScore-((countOf3*3+countOf6*6)*2) < 21 )
+		        {
+		        	scoreIfCardIsUsed[index++] = opponentsScore -((countOf3*3+countOf6*6)*2);
+		        	opponentConsidersToUseOneOfTheseCards.add(card);
+		        }
+		    }
+		
+		    else
+		    {
+		        if (opponentsScore < 20)
+		        {
+		            if ((card.getCard().equals(Card.PLUS_ONE) || card.getCard().equals(Card.PLUS_TWO) || card.getCard().equals(Card.PLUS_THREE)
+		            		|| card.getCard().equals(Card.PLUS_FOUR) || card.getCard().equals(Card.PLUS_FIVE) || card.getCard().equals(Card.PLUS_SIX))
+		            		&& (card.getCard().getFirstValue() + opponentsScore == 19 || card.getCard().getFirstValue() + opponentsScore == 20))
+		            {
+		            	scoreIfCardIsUsed[index++] = opponentsScore + card.getCard().getFirstValue();
+		            	opponentConsidersToUseOneOfTheseCards.add(card);
+		            }
+		        }
+		        else if ((card.getCard().equals(Card.MINUS_ONE) || card.getCard().equals(Card.MINUS_TWO) || card.getCard().equals(Card.MINUS_THREE)
+	            		|| card.getCard().equals(Card.MINUS_FOUR) || card.getCard().equals(Card.MINUS_FIVE) || card.getCard().equals(Card.MINUS_SIX))
+	            		&& opponentsScore - card.getCard().getFirstValue() < 21)
+		        {
+		            card.setLeftTurnActive();
+		            scoreIfCardIsUsed[index++] = opponentsScore - card.getCard().getFirstValue();
+		            opponentConsidersToUseOneOfTheseCards.add(card);
+		        }
+		    }
+		}
+    	int score = scoreIfCardIsUsed[0], nth = 0;
+    	if(scoreIfCardIsUsed[1] > score)
+    	{
+    		score = scoreIfCardIsUsed[1];
+    		nth = 1;
+    	}
+    	if(scoreIfCardIsUsed[2] > score)
+    	{
+    		score = scoreIfCardIsUsed[2];
+    		nth = 2;
+    	}
+    	if(scoreIfCardIsUsed[3] > score)
+    	{
+    		score = scoreIfCardIsUsed[3];
+    		nth = 3;
+    	}
+    	
+    	
+    	if(playerStand && opponentsScore > playersScore && opponentsScore <= 20)
+    		return false;
+    	else if ((score == 18 || score == 19 || score == 20) && score >= playersScore && !cards.get(nth).isUsed())
+    	{
+    		opponent.lockedOpponentsPlayedCard = cards.get(nth);
+    		whichCardOpPlayed = nth;
+    		return true;
+    	}
+    	else return false;
     }
 
-    public boolean opponentConsidersUsingACard(RealCard card)
+    private void endOfTurn(int valueOfTemporaryUsedCard) throws InterruptedException
     {
-        if (card.isUsed())
-            return false;
-
-        if (card.getCard().isItDoubleCard() &&
-                (opponentsScore == 10 || opponentsScore == 9))
-        {
-            opponentsScore = useCard(card, cardsOnOpponentsTable);
-            return true;
-        }
-
-        else if (card.getCard().getSecondValue() == 0)
-        {
-            if (!card.getCard().isItMinusCard())
-            {
-                if (opponentsScore + card.getCard().getFirstValue() == 20 ||
-                        opponentsScore + card.getCard().getFirstValue() == 19)
-                {
-                    opponentsScore = useCard(card, cardsOnOpponentsTable);
-                    return true;
-                }
-            }
-            else
-            {
-                if (opponentsScore > 20 &&
-                        opponentsScore - card.getCard().getFirstValue() < 21)
-                {
-                    opponentsScore = useCard(card, cardsOnOpponentsTable);
-                    return true;
-                }
-            }
-        }
-
-        else if (card.getCard().getFirstValue() == 1
-                && card.getCard().getSecondValue() == 2)
-        {
-            if (opponentsScore == 18 ||
-                    opponentsScore == 17)
-            {
-                card.setLeftTurnActive();
-                opponentsScore = useCard(card, cardsOnOpponentsTable);
-                return true;
-            }
-            else if (opponentsScore == 19)
-            {
-                opponentsScore = useCard(card, cardsOnOpponentsTable);
-                return true;
-            }
-            else if (opponentsScore == 21)
-            {
-                card.setRightTurnActive();
-                opponentsScore = useCard(card, cardsOnOpponentsTable);
-                return true;
-            }
-            else if (opponentsScore == 22)
-            {
-                card.setLeftTurnActive();
-                card.setRightTurnActive();
-                return true;
-            }
-        }
-
-        else if (card.getCard().equals(Card.TWO_AND_FOUR) && opponentsScore > 20)
-        {
-            int countOf2 = 0, countOf4 = 0;
-            for (RealCard cardFromTable : cardsOnOpponentsTable)
-            {
-                if (cardFromTable.getCard().getFirstValue() == 2)
-                    countOf2++;
-                else if ( cardFromTable.getCard().getFirstValue() == 4)
-                    countOf4++;
-            }
-            if (opponentsScore-((countOf2*2+countOf4*4)*2) < 21 )
-            {
-                opponentsScore = useCard(card, cardsOnOpponentsTable);
-                return true;
-            }
-        }
-
-        else if (card.getCard().equals(Card.THREE_AND_SIX) && opponentsScore > 20)
-        {
-            int countOf3 = 0, countOf6 = 0;
-            for (RealCard cardFromTable : cardsOnOpponentsTable)
-            {
-                if (cardFromTable.getCard().getFirstValue() == 3)
-                    countOf3++;
-                else if ( cardFromTable.getCard().getFirstValue() == 6)
-                    countOf6++;
-            }
-            if (opponentsScore-((countOf3*3+countOf6*6)*2) < 21 )
-            {
-                opponentsScore = useCard(card, cardsOnOpponentsTable);
-                return true;
-            }
-        }
-
-        else
-        {
-            if (opponentsScore < 20)
-            {
-                if (card.getCard().getFirstValue() + opponentsScore == 19 ||
-                        card.getCard().getFirstValue() + opponentsScore == 20)
-                {
-                    opponentsScore = useCard(card, cardsOnOpponentsTable);
-                    return true;
-                }
-            }
-            else if (opponentsScore - card.getCard().getFirstValue() < 21)
-            {
-                card.setLeftTurnActive();
-                opponentsScore = useCard(card, cardsOnOpponentsTable);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void endOfTurn()
-    {
-        if(getPlayersScore()>20)
+    	int finalOpponentsScore;
+    	
+    	if(valueOfTemporaryUsedCard == 0) finalOpponentsScore = opponentsScore;
+    	else finalOpponentsScore = valueOfTemporaryUsedCard;
+    	
+        if(getPlayersScore() > 20)
         {
             playerStand = true;
+            controller.darkenPlayersCards();
         }
-
-        if(opponentsScore>20)
+        
+        if(finalOpponentsScore>20)
         {
             opponentStand = true;
+            controller.darkenOpponentsCards();
         }
 
         if(playerStand && opponentStand)
         {
-            if (opponentsScore == getPlayersScore())
+            if (finalOpponentsScore == getPlayersScore())
             {
                 controller.dialogDraw();
                 newGameSet();
             }
-            else if(getPlayersScore() > 20 && opponentsScore > 20)
+            else if(getPlayersScore() > 20 && finalOpponentsScore > 20)
             {
                 controller.dialogDraw();
                 newGameSet();
@@ -242,13 +298,13 @@ public class Pazaak
                 controller.dialogOpponentWinsTheSet();
                 newGameSet();
             }
-            else if(opponentsScore > 20)
+            else if(finalOpponentsScore > 20)
             {
                 playersSets++;
                 controller.dialogPlayerWinsTheSet();
                 newGameSet();
             }
-            else if (opponentsScore < getPlayersScore())
+            else if (finalOpponentsScore < getPlayersScore())
             {
                 playersSets++;
                 controller.dialogPlayerWinsTheSet();
@@ -263,19 +319,20 @@ public class Pazaak
 
             if (playersSets == 3)
             {
-                controller.visualization();
+            	controller.visualizeWithDelayPlsTable.play();
                 controller.dialogPlayerWinsTheGame();
                 end = true;
             }
             else if (opponentsSets == 3)
             {
-                controller.visualization();
+            	controller.visualizeWithDelayOpsTable.play();
                 controller.dialogOpponentWinsTheGame();
                 end = true;
             }
 
             if (end)
             {
+            	controller.hideHandCards();
                 controller.btnStart.setVisible(true);
                 controller.btnStand.setDisable(true);
                 controller.btnEndTurn.setDisable(true);
@@ -285,17 +342,17 @@ public class Pazaak
         if (!end && !playerStand)
         {
             playersScore = useCard(mainDeck.getAndRemoveCard(), cardsOnPlayersTable);
-            playerIsOnTurn();
+            if (opponentPlayedCard) controller.opponentPlayedCardSoWait.play();
+            else controller.visualizeWithDelayPlsTable.play();
         }
-        controller.visualization();
+        else if(opponentPlayedCard) controller.opponentPlayedCardSoWait.play();
+        else if(end) controller.visualizeWithShortDelayPlsTable.play();
+        else controller.visualizeWithDelayPlsTable.play();
 
+        
         if(playerStand)
             opponentsTurn();
-    }
-
-    private void playerIsOnTurn()
-    {
-        controller.setButtonsActive();
+        else controller.brightenPlayersHandCards();
     }
 
     private void newGameSet()
@@ -304,26 +361,40 @@ public class Pazaak
         opponentStand = false;
         playersScore = 0;
         opponentsScore = 0;
+        controller.resetScore();
         mainDeck.fillAndShuffleMainDeck();
         cardsOnPlayersTable = new ArrayList<>();
         cardsOnOpponentsTable = new ArrayList<>();
+        controller.pointVisibler(playersSets, opponentsSets);
         controller.hideAllHandButtons();
         controller.activateHandButtons();
         controller.clearImages();
     }
 
+    public void waitingForCardUse()
+    {
+    	opponent.getCardsForMatch().get(whichCardOpPlayed).used();
+    	opponentsScore = useCard(opponent.lockedOpponentsPlayedCard, cardsOnOpponentsTable);
+    	controller.visualizationOpponentsSide();
+    }
+    
     public int useCard(RealCard card, List<RealCard> personsCardsOnTable)
     {
         personsCardsOnTable.add(card);
-        return calculateScore(personsCardsOnTable);
+        return calculateScore(personsCardsOnTable, false);
     }
 
-    private int calculateScore(List<RealCard> personsCardsOnTable)
+    private int calculateScore(List<RealCard> personsCardsOnTable, boolean preCalculation)
     {
+    	List<RealCard> calculationList = new ArrayList<>(personsCardsOnTable);
+    	
+    	if(preCalculation)
+    		calculationList.add(opponent.lockedOpponentsPlayedCard);
+    	
         List<Integer> cardValues = new ArrayList<>();
         int calculatedScore;
 
-        for (RealCard card : personsCardsOnTable)
+        for (RealCard card : calculationList)
         {
             if(card.getCard().equals(Card.PLUS_MINUS_ONE_TWO))
             {
@@ -446,6 +517,10 @@ public class Pazaak
 	public void setPlayersScore(int playersScore)
 	{
 		this.playersScore = playersScore;
+	}
+
+	public boolean isEnd() {
+		return end;
 	}
 
 	
