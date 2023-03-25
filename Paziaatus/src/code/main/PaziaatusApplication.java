@@ -2,7 +2,9 @@ package main;
 
 import javafx.application.Application;
 
+
 import javafx.fxml.FXMLLoader;
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -20,6 +22,10 @@ public class PaziaatusApplication extends Application
         stage.setScene(scene);
         stage.setResizable(false);
         stage.getIcons().add(new Image(this.getClass().getResourceAsStream("/images/logo.png")));
+        
+        Image image = new Image("/images/cursor2.png");
+        scene.setCursor(new ImageCursor(image));
+        
         stage.show();
     }
 
