@@ -3,9 +3,15 @@
     src: url('sofachrome.otf');
 }
 
-#playersScore, #opponentsScore, #energy, #fullness, #hydration, #health, #credits
+.text-sofachrome-font
 {
  -fx-font-family: 'SofachromeRg-Regular';
+}
+
+.loading {
+  -fx-text-box-border: white;
+  -fx-control-inner-background: black;
+  -fx-accent: white;
 }
 
 /*

@@ -2,71 +2,69 @@ package pazaak;
 
 public class RealCard
 {
-    private Card card;
-    private boolean inactiveLeftTurn;
-    private boolean inactiveRightTurn;
-    private boolean used;
+	private Card	card;
+	private boolean	inactiveLeftTurn;
+	private boolean	inactiveRightTurn;
+	private boolean	used;
 
-    RealCard(Card card)
-    {
-        this.card = card;
-        this.inactiveLeftTurn = true;
-        this.inactiveRightTurn = true;
-        this.used = false;
-    }
+	RealCard(Card card)
+	{
+		this.card = card;
+		this.inactiveLeftTurn = true;
+		this.inactiveRightTurn = true;
+		this.used = false;
+	}
 
-    public Card getCard()
-    {
-        return card;
-    }
+	public Card getCard()
+	{
+		return card;
+	}
 
-    public boolean hasInactiveLeftTurn()
-    {
-        return inactiveLeftTurn;
-    }
+	public boolean hasInactiveLeftTurn()
+	{
+		return inactiveLeftTurn;
+	}
 
-    public boolean hasInactiveRightTurn()
-    {
-        return inactiveRightTurn;
-    }
-    
-    public void resetLeftTurn()
-    {
-        inactiveLeftTurn = true;
-    }
-    
-    public void resetRightTurn()
-    {
-    	inactiveRightTurn = true;
-    }
+	public boolean hasInactiveRightTurn()
+	{
+		return inactiveRightTurn;
+	}
 
-    public void setLeftTurnActive()
-    {
-        inactiveLeftTurn = false;
-    }
+	public void resetLeftTurn()
+	{
+		inactiveLeftTurn = true;
+	}
 
-    public void setRightTurnActive()
-    {
-        inactiveRightTurn = false;
-    }
+	public void resetRightTurn()
+	{
+		inactiveRightTurn = true;
+	}
 
-    public boolean isUsed()
-    {
-        return used;
-    }
+	public void setLeftTurnActive()
+	{
+		inactiveLeftTurn = false;
+	}
 
-    public void used()
-    {
-        this.used = true;
-    }
+	public void setRightTurnActive()
+	{
+		inactiveRightTurn = false;
+	}
 
-    public void makeLeftTurn()
-    {
-        inactiveLeftTurn = !inactiveLeftTurn;
-    }
+	public boolean isUsed()
+	{
+		return used;
+	}
 
-    public void makeRightTurn()
-    {
-        inactiveRightTurn = !inactiveRightTurn;
-    }
+	public void used()
+	{
+		this.used = true;
+	}
+
+	public void makeTurn(boolean left)
+	{
+		if (left)
+			inactiveLeftTurn = !inactiveLeftTurn;
+		else
+			inactiveRightTurn = !inactiveRightTurn;
+	}
 }

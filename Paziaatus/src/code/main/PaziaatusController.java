@@ -1,66 +1,73 @@
 package main;
 
-import javafx.animation.PauseTransition;
-import javafx.event.Event;
-import javafx.fxml.FXML;
-import javafx.scene.ImageCursor;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.effect.ColorAdjust;
-import javafx.scene.effect.Glow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
-import javafx.util.Duration;
-
-import java.awt.Cursor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import beings.Player;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
+import javafx.event.Event;
+import javafx.fxml.FXML;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.Glow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 import pazaak.CardsImages;
 import pazaak.Pazaak;
 import pazaak.RealCard;
+import residue.Constants;
+import residue.Item;
+import residue.Shop;
+import residue.Tools;
 
 public class PaziaatusController
 {
-	private Pazaak		pazaak;
-	private GameOptions	gameOptions;
+	private Pazaak			pazaak;
+	private GameProperties	gameProperties;
+
+	private String	dialogCaller;
+	private Image	navigationActualImageKeeper;
 
 	private List<Node> paneActualNodesKeeper;
+
+	@FXML private Group blurGroup;
 
 	@FXML private Pane	paneMap;
 	@FXML private Pane	panePazaak;
 	@FXML private Pane	paneMainMenu;
 	@FXML private Pane	paneOptions;
 	@FXML private Pane	paneTravel;
-	@FXML private Pane	paneSleep;
-	@FXML private Pane	paneWeapons;
-	@FXML private Pane	paneRepair;
+	@FXML private Pane	paneWork;
 	@FXML private Pane	paneCantine;
-	@FXML private Pane	paneFood;
-	@FXML private Pane	paneArmor;;
-	@FXML private Pane	paneTech;
-	@FXML private Pane	paneMission;
-	@FXML private Pane	paneMedications;
-	@FXML private Pane	paneJewelry;
-	@FXML private Pane	paneFuel;
-	@FXML private Pane	paneCharacter;
+	@FXML private Pane	paneSleep;
+	@FXML private Pane	paneFuelOrRepair;
 	@FXML private Pane	paneGear;
 	@FXML private Pane	paneCards;
 	@FXML private Pane	paneInventory;
 	@FXML private Pane	paneFeatures;
-	@FXML private Pane	paneMiddle;
+	@FXML private Pane	paneHowToPlay;
 
 	@FXML public ImageView	stand;
-	@FXML public ImageView	next;
+	@FXML public ImageView	nextTurn;
+	@FXML public ImageView	nextSetStartLeaveGame;
+	@FXML private ImageView	bannerOpponent;
+	@FXML private ImageView	bannerPlayer;
 
 	@FXML private ImageView	imgPlayersTable1;
 	@FXML private ImageView	imgPlayersTable2;
@@ -92,12 +99,12 @@ public class PaziaatusController
 	@FXML private ImageView	imgOpponentsHand3;
 	@FXML private ImageView	imgOpponentsHand4;
 
-	@FXML private ImageView	point1Pl;
-	@FXML private ImageView	point2Pl;
-	@FXML private ImageView	point3Pl;
-	@FXML private ImageView	point1En;
-	@FXML private ImageView	point2En;
-	@FXML private ImageView	point3En;
+	@FXML private ImageView	pointPlayer1;
+	@FXML private ImageView	pointPlayer2;
+	@FXML private ImageView	pointPlayer3;
+	@FXML private ImageView	pointEnemy1;
+	@FXML private ImageView	pointEnemy2;
+	@FXML private ImageView	pointEnemy3;
 
 	@FXML private ImageView	handLeft1;
 	@FXML private ImageView	handLeft2;
@@ -123,6 +130,13 @@ public class PaziaatusController
 	@FXML private Text	health;
 	@FXML private Text	credits;
 
+	@FXML private Pane		paneDialog;
+	@FXML private ImageView	dialogBackground;
+	@FXML private Text		dialogText;
+	@FXML private ImageView	dialogYes;
+	@FXML private ImageView	dialogNo;
+	@FXML private ImageView	dialogOk;
+
 	@FXML private ImageView	res1;
 	@FXML private ImageView	res2;
 	@FXML private ImageView	res3;
@@ -134,13 +148,27 @@ public class PaziaatusController
 	@FXML private ImageView	gear;
 	@FXML private ImageView	cards;
 	@FXML private ImageView	inventory;
-	@FXML private ImageView	features;
-	@FXML private ImageView	itemInfo;
-	@FXML private ImageView	charInfo;
-	@FXML private ImageView	middle;
+
+	@FXML private ImageView middle;
+
+	@FXML private ImageView	featuresBackground;
+	@FXML private ImageView	featuresSelect;
+	@FXML private ImageView	featuresTitles;
+	@FXML private Text		featuresName;
+	@FXML private Text		features1;
+	@FXML private Text		features2;
+	@FXML private Text		features3;
+	@FXML private Text		features4;
+	@FXML private Text		features5;
+	@FXML private Text		features6;
+	@FXML private Text		features7;
 
 	@FXML private Text	playersScore;
 	@FXML private Text	opponentsScore;
+
+	@FXML private Pane				paneLoading;
+	@FXML private ProgressBar		loadingBar;
+	@FXML private ProgressIndicator	loadingIndicator;
 
 	@FXML private ImageView	map;
 	@FXML private ImageView	actual;
@@ -153,13 +181,63 @@ public class PaziaatusController
 	@FXML private ImageView	food;
 	@FXML private ImageView	armor;
 	@FXML private ImageView	tech;
-	@FXML private ImageView	mission;
+	@FXML private ImageView	work;
 	@FXML private ImageView	medications;
 	@FXML private ImageView	jewelry;
 	@FXML private ImageView	fuel;
 	@FXML private ImageView	exit;
 
-	@FXML public Button btnStart;
+	@FXML private ImageView	shopBanner;
+	@FXML private Pane		paneShop;
+	@FXML private ImageView	shopSlots;
+	@FXML private ImageView	shopSlot1;
+	@FXML private ImageView	shopSlot2;
+	@FXML private ImageView	shopSlot3;
+	@FXML private ImageView	shopSlot4;
+	@FXML private ImageView	shopSlot5;
+	@FXML private ImageView	shopSlot6;
+	@FXML private ImageView	shopSlot7;
+	@FXML private ImageView	shopSlot8;
+	@FXML private ImageView	shopSlot9;
+	@FXML private ImageView	shopSlot10;
+
+	@FXML private ImageView	invSlots;
+	@FXML private ImageView	invSlot1;
+	@FXML private ImageView	invSlot2;
+	@FXML private ImageView	invSlot3;
+	@FXML private ImageView	invSlot4;
+	@FXML private ImageView	invSlot5;
+	@FXML private ImageView	invSlot6;
+	@FXML private ImageView	invSlot7;
+	@FXML private ImageView	invSlot8;
+	@FXML private ImageView	invSlot9;
+	@FXML private ImageView	invSlot10;
+	@FXML private ImageView	invSlot11;
+	@FXML private ImageView	invSlot12;
+
+	@FXML private ImageView	gearSlots;
+	@FXML private ImageView	gearImplant;
+	@FXML private ImageView	gearHelmet;
+	@FXML private ImageView	gearNecklace;
+	@FXML private ImageView	gearArtifact;
+	@FXML private ImageView	gearHand;
+	@FXML private ImageView	gearWear;
+	@FXML private ImageView	gearGloves;
+	@FXML private ImageView	gearRing;
+	@FXML private ImageView	gearSpeeder;
+	@FXML private ImageView	gearBoots;
+	@FXML private ImageView	gearBelt;
+	@FXML private ImageView	gearDroid;
+
+	@FXML private ImageView	travelLeft;
+	@FXML private ImageView	travelRight;
+	@FXML private ImageView	priceLeft;
+	@FXML private ImageView	priceRight;
+
+	@FXML private ImageView	hunter;
+	@FXML private ImageView	worker;
+	@FXML private ImageView	archeologist;
+	@FXML private ImageView	technician;
 
 	public PauseTransition	opponentPlayedCard				= new PauseTransition(Duration.millis(650));
 	public PauseTransition	visualizeWithDelayOpsTable		= new PauseTransition(Duration.millis(200));
@@ -167,42 +245,88 @@ public class PaziaatusController
 	public PauseTransition	visualizeWithDelayPlsTable		= new PauseTransition(Duration.millis(850));
 	public PauseTransition	opponentPlayedCardSoWait		= new PauseTransition(Duration.millis(1400));
 
+	private Timeline	loadingBarTimeline;
+	private Timeline	loadingIndicatorTimeline;
+
 	@FXML private void initialize()
 	{
-		Player player = new Player(100, 99, 9, 1, 999999, 0, 0, 0, 0, 0, null);
-		gameOptions = new GameOptions("1600x900", paneMainMenu, paneCantine, player);
+		Player player = new Player(100, 100, 100, 100, 999999, 0, 0, 0, 0, 0, null);
+		gameProperties = new GameProperties("1600x900", paneMainMenu, paneCantine, player, this);
 		paneActualNodesKeeper = new ArrayList<>();
-		
+
+		Item newItem = new Item("helma", 0, 0, 0, 15, 0, 0, 0, "", "rings/1.png");
+		gameProperties.getJewelry().addItemIntoShop(newItem);
+
+		Item newItem1 = new Item("implantát", 0, 0, 20, 20, 1, 0, 0, "", "rings/2.png");
+		gameProperties.getJewelry().addItemIntoShop(newItem1);
+
+		Item newItem2 = new Item("laserový meč", 0, 35, 0, 04, 1, 0, 0, "", "rings/3.png");
+		gameProperties.getJewelry().addItemIntoShop(newItem2);
+
+		Item newItem3 = new Item("droid", 0, 0, 0, 4, 42, 0, 0, "", "rings/5.png");
+		gameProperties.getJewelry().addItemIntoShop(newItem3);
+
+		Item newItem4 = new Item("nástroj", 0, 0, 0, 56, 1, 0, 0, "", "rings/5.png");
+		gameProperties.getJewelry().addItemIntoShop(newItem4);
+
+		Item newItem5 = new Item("jídlo", 0, 0, 0, 45, 1, Constants.NO_VALUE, Constants.NO_VALUE, "", "rings/6.png");
+		gameProperties.getJewelry().addItemIntoShop(newItem5);
+
+		Item newItem6 = new Item("implantát", 0, 0, 0, 91, 1, 0, 0, "", "rings/7.png");
+		gameProperties.getJewelry().addItemIntoShop(newItem6);
+
+		Item newItem7 = new Item("implantát", 0, 0, 0, 40, 1, 0, 0, "", "rings/8.png");
+		gameProperties.getPlayer().addGear(newItem7);
+		gearImplant.setImage(new Image(this.getClass().getResourceAsStream("/images/1600x900/items/rings/8.png")));
+
 		energy.setText(String.valueOf(player.getEnergy()));
 		fullness.setText(String.valueOf(player.getFullness()));
 		hydration.setText(String.valueOf(player.getHydration()));
 		health.setText(String.valueOf(player.getHealth()));
 		credits.setText(String.valueOf(player.getCredits()));
+
+		loadingIndicatorTimeline = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(loadingIndicator.progressProperty(), 0)),
+				new KeyFrame(Duration.seconds(1), new KeyValue(loadingIndicator.progressProperty(), 1)));
+
+		loadingIndicatorTimeline.setOnFinished(event -> {
+			paneMap.setVisible(false);
+			loadingIndicator.setVisible(false);
+			actual.setImage(navigationActualImageKeeper);
+			disableTravellingImages(false);
+			keeperNodesVisibler(true);
+		});
+
+		loadingBarTimeline = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(loadingBar.progressProperty(), 0)),
+				new KeyFrame(Duration.seconds(3), new KeyValue(loadingBar.progressProperty(), 1)));
+
+		loadingBarTimeline.setOnFinished(event -> {
+			paneLoading.setVisible(false);
+		});
+
 	}
 
-	@FXML private void start() throws InterruptedException
+	@FXML private void mainClick() throws InterruptedException
 	{
 		pazaak = new Pazaak(this);
 		pointsHider();
-		btnStart.setVisible(false);
-		stand.setDisable(false);
-		next.setDisable(false);
+		nextSetStartLeaveGame.setVisible(false);
+		disableNextAndStandButtons(false);
 
 		opponentPlayedCard.setOnFinished(event -> {
 			pazaak.waitingForCardUse();
 		});
 		visualizeWithDelayOpsTable.setOnFinished(event -> {
-			visualizationOpponentsSide();
+			visualizationOfTableCards(false);
 		});
 
 		visualizeWithShortDelayPlsTable.setOnFinished(event -> {
-			visualizationPlayersSide();
+			visualizationOfTableCards(true);
 		});
 		visualizeWithDelayPlsTable.setOnFinished(event -> {
-			visualizationPlayersSide();
+			visualizationOfTableCards(true);
 		});
 		opponentPlayedCardSoWait.setOnFinished(event -> {
-			visualizationPlayersSide();
+			visualizationOfTableCards(true);
 		});
 
 		pazaak.newGame();
@@ -210,18 +334,14 @@ public class PaziaatusController
 
 	private void pointsHider()
 	{
-		point1Pl.setVisible(false);
-		point2Pl.setVisible(false);
-		point3Pl.setVisible(false);
-		point1En.setVisible(false);
-		point2En.setVisible(false);
-		point3En.setVisible(false);
+		List<Node> playersCards = panePazaak.getChildren();
+		for (int i = 36; i <= 41; i++)
+			playersCards.get(i).setVisible(false);
 	}
 
 	@FXML private void endTurn() throws InterruptedException
 	{
-		next.setDisable(true);
-		stand.setDisable(true);
+		disableNextAndStandButtons(true);
 		darkenAllPlayersHandCards();
 		pazaak.opponentsTurn();
 	}
@@ -229,359 +349,126 @@ public class PaziaatusController
 	@FXML private void stand() throws InterruptedException
 	{
 		pazaak.setPlayerStand(true);
-		next.setDisable(true);
-		stand.setDisable(true);
-		darkenPlayersCards();
+		disableNextAndStandButtons(true);
+		darkenCards(true);
 		pazaak.opponentsTurn();
 	}
 
-	@FXML private void firstCardClicked() throws InterruptedException
+	@FXML private void handCardClicked(Event event) throws InterruptedException
 	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(0).isUsed())
+		int numberOfSource = Tools.getNumberFromString(Tools.idFromSource(event.toString()), "imgPlayersHand") - 1;
+
+		if (!pazaak.getPlayer().getCardsForMatch().get(numberOfSource).isUsed())
 		{
-			pazaak.setPlayersScore(
-					pazaak.useCard(pazaak.getPlayer().getCardsForMatch().get(0), pazaak.getCardsOnPlayersTable()));
-			pazaak.getPlayer().getCardsForMatch().get(0).used();
-			visualizationPlayersSide();
-			darkenPlayersHandCards(1);
+			pazaak.setPlayersScore(pazaak.useCard(pazaak.getPlayer().getCardsForMatch().get(numberOfSource), pazaak.getCardsOnPlayersTable()));
+			pazaak.getPlayer().getCardsForMatch().get(numberOfSource).used();
+			visualizationOfTableCards(true);
+			darkenPlayersHandCards(numberOfSource);
 		}
 	}
 
-	@FXML private void secondCardClicked() throws InterruptedException
+	@FXML private void turnCard(Event event) throws InterruptedException
 	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(1).isUsed())
+		String idOfSource = Tools.idFromSource(event.toString());
+		boolean left = idOfSource.contains("Left");
+		String removeThisFromidOfSource;
+		if (left)
+			removeThisFromidOfSource = "handLeft";
+		else
+			removeThisFromidOfSource = "handRight";
+		int numberOfSource = Tools.getNumberFromString(idOfSource, removeThisFromidOfSource) - 1;
+
+		if (!pazaak.getPlayer().getCardsForMatch().get(numberOfSource).isUsed())
 		{
-			pazaak.setPlayersScore(
-					pazaak.useCard(pazaak.getPlayer().getCardsForMatch().get(1), pazaak.getCardsOnPlayersTable()));
-			pazaak.getPlayer().getCardsForMatch().get(1).used();
-			visualizationPlayersSide();
-			darkenPlayersHandCards(2);
+			pazaak.getPlayer().getCardsForMatch().get(numberOfSource).makeTurn(left);
+			visualizationOfTableCards(true);
 		}
 	}
 
-	@FXML private void thirdCardClicked() throws InterruptedException
+	public void visualizationOfTableCards(boolean visualizationOfPlayersSide)
 	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(2).isUsed())
+		int nthChildrenOfPazaakPane;
+		List<RealCard> cardsOnTable;
+		List<Node> imageViewsOfTableCards = panePazaak.getChildren();
+		ImageView imageViewOfCard;
+
+		if (visualizationOfPlayersSide)
 		{
-			pazaak.setPlayersScore(
-					pazaak.useCard(pazaak.getPlayer().getCardsForMatch().get(2), pazaak.getCardsOnPlayersTable()));
-			pazaak.getPlayer().getCardsForMatch().get(2).used();
-			visualizationPlayersSide();
-			darkenPlayersHandCards(3);
-		}
-	}
-
-	@FXML private void fourthCardClicked() throws InterruptedException
-	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(3).isUsed())
-		{
-			pazaak.setPlayersScore(
-					pazaak.useCard(pazaak.getPlayer().getCardsForMatch().get(3), pazaak.getCardsOnPlayersTable()));
-			pazaak.getPlayer().getCardsForMatch().get(3).used();
-			visualizationPlayersSide();
-			darkenPlayersHandCards(4);
-		}
-	}
-
-	@FXML private void clickPlayersHandLeft1() throws InterruptedException
-	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(0).isUsed())
-		{
-			pazaak.getPlayer().getCardsForMatch().get(0).makeLeftTurn();
-			visualizationPlayersSide();
-		}
-	}
-
-	@FXML private void clickPlayersHandLeft2() throws InterruptedException
-	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(1).isUsed())
-		{
-			pazaak.getPlayer().getCardsForMatch().get(1).makeLeftTurn();
-			visualizationPlayersSide();
-		}
-	}
-
-	@FXML private void clickPlayersHandLeft3() throws InterruptedException
-	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(2).isUsed())
-		{
-			pazaak.getPlayer().getCardsForMatch().get(2).makeLeftTurn();
-			visualizationPlayersSide();
-		}
-	}
-
-	@FXML private void clickPlayersHandLeft4() throws InterruptedException
-	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(3).isUsed())
-		{
-			pazaak.getPlayer().getCardsForMatch().get(3).makeLeftTurn();
-			visualizationPlayersSide();
-		}
-	}
-
-	@FXML private void clickPlayersHandRight1() throws InterruptedException
-	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(0).isUsed())
-		{
-			pazaak.getPlayer().getCardsForMatch().get(0).makeRightTurn();
-			visualizationPlayersSide();
-		}
-	}
-
-	@FXML private void clickPlayersHandRight2() throws InterruptedException
-	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(1).isUsed())
-		{
-			pazaak.getPlayer().getCardsForMatch().get(1).makeRightTurn();
-			visualizationPlayersSide();
-		}
-	}
-
-	@FXML private void clickPlayersHandRight3() throws InterruptedException
-	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(2).isUsed())
-		{
-			pazaak.getPlayer().getCardsForMatch().get(2).makeRightTurn();
-			visualizationPlayersSide();
-		}
-	}
-
-	@FXML private void clickPlayersHandRight4() throws InterruptedException
-	{
-		if (!pazaak.getPlayer().getCardsForMatch().get(3).isUsed())
-		{
-			pazaak.getPlayer().getCardsForMatch().get(3).makeRightTurn();
-			visualizationPlayersSide();
-		}
-	}
-
-	public void dialogDraw()
-	{
-		Dialog<String> dialog = new Dialog<>();
-
-		dialog.setContentText("The set is ted.");
-
-		ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
-		dialog.getDialogPane().getButtonTypes().add(type);
-
-		dialog.showAndWait();
-		brightenAllCards();
-	}
-
-	public void dialogPlayerWinsTheSet()
-	{
-		Dialog<String> dialog = new Dialog<>();
-
-		dialog.setContentText("You win the set");
-
-		ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
-		dialog.getDialogPane().getButtonTypes().add(type);
-
-		dialog.showAndWait();
-		brightenAllCards();
-	}
-
-	public void dialogOpponentWinsTheSet()
-	{
-		Dialog<String> dialog = new Dialog<>();
-
-		dialog.setContentText("The opponent wins the set");
-
-		ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
-		dialog.getDialogPane().getButtonTypes().add(type);
-
-		dialog.showAndWait();
-		brightenAllCards();
-	}
-
-	public void dialogOpponentWinsTheGame()
-	{
-		Dialog<String> dialog = new Dialog<>();
-
-		dialog.setContentText("The opponent wins the game");
-
-		ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
-		dialog.getDialogPane().getButtonTypes().add(type);
-
-		dialog.showAndWait();
-		brightenAllCards();
-	}
-
-	public void dialogPlayerWinsTheGame()
-	{
-		Dialog<String> dialog = new Dialog<>();
-
-		dialog.setContentText("You wins the game");
-
-		ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
-		dialog.getDialogPane().getButtonTypes().add(type);
-
-		dialog.showAndWait();
-		brightenAllCards();
-	}
-
-	public void visualizationOpponentsSide()
-	{
-		int i;
-
-		opponentsScore.setText(pazaak.getOpponentsScore());
-
-		for (i = 0; i < pazaak.getCardsOnOpponentsTable().size(); i++)
-		{
-			switch (i)
-			{
-				case 0 -> imgOpponentsTable1.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
-				case 1 -> imgOpponentsTable2.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
-				case 2 -> imgOpponentsTable3.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
-				case 3 -> imgOpponentsTable4.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
-				case 4 -> imgOpponentsTable5.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
-				case 5 -> imgOpponentsTable6.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
-				case 6 -> imgOpponentsTable7.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
-				case 7 -> imgOpponentsTable8.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
-				case 8 -> imgOpponentsTable9.setImage(whichSideOfCard(pazaak.getCardsOnOpponentsTable(), i));
-			}
-		}
-
-		for (i = 0; i < pazaak.getOpponent().getCardsForMatch().size(); i++)
-		{
-			switch (i)
-			{
-				case 0 ->
-				{
-					if (!pazaak.getOpponent().getCardsForMatch().get(i).isUsed())
-						imgOpponentsHand1.setImage(
-								new Image(getClass().getResource(CardsImages.BACK.getFirstImage()).toString()));
-					else
-						imgOpponentsHand1.setImage(null);
-				}
-				case 1 ->
-				{
-					if (!pazaak.getOpponent().getCardsForMatch().get(i).isUsed())
-						imgOpponentsHand2.setImage(
-								new Image(getClass().getResource(CardsImages.BACK.getFirstImage()).toString()));
-					else
-						imgOpponentsHand2.setImage(null);
-				}
-				case 2 ->
-				{
-					if (!pazaak.getOpponent().getCardsForMatch().get(i).isUsed())
-						imgOpponentsHand3.setImage(
-								new Image(getClass().getResource(CardsImages.BACK.getFirstImage()).toString()));
-					else
-						imgOpponentsHand3.setImage(null);
-				}
-				case 3 ->
-				{
-					if (!pazaak.getOpponent().getCardsForMatch().get(i).isUsed())
-						imgOpponentsHand4.setImage(
-								new Image(getClass().getResource(CardsImages.BACK.getFirstImage()).toString()));
-					else
-						imgOpponentsHand4.setImage(null);
-				}
-			}
-		}
-	}
-
-	public void visualizationPlayersSide()
-	{
-		int i;
-
-		playersScore.setText(String.valueOf(pazaak.getPlayersScore()));
-
-		for (i = 0; i < pazaak.getCardsOnPlayersTable().size(); i++)
-		{
-			switch (i)
-			{
-				case 0 -> imgPlayersTable1.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
-				case 1 -> imgPlayersTable2.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
-				case 2 -> imgPlayersTable3.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
-				case 3 -> imgPlayersTable4.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
-				case 4 -> imgPlayersTable5.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
-				case 5 -> imgPlayersTable6.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
-				case 6 -> imgPlayersTable7.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
-				case 7 -> imgPlayersTable8.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
-				case 8 -> imgPlayersTable9.setImage(whichSideOfCard(pazaak.getCardsOnPlayersTable(), i));
-			}
-		}
-
-		for (i = 0; i < pazaak.getPlayer().getCardsForMatch().size(); i++)
-		{
-			switch (i)
-			{
-				case 0 ->
-				{
-					if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
-						imgPlayersHand1.setImage(whichSideOfCard(pazaak.getPlayer().getCardsForMatch(), i));
-					else
-					{
-						imgPlayersHand1.setImage(null);
-						handLeft1.setVisible(false);
-						handRight1.setVisible(false);
-					}
-				}
-				case 1 ->
-				{
-					if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
-						imgPlayersHand2.setImage(whichSideOfCard(pazaak.getPlayer().getCardsForMatch(), i));
-					else
-					{
-						imgPlayersHand2.setImage(null);
-						handLeft2.setVisible(false);
-						handRight2.setVisible(false);
-					}
-				}
-				case 2 ->
-				{
-					if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
-						imgPlayersHand3.setImage(whichSideOfCard(pazaak.getPlayer().getCardsForMatch(), i));
-					else
-					{
-						imgPlayersHand3.setImage(null);
-						handLeft3.setVisible(false);
-						handRight3.setVisible(false);
-					}
-				}
-				case 3 ->
-				{
-					if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
-						imgPlayersHand4.setImage(whichSideOfCard(pazaak.getPlayer().getCardsForMatch(), i));
-					else
-					{
-						imgPlayersHand4.setImage(null);
-						handLeft4.setVisible(false);
-						handRight4.setVisible(false);
-					}
-				}
-			}
-		}
-		if (!pazaak.isEnd())
-		{
-			setButtonsActive();
+			playersScore.setText(String.valueOf(pazaak.getPlayersScore()));
+			cardsOnTable = pazaak.getCardsOnPlayersTable();
+			nthChildrenOfPazaakPane = 13;
+			disableNextAndStandButtons(false);
 			brightenPlayersHandCards();
+		} else
+		{
+			opponentsScore.setText(pazaak.getOpponentsScore());
+			cardsOnTable = pazaak.getCardsOnOpponentsTable();
+			nthChildrenOfPazaakPane = 0;
 		}
 
+		for (RealCard card : cardsOnTable)
+		{
+			imageViewOfCard = (ImageView) imageViewsOfTableCards.get(nthChildrenOfPazaakPane);
+			imageViewOfCard.setImage(whichSideOfCard(card));
+			nthChildrenOfPazaakPane++;
+		}
+
+		visualizationOfHandCards(visualizationOfPlayersSide);
 	}
 
-	private Image whichSideOfCard(List<RealCard> personsTable, int i)
+	public void visualizationOfHandCards(boolean visualizationOfPlayersSide)
+	{
+		int nthChildrenOfPazaakPane;
+		List<RealCard> cardsInHand;
+		List<Node> imageViewsOfHandCards = panePazaak.getChildren();
+		ImageView imageViewOfCard;
+
+		if (visualizationOfPlayersSide)
+		{
+			cardsInHand = pazaak.getPlayer().getCardsForMatch();
+			nthChildrenOfPazaakPane = 22;
+		} else
+		{
+			cardsInHand = pazaak.getOpponent().getCardsForMatch();
+			nthChildrenOfPazaakPane = 9;
+		}
+
+		for (RealCard card : cardsInHand)
+		{
+			imageViewOfCard = (ImageView) imageViewsOfHandCards.get(nthChildrenOfPazaakPane);
+			if (!card.isUsed() && !visualizationOfPlayersSide)
+				imageViewOfCard.setImage(new Image(getClass().getResource(CardsImages.BACK.getFirstImage()).toString()));
+			else if (!card.isUsed() && visualizationOfPlayersSide)
+				imageViewOfCard.setImage(whichSideOfCard(card));
+			else
+			{
+				imageViewOfCard.setImage(null);
+				if (visualizationOfPlayersSide)
+				{
+					imageViewsOfHandCards.get(nthChildrenOfPazaakPane + 4).setVisible(false);
+					imageViewsOfHandCards.get(nthChildrenOfPazaakPane + 5).setVisible(false);
+				}
+			}
+			nthChildrenOfPazaakPane++;
+		}
+	}
+
+	private Image whichSideOfCard(RealCard card)
 	{
 		Image image;
-		if (personsTable.get(i).hasInactiveLeftTurn())
+		if (card.hasInactiveLeftTurn())
 		{
-			if (personsTable.get(i).hasInactiveRightTurn())
-				image = new Image(
-						getClass().getResource(personsTable.get(i).getCard().getImages().getFirstImage()).toString());
+			if (card.hasInactiveRightTurn())
+				image = new Image(getClass().getResource(card.getCard().getImages().getFirstImage()).toString());
 			else
-				image = new Image(
-						getClass().getResource(personsTable.get(i).getCard().getImages().getThirdImage()).toString());
+				image = new Image(getClass().getResource(card.getCard().getImages().getThirdImage()).toString());
 
 		} else
 		{
-			if (personsTable.get(i).hasInactiveRightTurn())
-				image = new Image(
-						getClass().getResource(personsTable.get(i).getCard().getImages().getSecondImage()).toString());
+			if (card.hasInactiveRightTurn())
+				image = new Image(getClass().getResource(card.getCard().getImages().getSecondImage()).toString());
 			else
-				image = new Image(
-						getClass().getResource(personsTable.get(i).getCard().getImages().getFourthImage()).toString());
+				image = new Image(getClass().getResource(card.getCard().getImages().getFourthImage()).toString());
 		}
 
 		return image;
@@ -590,18 +477,18 @@ public class PaziaatusController
 	public void pointVisibler(int playersSets, int opponentsSets)
 	{
 		if (playersSets == 3)
-			point1Pl.setVisible(true);
+			pointPlayer1.setVisible(true);
 		else if (playersSets == 2)
-			point2Pl.setVisible(true);
+			pointPlayer2.setVisible(true);
 		else if (playersSets == 1)
-			point3Pl.setVisible(true);
+			pointPlayer3.setVisible(true);
 
 		if (opponentsSets == 3)
-			point1En.setVisible(true);
+			pointEnemy1.setVisible(true);
 		else if (opponentsSets == 2)
-			point2En.setVisible(true);
+			pointEnemy2.setVisible(true);
 		else if (opponentsSets == 1)
-			point3En.setVisible(true);
+			pointEnemy3.setVisible(true);
 	}
 
 	public void resetScore()
@@ -612,145 +499,74 @@ public class PaziaatusController
 
 	public void clearImages()
 	{
-		imgPlayersTable1.setImage(null);
-		imgPlayersTable2.setImage(null);
-		imgPlayersTable3.setImage(null);
-		imgPlayersTable4.setImage(null);
-		imgPlayersTable5.setImage(null);
-		imgPlayersTable6.setImage(null);
-		imgPlayersTable7.setImage(null);
-		imgPlayersTable8.setImage(null);
-		imgPlayersTable9.setImage(null);
+		List<Node> playersHandCards = panePazaak.getChildren();
+		ImageView imageVieqOfCard;
 
-		imgOpponentsTable1.setImage(null);
-		imgOpponentsTable2.setImage(null);
-		imgOpponentsTable3.setImage(null);
-		imgOpponentsTable4.setImage(null);
-		imgOpponentsTable5.setImage(null);
-		imgOpponentsTable6.setImage(null);
-		imgOpponentsTable7.setImage(null);
-		imgOpponentsTable8.setImage(null);
-		imgOpponentsTable9.setImage(null);
+		for (int i = 0; i < 22; i++)
+		{
+			imageVieqOfCard = (ImageView) playersHandCards.get(i);
+			imageVieqOfCard.setImage(null);
+
+			if (i == 8)
+				i = 13;
+		}
 	}
 
 	public void hideAllHandButtons()
 	{
-		handLeft1.setVisible(false);
-		handLeft2.setVisible(false);
-		handLeft3.setVisible(false);
-		handLeft4.setVisible(false);
-
-		handRight1.setVisible(false);
-		handRight2.setVisible(false);
-		handRight3.setVisible(false);
-		handRight4.setVisible(false);
+		List<Node> playersHandButtons = panePazaak.getChildren();
+		for (int i = 26; i <= 33; i++)
+			playersHandButtons.get(i).setVisible(false);
 	}
 
-	public void hideHandCards()
+	public void showOrHidehandCards(boolean show)
 	{
+		ColorAdjust colorAdjust = new ColorAdjust();
+		colorAdjust.setBrightness(-0.4);
 
-		imgOpponentsHand1.setVisible(false);
-		imgOpponentsHand2.setVisible(false);
-		imgOpponentsHand3.setVisible(false);
-		imgOpponentsHand4.setVisible(false);
+		List<Node> playersHandCards = panePazaak.getChildren();
+		for (int i = 9; i <= 33; i++)
+		{
+			playersHandCards.get(i).setVisible(show);
 
-		imgPlayersHand1.setVisible(false);
-		imgPlayersHand2.setVisible(false);
-		imgPlayersHand3.setVisible(false);
-		imgPlayersHand4.setVisible(false);
-
-		handLeft1.setVisible(false);
-		handLeft2.setVisible(false);
-		handLeft3.setVisible(false);
-		handLeft4.setVisible(false);
-
-		handRight1.setVisible(false);
-		handRight2.setVisible(false);
-		handRight3.setVisible(false);
-		handRight4.setVisible(false);
+			if (i == 12)
+				i = 22;
+			else if (i == 25 && show)
+				break;
+		}
 	}
 
-	public void showHandCards()
+	public void disableNextAndStandButtons(boolean disable)
 	{
-
-		imgOpponentsHand1.setVisible(true);
-		imgOpponentsHand2.setVisible(true);
-		imgOpponentsHand3.setVisible(true);
-		imgOpponentsHand4.setVisible(true);
-
-		imgPlayersHand1.setVisible(true);
-		imgPlayersHand2.setVisible(true);
-		imgPlayersHand3.setVisible(true);
-		imgPlayersHand4.setVisible(true);
-	}
-
-	private void setButtonsActive()
-	{
-		next.setDisable(false);
-		stand.setDisable(false);
+		nextTurn.setDisable(disable);
+		stand.setDisable(disable);
 	}
 
 	public void activateHandButtons()
 	{
 		deactivateOldHandButtons();
 
-		for (int i = 0; i < pazaak.getPlayer().getCardsForMatch().size(); i++)
+		ImageView imageViewHandLeft = imgPlayersHand1;
+		ImageView imageViewHandRight = imgPlayersHand1;
+		int i = 1;
+
+		for (RealCard card : pazaak.getPlayer().getCardsForMatch())
 		{
-			switch (i)
-			{
-				case 0 ->
+			if (!card.isUsed())
+				try
 				{
-					if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
-					{
-						if (!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getSecondImage()
-								.equals(""))
-							handLeft1.setVisible(true);
-						if (!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getThirdImage()
-								.equals(""))
-							handRight1.setVisible(true);
-					} else
-						continue;
-				}
-				case 1 ->
+					imageViewHandLeft = (ImageView) this.getClass().getDeclaredField("handLeft" + i).get(this);
+					imageViewHandRight = (ImageView) this.getClass().getDeclaredField("handRight" + i).get(this);
+
+					if (!card.getCard().getImages().getSecondImage().equals(""))
+						imageViewHandLeft.setVisible(true);
+					if (!card.getCard().getImages().getThirdImage().equals(""))
+						imageViewHandRight.setVisible(true);
+				} catch (IllegalAccessException | NoSuchFieldException e)
 				{
-					if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
-					{
-						if (!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getSecondImage()
-								.equals(""))
-							handLeft2.setVisible(true);
-						if (!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getThirdImage()
-								.equals(""))
-							handRight2.setVisible(true);
-					} else
-						continue;
+					e.printStackTrace();
 				}
-				case 2 ->
-				{
-					if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
-					{
-						if (!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getSecondImage()
-								.equals(""))
-							handLeft3.setVisible(true);
-						if (!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getThirdImage()
-								.equals(""))
-							handRight3.setVisible(true);
-					} else
-						continue;
-				}
-				case 3 ->
-				{
-					if (!pazaak.getPlayer().getCardsForMatch().get(i).isUsed())
-					{
-						if (!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getSecondImage()
-								.equals(""))
-							handLeft4.setVisible(true);
-						if (!pazaak.getPlayer().getCardsForMatch().get(i).getCard().getImages().getThirdImage()
-								.equals(""))
-							handRight4.setVisible(true);
-					} else
-						continue;
-				}
-			}
+			i++;
 		}
 	}
 
@@ -758,241 +574,91 @@ public class PaziaatusController
 	{
 		ColorAdjust colorAdjust = new ColorAdjust();
 		colorAdjust.setBrightness(-0.4);
-		imgPlayersHand1.setEffect(colorAdjust);
-		imgPlayersHand2.setEffect(colorAdjust);
-		imgPlayersHand3.setEffect(colorAdjust);
-		imgPlayersHand4.setEffect(colorAdjust);
-		imgPlayersHand1.setDisable(true);
-		imgPlayersHand2.setDisable(true);
-		imgPlayersHand3.setDisable(true);
-		imgPlayersHand4.setDisable(true);
-		handLeft1.setDisable(true);
-		handLeft2.setDisable(true);
-		handLeft3.setDisable(true);
-		handLeft4.setDisable(true);
-		handRight1.setDisable(true);
-		handRight2.setDisable(true);
-		handRight3.setDisable(true);
-		handRight4.setDisable(true);
+
+		List<Node> playersHandCards = panePazaak.getChildren();
+		for (int i = 22; i <= 33; i++)
+		{
+			playersHandCards.get(i).setDisable(true);
+			playersHandCards.get(i).setEffect(colorAdjust);
+		}
 	}
 
 	private void darkenPlayersHandCards(int nthUsedCard)
 	{
 		ColorAdjust colorAdjust = new ColorAdjust();
 		colorAdjust.setBrightness(-0.4);
+		ImageView fieldValue = imgPlayersHand1;
+		PaziaatusController classObj = this;
 
-		switch (nthUsedCard)
+		String[] playersHandsWithoutNthHand = getOtherPlayersHandImgViews(nthUsedCard);
+		for (String fieldName : playersHandsWithoutNthHand)
 		{
-			case 1:
+			try
 			{
-				imgPlayersHand2.setEffect(colorAdjust);
-				imgPlayersHand3.setEffect(colorAdjust);
-				imgPlayersHand4.setEffect(colorAdjust);
-				imgPlayersHand2.setDisable(true);
-				imgPlayersHand3.setDisable(true);
-				imgPlayersHand4.setDisable(true);
-			}
-			case 2:
+				Field field = classObj.getClass().getDeclaredField(fieldName);
+				field.setAccessible(true);
+				fieldValue = (ImageView) field.get(classObj);
+			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
 			{
-
-				imgPlayersHand3.setEffect(colorAdjust);
-				imgPlayersHand4.setEffect(colorAdjust);
-				imgPlayersHand1.setDisable(true);
-				imgPlayersHand3.setDisable(true);
-				imgPlayersHand4.setDisable(true);
+				e.printStackTrace();
 			}
-			case 3:
-			{
-				imgPlayersHand1.setEffect(colorAdjust);
-				imgPlayersHand2.setEffect(colorAdjust);
-				imgPlayersHand4.setEffect(colorAdjust);
-				imgPlayersHand1.setDisable(true);
-				imgPlayersHand2.setDisable(true);
-				imgPlayersHand4.setDisable(true);
-			}
-			case 4:
-			{
-				imgPlayersHand1.setEffect(colorAdjust);
-				imgPlayersHand2.setEffect(colorAdjust);
-				imgPlayersHand3.setEffect(colorAdjust);
-				imgPlayersHand1.setDisable(true);
-				imgPlayersHand2.setDisable(true);
-				imgPlayersHand3.setDisable(true);
-			}
+			fieldValue.setDisable(true);
+			fieldValue.setEffect(colorAdjust);
 		}
+	}
+
+	public String[] getOtherPlayersHandImgViews(int nth)
+	{
+		String[] values = new String[3];
+		for (int i = 0, j = 0; j < 3; i++)
+			if (i != nth)
+			{
+				values[j] = "imgPlayersHand" + (i + 1);
+				j++;
+			}
+		return values;
 	}
 
 	private void brightenPlayersHandCards()
 	{
-		imgPlayersHand1.setEffect(null);
-		imgPlayersHand2.setEffect(null);
-		imgPlayersHand3.setEffect(null);
-		imgPlayersHand4.setEffect(null);
-		imgPlayersHand1.setDisable(false);
-		imgPlayersHand2.setDisable(false);
-		imgPlayersHand3.setDisable(false);
-		imgPlayersHand4.setDisable(false);
-		handLeft1.setDisable(false);
-		handLeft2.setDisable(false);
-		handLeft3.setDisable(false);
-		handLeft4.setDisable(false);
-		handRight1.setDisable(false);
-		handRight2.setDisable(false);
-		handRight3.setDisable(false);
-		handRight4.setDisable(false);
+		List<Node> playersHandCards = panePazaak.getChildren();
+		for (int i = 22; i <= 33; i++)
+		{
+			playersHandCards.get(i).setDisable(false);
+			if (i < 26)
+				playersHandCards.get(i).setEffect(null);
+		}
 	}
 
 	private void deactivateOldHandButtons()
 	{
-		handLeft1.setVisible(false);
-		handRight1.setVisible(false);
-		handLeft2.setVisible(false);
-		handRight2.setVisible(false);
-		handLeft3.setVisible(false);
-		handRight3.setVisible(false);
-		handLeft4.setVisible(false);
-		handRight4.setVisible(false);
+		List<Node> playersHandButtons = panePazaak.getChildren();
+		for (int i = 26; i <= 33; i++)
+			playersHandButtons.get(i).setVisible(false);
 	}
 
 	private void brightenAllCards()
 	{
-		imgPlayersTable1.setEffect(null);
-		imgPlayersTable2.setEffect(null);
-		imgPlayersTable3.setEffect(null);
-		imgPlayersTable4.setEffect(null);
-		imgPlayersTable5.setEffect(null);
-		imgPlayersTable6.setEffect(null);
-		imgPlayersTable7.setEffect(null);
-		imgPlayersTable8.setEffect(null);
-		imgPlayersTable9.setEffect(null);
-		imgPlayersHand1.setEffect(null);
-		imgPlayersHand2.setEffect(null);
-		imgPlayersHand3.setEffect(null);
-		imgPlayersHand4.setEffect(null);
-
-		imgOpponentsTable1.setEffect(null);
-		imgOpponentsTable2.setEffect(null);
-		imgOpponentsTable3.setEffect(null);
-		imgOpponentsTable4.setEffect(null);
-		imgOpponentsTable5.setEffect(null);
-		imgOpponentsTable6.setEffect(null);
-		imgOpponentsTable7.setEffect(null);
-		imgOpponentsTable8.setEffect(null);
-		imgOpponentsTable9.setEffect(null);
-		imgOpponentsHand1.setEffect(null);
-		imgOpponentsHand2.setEffect(null);
-		imgOpponentsHand3.setEffect(null);
-		imgOpponentsHand4.setEffect(null);
+		List<Node> playersCards = panePazaak.getChildren();
+		for (int i = 0; i <= 25; i++)
+			playersCards.get(i).setEffect(null);
 	}
 
-	public void darkenPlayersCards()
+	public void darkenCards(boolean darkenPlayersCards)
 	{
 		ColorAdjust colorAdjust = new ColorAdjust();
 		colorAdjust.setBrightness(-0.4);
+		List<Node> playersCards = panePazaak.getChildren();
+		int i, max;
 
-		imgPlayersTable1.setEffect(colorAdjust);
-		imgPlayersTable2.setEffect(colorAdjust);
-		imgPlayersTable3.setEffect(colorAdjust);
-		imgPlayersTable4.setEffect(colorAdjust);
-		imgPlayersTable5.setEffect(colorAdjust);
-		imgPlayersTable6.setEffect(colorAdjust);
-		imgPlayersTable7.setEffect(colorAdjust);
-		imgPlayersTable8.setEffect(colorAdjust);
-		imgPlayersTable9.setEffect(colorAdjust);
-		imgPlayersHand1.setEffect(colorAdjust);
-		imgPlayersHand2.setEffect(colorAdjust);
-		imgPlayersHand3.setEffect(colorAdjust);
-		imgPlayersHand4.setEffect(colorAdjust);
-	}
+		if (darkenPlayersCards)
+			i = 13;
+		else
+			i = 0;
+		max = i + 12;
 
-	public void darkenOpponentsCards()
-	{
-		ColorAdjust colorAdjust = new ColorAdjust();
-		colorAdjust.setBrightness(-0.4);
-
-		imgOpponentsTable1.setEffect(colorAdjust);
-		imgOpponentsTable2.setEffect(colorAdjust);
-		imgOpponentsTable3.setEffect(colorAdjust);
-		imgOpponentsTable4.setEffect(colorAdjust);
-		imgOpponentsTable5.setEffect(colorAdjust);
-		imgOpponentsTable6.setEffect(colorAdjust);
-		imgOpponentsTable7.setEffect(colorAdjust);
-		imgOpponentsTable8.setEffect(colorAdjust);
-		imgOpponentsTable9.setEffect(colorAdjust);
-		imgOpponentsHand1.setEffect(colorAdjust);
-		imgOpponentsHand2.setEffect(colorAdjust);
-		imgOpponentsHand3.setEffect(colorAdjust);
-		imgOpponentsHand4.setEffect(colorAdjust);
-	}
-
-	@FXML private void mouseEnteredStandBtn()
-	{
-		stand.setEffect(new Glow(0.6));
-	}
-
-	@FXML private void mouseEnteredNextBtn()
-	{
-		next.setEffect(new Glow(0.6));
-	}
-
-	@FXML private void firstCardEntered()
-	{
-		imgPlayersHand1.setEffect(new Glow(0.3));
-	}
-
-	@FXML private void secondCardEntered()
-	{
-		imgPlayersHand2.setEffect(new Glow(0.3));
-	}
-
-	@FXML private void thirdCardEntered()
-	{
-		imgPlayersHand3.setEffect(new Glow(0.3));
-	}
-
-	@FXML private void fourthCardEntered()
-	{
-		imgPlayersHand4.setEffect(new Glow(0.3));
-	}
-
-	@FXML private void mouseEnteredHandRight1()
-	{
-		handRight1.setEffect(new Glow(0.6));
-	}
-
-	@FXML private void mouseEnteredHandRight2()
-	{
-		handRight2.setEffect(new Glow(0.6));
-	}
-
-	@FXML private void mouseEnteredHandRight3()
-	{
-		handRight3.setEffect(new Glow(0.6));
-	}
-
-	@FXML private void mouseEnteredHandRight4()
-	{
-		handRight4.setEffect(new Glow(0.6));
-	}
-
-	@FXML private void mouseEnteredHandLeft1()
-	{
-		handLeft1.setEffect(new Glow(0.6));
-	}
-
-	@FXML private void mouseEnteredHandLeft2()
-	{
-		handLeft2.setEffect(new Glow(0.6));
-	}
-
-	@FXML private void mouseEnteredHandLeft3()
-	{
-		handLeft3.setEffect(new Glow(0.6));
-	}
-
-	@FXML private void mouseEnteredHandLeft4()
-	{
-		handLeft4.setEffect(new Glow(0.6));
+		for (; i <= max; i++)
+			playersCards.get(i).setEffect(colorAdjust);
 	}
 
 	@FXML private void mouseEnteredImgGlow03(Event event)
@@ -1021,148 +687,215 @@ public class PaziaatusController
 
 	@FXML private void gameClcs(Event event)
 	{
-		switch (idFromSource(event.toString()))
+		switch (Tools.idFromSource(event.toString()))
 		{
 			case "character":
 			{
 				paneMap.setVisible(false);
-				nodesVisibler(false);
-				characterVisibler(true);
+				keeperNodesVisibler(false);
+				characterNodesVisibler(true);
 				break;
 			}
 			case "actual":
 			{
-				characterVisibler(false);
+				characterNodesVisibler(false);
 				paneMap.setVisible(false);
-				nodesVisibler(true);
+				keeperNodesVisibler(true);
 				break;
 			}
 			case "map":
 			{
-				nodesVisibler(false);
-				characterVisibler(false);
+				keeperNodesVisibler(false);
+				characterNodesVisibler(false);
 				paneMap.setVisible(true);
 				break;
 			}
-			case "travel":
+			case "featuresSelect":
 			{
-				addNodesToKeeper(middle);
-				actual.setImage(new Image("/images/icons/navicons/navTravel.png"));
-				changeActualPane(paneTravel);
-				break;
-			}
-			case "sleep":
-			{
-				actual.setImage(new Image("/images/icons/navicons/navSleep.png"));
-				changeActualPane(paneSleep);
-				break;
-			}
-			case "weapons":
-			{
-				addNodesToKeeper(middle, paneInventory, paneFeatures);
-				actual.setImage(new Image("/images/icons/navicons/navWeapons.png"));
-				changeActualPane(paneWeapons);
-				break;
-			}
-			case "repair":
-			{
-				addNodesToKeeper(middle, paneInventory, paneFeatures);
-				actual.setImage(new Image("/images/icons/navicons/navRepair.png"));
-				changeActualPane(paneRepair);
-				break;
-			}
-			case "cantine":
-			{
-				addNodesToKeeper(middle, paneCards);
-				actual.setImage(new Image("/images/icons/navicons/navCantine.png"));
-				changeActualPane(paneCantine);
-				break;
-			}
-			case "food":
-			{
-				addNodesToKeeper(middle, paneInventory, paneFeatures);
-				actual.setImage(new Image("/images/icons/navicons/navFood.png"));
-				changeActualPane(paneFood);
-				break;
-			}
-			case "armor":
-			{
-				addNodesToKeeper(middle, paneInventory, paneFeatures);
-				actual.setImage(new Image("/images/icons/navicons/navArmor.png"));
-				changeActualPane(paneArmor);
-				break;
-			}
-			case "tech":
-			{
-				addNodesToKeeper(middle, paneInventory, paneFeatures);
-				actual.setImage(new Image("/images/icons/navicons/navTech.png"));
-				changeActualPane(paneTech);
-				break;
-			}
-			case "mission":
-			{
-				addNodesToKeeper(middle);
-				actual.setImage(new Image("/images/icons/navicons/navMission.png"));
-				changeActualPane(paneMission);
-				break;
-			}
-			case "medications":
-			{
-				addNodesToKeeper(middle, paneInventory, paneFeatures);
-				actual.setImage(new Image("/images/icons/navicons/navMedications.png"));
-				changeActualPane(paneMedications);
-				break;
-			}
-			case "jewelry":
-			{
-				addNodesToKeeper(middle, paneInventory, paneFeatures);
-				actual.setImage(new Image("/images/icons/navicons/navJewelry.png"));
-				changeActualPane(paneJewelry);
-				break;
-			}
-			case "fuel":
-			{
-				addNodesToKeeper(middle, paneInventory, paneFeatures);
-				actual.setImage(new Image("/images/icons/navicons/navFuel.png"));
-				changeActualPane(paneFuel);
-				break;
-			}
-			case "charInfo":
-			{
-				charInfo.setVisible(false);
-				itemInfo.setVisible(true);
-				break;
-			}
-			case "itemInfo":
-			{
-				itemInfo.setVisible(false);
-				charInfo.setVisible(true);
+				if (gameProperties.isFeaturesOfGear())
+					featuresSelect.setImage(new Image(this.getClass().getResourceAsStream("/images/1600x900/hud/residue/item_info.png")));
+				else
+					featuresSelect.setImage(new Image(this.getClass().getResourceAsStream("/images/1600x900/hud/residue/char_info.png")));
+				gameProperties.setFeaturesOfGear(!gameProperties.isFeaturesOfGear());
 				break;
 			}
 			default:
 			{
-				changeActivePane(paneMainMenu);
+				yesOrNoDialog("exit");
 			}
+		}
+	}
+
+	private void yesOrNoDialog(String idFromSource)
+	{
+		dialogCaller = idFromSource;
+
+		switch (idFromSource)
+		{
+			case "exit":
+			{
+				dialogText.setText("Opravdu chcete odejít do hlaního menu?\n\nUložil jste si pozici?");
+				break;
+			}
+			case "trash1":
+			{
+				dialogText.setText("Opravdu chcete smazat herní pozici číslo 1?");
+				break;
+			}
+			case "trash2":
+			{
+				dialogText.setText("Opravdu chcete smazat herní pozici číslo 2?");
+				break;
+			}
+			case "trash3":
+			{
+				dialogText.setText("Opravdu chcete smazat herní pozici číslo 3?");
+			}
+		}
+
+		dialogNo.setVisible(true);
+		dialogYes.setVisible(true);
+		dialogOk.setVisible(false);
+
+		showDialog();
+	}
+
+	private void disableTravellingImages(boolean disable)
+	{
+		ColorAdjust colorAdjust = new ColorAdjust();
+		colorAdjust.setBrightness(-0.4);
+
+		List<Node> children = paneMap.getChildren();
+
+		for (int i = 0; i < children.size() - 1; i++)
+		{
+			children.get(i).setEffect(disable ? colorAdjust : null);
+			children.get(i).setDisable(disable);
+		}
+
+		actual.setEffect(disable ? colorAdjust : null);
+		character.setEffect(disable ? colorAdjust : null);
+		map.setEffect(disable ? colorAdjust : null);
+		exit.setEffect(disable ? colorAdjust : null);
+
+		actual.setDisable(disable);
+		character.setDisable(disable);
+		map.setDisable(disable);
+		exit.setDisable(disable);
+	}
+
+	@FXML private void travellingClcs(Event event)
+	{
+		String idOfSource = Tools.idFromSource(event.toString());
+
+		switch (idOfSource)
+		{
+			case "travel":
+			{
+				addNodesToKeeper(middle, paneTravel);
+				break;
+			}
+			case "sleep":
+			{
+				addNodesToKeeper(middle, paneSleep);
+				break;
+			}
+			case "weapons":
+			{
+				addNodesToKeeper(middle, paneInventory, paneFeatures, paneShop);
+				shopBanner.setImage(getImg("banners/banner_weapons.png", false));
+				setShopsImages(gameProperties.getWeapons());
+				break;
+			}
+			case "cantine":
+			{
+				addNodesToKeeper(middle, paneCards, paneFeatures, paneCantine);
+				break;
+			}
+			case "food":
+			{
+				addNodesToKeeper(middle, paneInventory, paneFeatures, paneShop);
+				shopBanner.setImage(getImg("banners/banner_food.png", false));
+				setShopsImages(gameProperties.getFood());
+				break;
+			}
+			case "armor":
+			{
+				addNodesToKeeper(middle, paneInventory, paneFeatures, paneShop);
+				shopBanner.setImage(getImg("banners/banner_armor.png", false));
+				setShopsImages(gameProperties.getArmor());
+				break;
+			}
+			case "technician":
+			{
+				addNodesToKeeper(middle, paneInventory, paneFeatures, paneShop);
+				shopBanner.setImage(getImg("banners/banner_technician.png", false));
+				setShopsImages(gameProperties.getTech());
+				break;
+			}
+			case "work":
+			{
+				addNodesToKeeper(middle, paneWork);
+				break;
+			}
+			case "medications":
+			{
+				addNodesToKeeper(middle, paneInventory, paneFeatures, paneShop);
+				shopBanner.setImage(getImg("banners/banner_medications.png", false));
+				setShopsImages(gameProperties.getMedications());
+				break;
+			}
+			case "jewelry":
+			{
+				addNodesToKeeper(middle, paneInventory, paneFeatures, paneShop);
+				shopBanner.setImage(getImg("banners/banner_jewelry.png", false));
+				setShopsImages(gameProperties.getJewelry());
+				break;
+			}
+			default:
+			{
+				addNodesToKeeper(middle, paneInventory, paneFeatures, paneFuelOrRepair);
+			}
+		}
+
+		if (/* gameProperties.getPlayer().getPlanet().equals("Narr Sheyda") && */ Tools.getRandomNumber(8) == 0)
+			gameProperties.getMissionsAndAssaults().assault();
+
+		loadingIndicator.setVisible(true);
+		navigationActualImageKeeper = getImg("/icons/navigation/navigation_" + idOfSource + ".png", false);
+		disableTravellingImages(true);
+		loadingIndicatorTimeline.play();
+	}
+
+	private void setShopsImages(Shop shop) // TODO
+	{
+		gameProperties.setActualShop(shop);
+		int i = 0;
+		for (Item item : shop.getShopItems())
+		{
+			if (item != null)
+				setImageOfNthSlot(i + 1, item.getImg(), true);
+			else
+				setImageOfNthSlot(i + 1, null, true);
+			i++;
 		}
 	}
 
 	private void addNodesToKeeper(Node... nodes)
 	{
-		paneMap.setVisible(false);
+		keeperNodesVisibler(false);
 		paneActualNodesKeeper.clear();
 		for (Node node : nodes)
 			paneActualNodesKeeper.add(node);
-		nodesVisibler(true);
-
 	}
 
-	private void nodesVisibler(boolean visible)
+	private void keeperNodesVisibler(boolean visible)
 	{
 		for (Node node : paneActualNodesKeeper)
 			node.setVisible(visible);
 	}
 
-	private void characterVisibler(boolean visible)
+	private void characterNodesVisibler(boolean visible)
 	{
 		paneGear.setVisible(visible);
 		paneCards.setVisible(visible);
@@ -1173,48 +906,75 @@ public class PaziaatusController
 
 	@FXML private void mainMenuClcs(Event event)
 	{
-		switch (idFromSource(event.toString()))
+		switch (Tools.idFromSource(event.toString()))
 		{
 			case "game1": // TODO načítání jednotlivých pozic
 			{
-				changeActivePane(paneCharacter);
+				characterNodesVisibler(true);
+				paneMainMenu.setVisible(false);
 				break;
 			}
 			case "game2":
 			{
-				changeActivePane(paneCharacter);
+				characterNodesVisibler(true);
+				paneMainMenu.setVisible(false);
 				break;
 			}
 			case "game3":
 			{
-				changeActivePane(paneCharacter);
+				characterNodesVisibler(true);
+				paneMainMenu.setVisible(false);
 				break;
 			}
 			case "trash1": // TODO mazání herních pozic
 			{
+				yesOrNoDialog("trash1");
 				break;
 			}
 			case "trash2":
 			{
+				yesOrNoDialog("trash2");
 				break;
 			}
 			case "trash3":
 			{
+				yesOrNoDialog("trash3");
 				break;
 			}
 			case "options":
 			{
-				if (gameOptions.getResolution().equals("1600x900"))
-					arrow.setLayoutY(330);
-				else if (gameOptions.getResolution().equals("1280x720"))
-					arrow.setLayoutY(410);
-				else if (gameOptions.getResolution().equals("960x540"))
-					arrow.setLayoutY(491);
-				else
-					arrow.setLayoutY(572);
-
-				gameOptions.setNewResolution(gameOptions.getResolution());
-				changeActivePane(paneOptions);
+				switch (gameProperties.getResolution())
+				{
+					case "1600x900":
+					{
+						arrow.setLayoutY(330);
+						break;
+					}
+					case "1280x720":
+					{
+						arrow.setLayoutY(410);
+						break;
+					}
+					case "960x540":
+					{
+						arrow.setLayoutY(491);
+						break;
+					}
+					default:
+						arrow.setLayoutY(572);
+				}
+				gameProperties.setNewResolution(gameProperties.getResolution());
+				paneOptions.setVisible(true);
+				break;
+			}
+			case "howToPlay":
+			{
+				paneHowToPlay.setVisible(true);
+				break;
+			}
+			case "howToPlayOk":
+			{
+				paneHowToPlay.setVisible(false);
 				break;
 			}
 			default:
@@ -1228,64 +988,515 @@ public class PaziaatusController
 
 	@FXML private void optionsClcs(Event event)
 	{
-		switch (idFromSource(event.toString()))
+		switch (Tools.idFromSource(event.toString()))
 		{
 			case "res1":
 			{
-				gameOptions.setNewResolution("1600x900");
+				gameProperties.setNewResolution("1600x900");
 				arrow.setLayoutY(330);
 				break;
 			}
 			case "res2":
 			{
-				gameOptions.setNewResolution("1280x720");
+				gameProperties.setNewResolution("1280x720");
 				arrow.setLayoutY(410);
 				break;
 			}
 			case "res3":
 			{
-				gameOptions.setNewResolution("960x540");
+				gameProperties.setNewResolution("960x540");
 				arrow.setLayoutY(491);
 				break;
 			}
 			case "res4":
 			{
-				gameOptions.setNewResolution("640x360");
+				gameProperties.setNewResolution("640x360");
 				arrow.setLayoutY(572);
 				break;
 			}
 			case "cancel":
 			{
-				changeActivePane(paneMainMenu);
+				options.setVisible(false);
 				break;
 			}
 			default:
 			{
-				gameOptions.setResolution(gameOptions.getNewResolution());
-				changeActivePane(paneMainMenu);
+				gameProperties.setResolution(gameProperties.getNewResolution());
+				options.setVisible(false);
 			}
 		}
 	}
 
-	private void changeActivePane(Pane pane)
+	@FXML private void shopSlotClc(Event event)
 	{
-		gameOptions.getPaneActive().setVisible(false);
-		gameOptions.setPaneActive(pane);
-		gameOptions.getPaneActive().setVisible(true);
+		MouseEvent mouseEvent = (MouseEvent) event;
+		if (mouseEvent.getButton() == MouseButton.PRIMARY)
+			itemLeftClc(event, false);
+		else if (mouseEvent.getButton() == MouseButton.SECONDARY)
+			shopSlotRightClc(event);
 	}
 
-	private void changeActualPane(Pane pane)
+	private void shopSlotRightClc(Event event)
 	{
-		gameOptions.setPaneActual(pane);
-		//actual.setImage(null);
-		changeActivePane(pane);
+		int nthSlot = -1;
+		Item item = null;
+
+		ImageView img = (ImageView) event.getSource();
+		if (img.getImage() == null)
+			return;
+
+		item = gameProperties.getActualShop().getNthShopItem(Tools.getNumberFromString(Tools.idFromSource(event.toString()), "shopSlot") - 1);
+		nthSlot = gameProperties.getPlayer().addItemInInventory(item);
+
+		if (nthSlot == -1)
+			return;
+
+		if (img.getImage() != null)
+			img.setImage(null);
+
+		setImageOfNthSlot(nthSlot + 1, item.getImg(), false);
 	}
 
-	private String idFromSource(String source)
+	private void setImageOfNthSlot(int nthSlot, String imgPath, boolean shop)
 	{
-		int start = source.indexOf("id=") + 3;
-		int end = source.indexOf(",", start);
-		return source.substring(start, end);
+		String fieldName;
+		if (shop)
+			fieldName = "shopSlot" + nthSlot;
+		else
+			fieldName = "invSlot" + nthSlot;
+
+		ImageView fieldValue = null; // invSlot2
+		PaziaatusController classObj = this;
+		try
+		{
+			Field field = classObj.getClass().getDeclaredField(fieldName);
+			field.setAccessible(true);
+			fieldValue = (ImageView) field.get(classObj);
+		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
+		{
+			e.printStackTrace();
+		}
+
+		if (imgPath == null)
+			fieldValue.setImage(null);
+		else
+			fieldValue.setImage(getImg(imgPath, true));
 	}
 
+	private Image getImg(String partOfPath, boolean items)
+	{
+		String itemsOrHud;
+		if (items)
+			itemsOrHud = "/items/";
+		else
+			itemsOrHud = "/hud/";
+
+		return new Image(this.getClass().getResourceAsStream("/images/" + gameProperties.getResolution() + itemsOrHud + partOfPath));
+	}
+
+	@FXML private void invSlotClc(Event event)
+	{
+		MouseEvent mouseEvent = (MouseEvent) event;
+		if (mouseEvent.getButton() == MouseButton.PRIMARY)
+			itemLeftClc(event, true);
+		else if (mouseEvent.getButton() == MouseButton.SECONDARY)
+			invSlotRightClc(event);
+	}
+
+	@FXML private void gearSlotClicked(Event event)
+	{
+		MouseEvent mouseEvent = (MouseEvent) event;
+		if (mouseEvent.getButton() == MouseButton.PRIMARY)
+			gearSlotClick(event, true);
+		else if (mouseEvent.getButton() == MouseButton.SECONDARY)
+			gearSlotClick(event, false);
+	}
+
+	private void gearSlotClick(Event event, boolean leftClick)
+	{
+		int nthSlot = 0;
+		List<Node> paneGearContent = paneGear.getChildren();
+
+		for (; nthSlot < paneGearContent.size(); nthSlot++)
+		{
+			if (event.getSource().equals(paneGearContent.get(nthSlot)))
+				break;
+		}
+		nthSlot--;
+
+		if (gameProperties.getPlayer().getNthGear(nthSlot) == null)
+			return;
+
+		Item item = gameProperties.getPlayer().getNthGear(nthSlot);
+
+		if (leftClick)
+		{
+			DropShadow dropShadow = new DropShadow();
+			dropShadow.setColor(Color.WHITE);
+
+			ImageView gearImageView = (ImageView) paneGear.getChildren().get(nthSlot + 1);
+			gearImageView.setEffect(dropShadow);
+
+			showFeatures(item);
+		} else
+			takeOffGear(nthSlot, item);
+	}
+
+	private void takeOffGear(int nthGearSlot, Item item)
+	{
+		int nthInventorySlot = gameProperties.getPlayer().addItemInInventory(item);
+
+		if (nthInventorySlot == -1)
+			generalDialog("Není dostatek místa v inventáři.");
+		else
+		{
+			gameProperties.getPlayer().getGear()[nthGearSlot] = null;
+			ImageView gearImageView = (ImageView) paneGear.getChildren().get(nthGearSlot + 1);
+			ImageView inventoryImageView = (ImageView) paneInventory.getChildren().get(nthInventorySlot + 1);
+			setImage(gearImageView, inventoryImageView, false);
+			gearImageView.setImage(getGearDefaultImage(nthGearSlot));
+
+			gearImageView.setEffect(null);
+			gearImageView.setOnMouseEntered(null);
+			gearImageView.setOnMouseExited(null);
+		}
+	}
+
+	private Image getGearDefaultImage(int nthGearSlot)
+	{
+		String partOfPath;
+		switch (nthGearSlot)
+		{
+			case 0:
+				partOfPath = "implant";
+				break;
+			case 1:
+				partOfPath = "helmet";
+				break;
+			case 2:
+				partOfPath = "necklace";
+				break;
+			case 3:
+				partOfPath = "artifact";
+				break;
+			case 5:
+				partOfPath = "waist";
+				break;
+			case 6:
+				partOfPath = "gloves";
+				break;
+			case 7:
+				partOfPath = "ring";
+				break;
+			case 8:
+				partOfPath = "speeder";
+				break;
+			case 9:
+				partOfPath = "boots";
+				break;
+			case 10:
+				partOfPath = "belt";
+				break;
+			case 11:
+				partOfPath = "droid";
+				break;
+			default:
+				partOfPath = "hand";
+		}
+		return getImg("icons/gear/gear_" + partOfPath + ".png", false);
+	}
+
+	private void invSlotRightClc(Event event)
+	{
+		ImageView img = (ImageView) event.getSource();
+		if (img.getImage() == null)
+			return;
+
+		int nthSlot = Tools.getNumberFromString(Tools.idFromSource(event.toString()), "invSlot") - 1;
+
+		if (paneGear.isVisible())
+		{
+			changeGear(nthSlot);
+
+		} else if (paneFuelOrRepair.isVisible())
+		{
+
+		} else
+		{
+			gameProperties.getPlayer().sellItem(nthSlot);
+			//gameOptions.getPlayer().addOrRemoveCredits(item.getPrice());
+			ImageView invImageView = (ImageView) paneInventory.getChildren().get(nthSlot + 1);
+			invImageView.setImage(null);
+
+		}
+	}
+
+	private void changeGear(int nthInvSlot)
+	{
+		Item item = gameProperties.getPlayer().getNthItemFromInventory(nthInvSlot);
+		int nthGearSlot = getNthGearSlot(item.getItemType());
+		Item gear = gameProperties.getPlayer().getNthGear(nthGearSlot);
+
+		gameProperties.getPlayer().changeItem(gameProperties.getPlayer().changeGear(item, nthGearSlot), nthInvSlot);
+		ImageView gearImgView = (ImageView) paneGear.getChildren().get(nthGearSlot + 1);
+		ImageView inventoryImageView = (ImageView) paneInventory.getChildren().get(nthInvSlot + 1);
+
+		if (gear != null)
+		{
+			swapImages(gearImgView, inventoryImageView);
+		} else
+		{
+			setImage(gearImgView, inventoryImageView, true);
+		}
+	}
+
+	private int getNthGearSlot(String itemType)
+	{
+		switch (itemType)
+		{
+			case "implantát":
+				return 0;
+			case "helma":
+				return 1;
+			case "náhrdelník":
+				return 2;
+			case "artefakt":
+				return 3;
+			case "oděv":
+				return 5;
+			case "rukavice":
+				return 6;
+			case "prsten":
+				return 7;
+			case "vznášedlo":
+				return 8;
+			case "boty":
+				return 9;
+			case "opasek":
+				return 10;
+			case "droid":
+				return 11;
+			default:
+				return 4;
+		}
+	}
+
+	protected synchronized void changeValuesOfNecessitiesOfLife()
+	{
+		energy.setText(String.valueOf(gameProperties.getPlayer().getEnergy()));
+		fullness.setText(String.valueOf(gameProperties.getPlayer().getFullness()));
+		hydration.setText(String.valueOf(gameProperties.getPlayer().getHydration()));
+		health.setText(String.valueOf(gameProperties.getPlayer().getHealth()));
+	}
+
+	private void swapImages(ImageView gearImageView, ImageView inentoryvImageView)
+	{
+		Image tmpImg = gearImageView.getImage();
+		gearImageView.setImage(inentoryvImageView.getImage());
+		inentoryvImageView.setImage(tmpImg);
+	}
+
+	private void setImage(ImageView gearImageView, ImageView inventoryImageView, boolean setGearImageView)
+	{
+		if (setGearImageView)
+		{
+			gearImageView.setImage(inventoryImageView.getImage());
+			inventoryImageView.setImage(null);
+		} else
+			inventoryImageView.setImage(gearImageView.getImage());
+	}
+
+	private void itemLeftClc(Event event, boolean inventory)
+	{
+		ImageView image = (ImageView) event.getSource();
+		if (image.getImage() == null)
+			return;
+
+		swapEffectsOfImages(image);
+
+		String prefix;
+		if (inventory)
+			prefix = "invSlot";
+		else
+			prefix = "shopSlot";
+
+		int nthSlot = Tools.getNumberFromString(Tools.idFromSource(event.toString()), prefix) - 1;
+
+		if (inventory)
+			showFeatures(gameProperties.getPlayer().getNthItemFromInventory(nthSlot));
+		else
+			showFeatures(gameProperties.getActualShop().getNthShopItem(nthSlot));
+
+	}
+
+	private void swapEffectsOfImages(ImageView newImage)
+	{
+		ImageView oldImage = gameProperties.getClickedImage();
+		if (oldImage != null)
+		{
+			oldImage.setEffect(null);
+			oldImage.setOnMouseEntered(event -> {
+				mouseEnteredImgGlow03(event);
+			});
+			oldImage.setOnMouseExited(event -> {
+				mouseExitedImg(event);
+			});
+		}
+
+		DropShadow dropShadow = new DropShadow();
+		dropShadow.setColor(Color.WHITE);
+
+		newImage.setEffect(dropShadow);
+		newImage.setOnMouseExited(null);
+		newImage.setOnMouseEntered(null);
+		gameProperties.setClickedImage(newImage);
+	}
+
+	private void showFeatures(Item item)
+	{
+		gameProperties.setClickedItem(item);
+
+		String itemType = item.getItemType();
+		String partOfPath;
+
+		if (itemType.equals("laserový meč") || itemType.equals("laserová puška"))
+			partOfPath = "attack.png";
+		else if (itemType.equals("droid") || itemType.equals("speeder"))
+			partOfPath = "speed.png";
+		else if (itemType.equals("jídlo") || itemType.equals("pití") || itemType.equals("léčivo"))
+			partOfPath = "consumer.png";
+		else if (itemType.equals("nástroj"))
+			partOfPath = "skill.png";
+		else if (itemType.equals("karta"))
+			partOfPath = "card.png";
+		else if (itemType.equals("implantát") || itemType.equals("artefakt"))
+			partOfPath = "function.png";
+		else
+			partOfPath = "defense.png";
+
+		partOfPath = "features/features_" + partOfPath;
+		featuresTitles.setImage(getImg(partOfPath, false));
+
+		String[] values = item.getContentOfFieldsLikeString();
+
+		featuresName.setText(itemType);
+		features1.setText(values[0]);
+		features2.setText(values[1]);
+		features3.setText(values[2]);
+		features4.setText(values[3]);
+		features5.setText(values[4]);
+		features6.setText(values[5]);
+		features7.setText(values[6]);
+	}
+
+	@FXML private void dialogYesClick(Event event)
+	{
+		blurGroup.setEffect(null);
+		switch (dialogCaller)
+		{
+			case "exit":
+			{
+				gameProperties.stopTimeChecker();
+				keeperNodesVisibler(false);
+				paneMap.setVisible(false);
+				paneMainMenu.setVisible(true);
+			}
+		}
+
+		blurGroup.setEffect(null);
+		paneDialog.setVisible(false);
+	}
+
+	@FXML private void dialogNoOrOkCick(Event event)
+	{
+		blurGroup.setEffect(null);
+		paneDialog.setVisible(false);
+	}
+
+	public void generalDialog(String text)
+	{
+		dialogText.setText(text);
+		dialogNo.setVisible(false);
+		dialogYes.setVisible(false);
+		dialogOk.setVisible(true);
+
+		showDialog();
+	}
+
+	private void showDialog()
+	{
+		GaussianBlur blurEffect = new GaussianBlur(15);
+		blurGroup.setEffect(blurEffect);
+
+		paneDialog.setVisible(true);
+	}
+
+	@FXML private void travelClicks(Event event)
+	{
+		MouseEvent mouseEvent = (MouseEvent) event;
+		if (mouseEvent.getButton() != MouseButton.PRIMARY)
+			return;
+
+		switch (Tools.idFromSource(event.toString()))
+		{
+			case "travelLeft":
+			{
+				travelLeft.setVisible(false);
+				priceLeft.setVisible(false);
+				gameProperties.getPlayer().setPlanet("Narr Sheyda");
+				break;
+			}
+			case "travelRight":
+			{
+				travelRight.setVisible(false);
+				priceRight.setVisible(false);
+				gameProperties.getPlayer().setPlanet("Kerusant");
+			}
+		}
+	}
+
+	private void workDuration()
+	{
+		int duration = gameProperties.getPlayer().getWeight() / 4;
+
+		loadingIndicatorTimeline.getKeyFrames().set(1, new KeyFrame(Duration.seconds(duration), new KeyValue(loadingBar.progressProperty(), 1)));
+	}
+
+	@FXML private void workClicks(Event event)
+	{
+		MouseEvent mouseEvent = (MouseEvent) event;
+		if (mouseEvent.getButton() != MouseButton.PRIMARY)
+			return;
+
+		switch (Tools.idFromSource(event.toString()))
+		{
+			case "hunter":
+			{
+				paneLoading.setVisible(true);
+				loadingIndicatorTimeline.play();
+				generalDialog("Vrátil ses z práce lovce.\n\nVydělal sis:\n xxx kreditů");
+				break;
+			}
+			case "worker":
+			{
+				paneLoading.setVisible(true);
+				loadingIndicatorTimeline.play();
+				generalDialog("Vrátil ses z práce.\n\nVydělal sis:\n xxx kreditů");
+				break;
+			}
+			case "archeologist":
+			{
+				paneLoading.setVisible(true);
+				loadingIndicatorTimeline.play();
+				generalDialog("Vrátil ses z práce archeologa.\n\nVydělal sis:\n xxx kreditů");
+				break;
+			}
+			case "technician":
+			{
+				paneLoading.setVisible(true);
+				loadingIndicatorTimeline.play();
+				generalDialog("Vrátil ses z práce technika.\n\nVydělal sis:\n xxx kreditů");
+			}
+		}
+	}
 }

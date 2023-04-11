@@ -3,8 +3,9 @@ package pazaak;
 import java.util.ArrayList;
 import java.util.List;
 
-import beings.*;
+import beings.PazaakPlayer;
 import main.PaziaatusController;
+import residue.Constants;
 
 public class Pazaak
 {
@@ -52,14 +53,14 @@ public class Pazaak
 		sideDeck.fillSideDeck();
 		opponent.makeCardsForMatch(sideDeck.getSideDeck());
 
-		controller.showHandCards();
+		controller.showOrHidehandCards(true);
 		controller.activateHandButtons();
-		controller.visualizationPlayersSide();
+		controller.visualizationOfTableCards(true);
 
 		playersScore = useCard(mainDeck.getAndRemoveCard(), cardsOnPlayersTable);
 
 		controller.visualizeWithShortDelayPlsTable.play();
-		controller.visualizationOpponentsSide();
+		controller.visualizationOfTableCards(false);
 	}
 
 	public void opponentsTurn() throws InterruptedException
@@ -87,20 +88,19 @@ public class Pazaak
 				opponentStand = true;
 			else if (temporaryScoreOfOpponentsCards > getPlayersScore() && playerStand)
 				opponentStand = true;
-			else if ((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18)
-					&& temporaryScoreOfOpponentsCards == getPlayersScore() && playerStand)
+			else if ((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18) && temporaryScoreOfOpponentsCards == getPlayersScore()
+					&& playerStand)
 				opponentStand = true;
-			else if ((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18)
-					&& temporaryScoreOfOpponentsCards < getPlayersScore() && playerStand)
+			else if ((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18) && temporaryScoreOfOpponentsCards < getPlayersScore()
+					&& playerStand)
 				opponentStand = false;
-			else if ((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18)
-					&& temporaryScoreOfOpponentsCards > getPlayersScore())
+			else if ((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18) && temporaryScoreOfOpponentsCards > getPlayersScore())
 				opponentStand = true;
 			else if (temporaryScoreOfOpponentsCards > 20)
 				opponentStand = true;
 
 			if (opponentStand)
-				controller.darkenOpponentsCards();
+				controller.darkenCards(false);
 		}
 
 		if (!opponentPlayedCard)
@@ -130,8 +130,7 @@ public class Pazaak
 			{
 				if (!card.getCard().isItMinusCard())
 				{
-					if (opponentsScore + card.getCard().getFirstValue() == 20
-							|| opponentsScore + card.getCard().getFirstValue() == 19)
+					if (opponentsScore + card.getCard().getFirstValue() == 20 || opponentsScore + card.getCard().getFirstValue() == 19)
 					{
 						scoreIfCardIsUsed[index++] = opponentsScore + card.getCard().getFirstValue();
 						opponentConsidersToUseOneOfTheseCards.add(card);
@@ -210,18 +209,15 @@ public class Pazaak
 			{
 				if (opponentsScore < 20)
 				{
-					if ((card.getCard().equals(Card.PLUS_ONE) || card.getCard().equals(Card.PLUS_TWO)
-							|| card.getCard().equals(Card.PLUS_THREE) || card.getCard().equals(Card.PLUS_FOUR)
-							|| card.getCard().equals(Card.PLUS_FIVE) || card.getCard().equals(Card.PLUS_SIX))
-							&& (card.getCard().getFirstValue() + opponentsScore == 19
-									|| card.getCard().getFirstValue() + opponentsScore == 20))
+					if ((card.getCard().equals(Card.PLUS_ONE) || card.getCard().equals(Card.PLUS_TWO) || card.getCard().equals(Card.PLUS_THREE)
+							|| card.getCard().equals(Card.PLUS_FOUR) || card.getCard().equals(Card.PLUS_FIVE) || card.getCard().equals(Card.PLUS_SIX))
+							&& (card.getCard().getFirstValue() + opponentsScore == 19 || card.getCard().getFirstValue() + opponentsScore == 20))
 					{
 						scoreIfCardIsUsed[index++] = opponentsScore + card.getCard().getFirstValue();
 						opponentConsidersToUseOneOfTheseCards.add(card);
 					}
-				} else if ((card.getCard().equals(Card.MINUS_ONE) || card.getCard().equals(Card.MINUS_TWO)
-						|| card.getCard().equals(Card.MINUS_THREE) || card.getCard().equals(Card.MINUS_FOUR)
-						|| card.getCard().equals(Card.MINUS_FIVE) || card.getCard().equals(Card.MINUS_SIX))
+				} else if ((card.getCard().equals(Card.MINUS_ONE) || card.getCard().equals(Card.MINUS_TWO) || card.getCard().equals(Card.MINUS_THREE)
+						|| card.getCard().equals(Card.MINUS_FOUR) || card.getCard().equals(Card.MINUS_FIVE) || card.getCard().equals(Card.MINUS_SIX))
 						&& opponentsScore - card.getCard().getFirstValue() < 21)
 				{
 					card.setLeftTurnActive();
@@ -270,65 +266,64 @@ public class Pazaak
 		if (getPlayersScore() > 20)
 		{
 			playerStand = true;
-			controller.darkenPlayersCards();
+			controller.darkenCards(true);
 		}
 
 		if (finalOpponentsScore > 20)
 		{
 			opponentStand = true;
-			controller.darkenOpponentsCards();
+			controller.darkenCards(false);
 		}
 
 		if (playerStand && opponentStand)
 		{
 			if (finalOpponentsScore == getPlayersScore())
 			{
-				controller.dialogDraw();
+				controller.generalDialog(Constants.DRAW);
 				newGameSet();
 			} else if (getPlayersScore() > 20 && finalOpponentsScore > 20)
 			{
-				controller.dialogDraw();
+				controller.generalDialog(Constants.DRAW);
 				newGameSet();
 			} else if (getPlayersScore() > 20)
 			{
 				opponentsSets++;
-				controller.dialogOpponentWinsTheSet();
+				controller.generalDialog(Constants.SET_OPPONENT);
 				newGameSet();
 			} else if (finalOpponentsScore > 20)
 			{
 				playersSets++;
-				controller.dialogPlayerWinsTheSet();
+				controller.generalDialog(Constants.SET_PLAYER);
 				newGameSet();
 			} else if (finalOpponentsScore < getPlayersScore())
 			{
 				playersSets++;
-				controller.dialogPlayerWinsTheSet();
+				controller.generalDialog(Constants.SET_PLAYER);
 				newGameSet();
 			} else
 			{
 				opponentsSets++;
-				controller.dialogOpponentWinsTheSet();
+				controller.generalDialog(Constants.SET_OPPONENT);
 				newGameSet();
 			}
 
 			if (playersSets == 3)
 			{
 				controller.visualizeWithDelayPlsTable.play();
-				controller.dialogPlayerWinsTheGame();
+				controller.generalDialog(Constants.GAME_PLAYER);
 				end = true;
 			} else if (opponentsSets == 3)
 			{
 				controller.visualizeWithDelayOpsTable.play();
-				controller.dialogOpponentWinsTheGame();
+				controller.generalDialog(Constants.GAME_OPPONENT);
 				end = true;
 			}
 
 			if (end)
 			{
-				controller.hideHandCards();
-				controller.btnStart.setVisible(true);
-				controller.stand.setDisable(true);
-				controller.next.setDisable(true);
+				controller.showOrHidehandCards(false);
+				controller.nextSetStartLeaveGame.setVisible(true);
+				controller.disableNextAndStandButtons(true);
 			}
 		}
 
@@ -370,7 +365,7 @@ public class Pazaak
 	{
 		opponent.getCardsForMatch().get(whichCardOpPlayed).used();
 		opponentsScore = useCard(opponent.lockedOpponentsPlayedCard, cardsOnOpponentsTable);
-		controller.visualizationOpponentsSide();
+		controller.visualizationOfTableCards(false);
 	}
 
 	public int useCard(RealCard card, List<RealCard> personsCardsOnTable)

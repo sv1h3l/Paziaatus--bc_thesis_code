@@ -1,9 +1,6 @@
 package beings;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import items.Item;
+import residue.Item;
 
 public class Player extends PazaakPlayer
 {
@@ -18,10 +15,13 @@ public class Player extends PazaakPlayer
 	private int	strenght;
 	private int	credits;
 
-	private List<Item> inventory;
+	private Item[]	gear;
+	private Item[]	cards;
+	private Item[]	inventory;
 
 	private String planet;
-	//private Speeder speeder;
+
+	public final int INVENTORY_AND_GEAR_SIZE = 12;
 
 	public Player(int energy, int fullness, int hydration, int health, int credits, int weight, int appearance,
 			int luck, int defense, int strenght, String planet)
@@ -40,7 +40,88 @@ public class Player extends PazaakPlayer
 
 		this.planet = planet;
 
-		inventory = new ArrayList<>();
+		inventory = new Item[INVENTORY_AND_GEAR_SIZE];
+		gear = new Item[INVENTORY_AND_GEAR_SIZE];
+	}
+
+	public Item[] getGear()
+	{
+		return gear;
+	}
+	
+	public Item getNthGear(int nth)
+	{
+		return gear[nth];
+	}
+	
+	public Item changeGear(Item item, int nth)
+	{
+		Item previousEquippedGear = gear[nth];
+		gear[nth] = item;
+		return previousEquippedGear;
+	}
+
+	public void changeItem(Item item, int nth)
+	{
+		inventory[nth] = item;
+	}
+	
+	public void sellItem(int nth)
+	{
+		inventory[nth] = null;
+	}
+	
+	public void addOrRemoveCredits(int amount)
+	{
+		credits = credits + amount;
+	}
+	
+	public void addGear(Item gear)
+	{
+		this.gear[0] = gear;
+	}
+	
+	public void setGear(Item[] gear)
+	{
+		this.gear = gear;
+	}
+
+	public Item[] getCards()
+	{
+		return cards;
+	}
+
+	public void setCards(Item[] cards)
+	{
+		this.cards = cards;
+	}
+
+	public Item[] getInventory()
+	{
+		return inventory;
+	}
+	
+	public Item getNthItemFromInventory(int nth)
+	{
+		return inventory[nth];
+	}
+
+	public void setInventory(Item[] inventory)
+	{
+		this.inventory = inventory;
+	}
+
+	public int addItemInInventory(Item item)
+	{
+		for (int i = 0; i < INVENTORY_AND_GEAR_SIZE; i++)
+		{
+			if (inventory[i] == null)
+			{
+				inventory[i] = item;
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public int getHealth()
@@ -152,5 +233,4 @@ public class Player extends PazaakPlayer
 	{
 		this.planet = planet;
 	}
-
 }
