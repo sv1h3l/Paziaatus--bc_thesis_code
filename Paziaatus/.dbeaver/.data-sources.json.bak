@@ -4,13 +4,74 @@
 		"h2_embedded-18718fbdf7e-5c4b52c4c49a193a": {
 			"provider": "h2",
 			"driver": "h2_embedded",
-			"name": "db",
+			"name": "database",
 			"configuration": {
-				"database": "C:\\Users\\HIGHSENBERG\\git\\bc-thesis-code\\Paziaatus\\db",
-				"url": "jdbc:h2:C:\\Users\\HIGHSENBERG\\git\\bc-thesis-code\\Paziaatus\\db",
+				"database": "C:\\Users\\HIGHSENBERG\\git\\bc-thesis-code\\Paziaatus\\database",
+				"url": "jdbc:h2:C:\\Users\\HIGHSENBERG\\git\\bc-thesis-code\\Paziaatus\\database",
 				"configurationType": "MANUAL",
 				"type": "dev",
 				"auth-model": "native"
+			}
+		}
+	},
+	"virtual-models": {
+		"h2_embedded-18718fbdf7e-5c4b52c4c49a193a": {
+			"PUBLIC": {
+				"@properties": {
+					"erd.diagram.state": {
+						"serialized": "\u003cdiagram version\u003d\"1\" name\u003d\"empty\" time\u003d\"202303251903\"\u003e\u003centities\u003e\u003cdata-source id\u003d\"h2_embedded-18718fbdf7e-5c4b52c4c49a193a\"\u003e\u003centity id\u003d\"1\" name\u003d\"ARTIFACTS\" fq-name\u003d\"PUBLIC.ARTIFACTS\" order\u003d\"0\" x\u003d\"1081\" y\u003d\"20\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"2\" name\u003d\"BELTS\" fq-name\u003d\"PUBLIC.BELTS\" order\u003d\"1\" x\u003d\"269\" y\u003d\"257\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"3\" name\u003d\"BOOTS\" fq-name\u003d\"PUBLIC.BOOTS\" order\u003d\"2\" x\u003d\"518\" y\u003d\"257\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"4\" name\u003d\"DRINKS\" fq-name\u003d\"PUBLIC.DRINKS\" order\u003d\"3\" x\u003d\"20\" y\u003d\"39\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"5\" name\u003d\"DROIDS\" fq-name\u003d\"PUBLIC.DROIDS\" order\u003d\"4\" x\u003d\"269\" y\u003d\"39\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"6\" name\u003d\"FOODS\" fq-name\u003d\"PUBLIC.FOODS\" order\u003d\"5\" x\u003d\"518\" y\u003d\"39\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"7\" name\u003d\"GAMEPOSITION1\" fq-name\u003d\"PUBLIC.GAMEPOSITION1\" order\u003d\"6\" x\u003d\"20\" y\u003d\"513\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"8\" name\u003d\"GAMEPOSITION2\" fq-name\u003d\"PUBLIC.GAMEPOSITION2\" order\u003d\"7\" x\u003d\"269\" y\u003d\"513\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"9\" name\u003d\"GAMEPOSITION3\" fq-name\u003d\"PUBLIC.GAMEPOSITION3\" order\u003d\"8\" border-width\u003d\"3\" x\u003d\"519\" y\u003d\"513\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"10\" name\u003d\"GLOVES\" fq-name\u003d\"PUBLIC.GLOVES\" order\u003d\"9\" x\u003d\"767\" y\u003d\"257\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"11\" name\u003d\"HELMETS\" fq-name\u003d\"PUBLIC.HELMETS\" order\u003d\"10\" x\u003d\"924\" y\u003d\"257\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"12\" name\u003d\"IMPLANTS\" fq-name\u003d\"PUBLIC.IMPLANTS\" order\u003d\"11\" x\u003d\"1238\" y\u003d\"20\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"13\" name\u003d\"MEDICATIONS\" fq-name\u003d\"PUBLIC.MEDICATIONS\" order\u003d\"12\" x\u003d\"767\" y\u003d\"39\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"14\" name\u003d\"NECKLACES\" fq-name\u003d\"PUBLIC.NECKLACES\" order\u003d\"13\" x\u003d\"1395\" y\u003d\"20\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"15\" name\u003d\"RINGS\" fq-name\u003d\"PUBLIC.RINGS\" order\u003d\"14\" x\u003d\"20\" y\u003d\"267\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"16\" name\u003d\"SPEEDERS\" fq-name\u003d\"PUBLIC.SPEEDERS\" order\u003d\"15\" x\u003d\"924\" y\u003d\"39\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"17\" name\u003d\"TOOLS\" fq-name\u003d\"PUBLIC.TOOLS\" order\u003d\"16\" x\u003d\"1081\" y\u003d\"257\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"18\" name\u003d\"WEAPONS\" fq-name\u003d\"PUBLIC.WEAPONS\" order\u003d\"17\" x\u003d\"1238\" y\u003d\"257\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003centity id\u003d\"19\" name\u003d\"WEARS\" fq-name\u003d\"PUBLIC.WEARS\" order\u003d\"18\" x\u003d\"1395\" y\u003d\"257\"\u003e\u003cpath name\u003d\"PUBLIC\"/\u003e\u003c/entity\u003e\u003c/data-source\u003e\u003c/entities\u003e\u003crelations/\u003e\u003c/diagram\u003e"
+					}
+				},
+				":SPEEDERS": {
+					"constraints": {
+						"VIRTUAL_PK": {
+							"type": "vpk",
+							"useAllColumns": true
+						}
+					}
+				},
+				":MEDICATIONS": {
+					"constraints": {
+						"VIRTUAL_PK": {
+							"type": "vpk",
+							"useAllColumns": true
+						}
+					}
+				},
+				":NECKLACES": {
+					"constraints": {
+						"VIRTUAL_PK": {
+							"type": "vpk",
+							"useAllColumns": true
+						}
+					}
+				},
+				":DRINKS": {
+					"constraints": {
+						"VIRTUAL_PK": {
+							"type": "vpk",
+							"useAllColumns": true
+						}
+					}
+				},
+				":GLOVES": {
+					"constraints": {
+						"GLOVES_VK": {
+							"type": "vpk",
+							"attributes": [
+								"MAXREPAIR"
+							]
+						}
+					}
+				},
+				":FOOD": {
+					"constraints": {
+						"VIRTUAL_PK": {
+							"type": "vpk",
+							"useAllColumns": true
+						}
+					}
+				}
 			}
 		}
 	},

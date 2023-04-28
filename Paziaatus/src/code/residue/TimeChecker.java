@@ -1,13 +1,13 @@
 package residue;
 
-import main.GameProperties;
+import main.GameModel;
 
 public class TimeChecker implements Runnable
 {
 	private volatile boolean	isRunning	= true;
-	private GameProperties		gameProperties;
+	private GameModel		gameProperties;
 
-	public TimeChecker(GameProperties gameProperties)
+	public TimeChecker(GameModel gameProperties)
 	{
 		this.gameProperties = gameProperties;
 	}
@@ -16,6 +16,7 @@ public class TimeChecker implements Runnable
 	{
 		while (isRunning)
 		{
+
 			try
 			{
 				Thread.sleep(20000);
@@ -23,8 +24,11 @@ public class TimeChecker implements Runnable
 			{
 				Thread.currentThread().interrupt();
 			}
+			if (!isRunning)
+				break;
 			gameProperties.updateNecessitiesOfLife(false);
 		}
+		this.stop(); // TODO zjistit, jestli to pomohlo
 	}
 
 	public void stop()

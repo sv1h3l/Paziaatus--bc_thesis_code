@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.effect.BoxBlur?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<Pane fx:id="paneForScaling" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.GameController">
+   <children>
+      <Pane fx:id="paneMain" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: black;" stylesheets="@style.css">
+         <children>
+            <Group fx:id="blurGroup">
+               <children>
+                  <ImageView fx:id="background" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/residue/background.jpg" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="middle" layoutX="725.0" layoutY="123.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                     <image>
+                        <Image url="@images/hud/residue/middle.png" />
+                     </image>
+                  </ImageView>
+                  <Pane fx:id="paneTravel" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fx:id="narrSheyda" layoutX="78.0" layoutY="53.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/travel/travel_narr_sheyda.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="kerusant" layoutX="787.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/travel/travel_kerusant.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="priceLeft" layoutX="185.0" layoutY="784.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/travel/travel_price_left.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="priceRight" layoutX="908.0" layoutY="773.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/travel/travel_price_right.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="travelLeft" layoutX="255.0" layoutY="811.0" onMouseClicked="#travelClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/travel/travel_left.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="travelRight" layoutX="1049.0" layoutY="801.0" onMouseClicked="#travelClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/travel/travel_right.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="paneWork" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fx:id="hunter" layoutX="116.0" layoutY="102.0" onMouseClicked="#workClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/work/work_hunter.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="worker" layoutX="103.0" layoutY="502.0" onMouseClicked="#workClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/work/work_worker.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="archeologist" layoutX="809.0" layoutY="102.0" onMouseClicked="#workClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/work/work_archeologist.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="technician" layoutX="809.0" layoutY="502.0" onMouseClicked="#workClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/work/work_technician.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="paneCantine" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" />
+                  <Pane fx:id="paneSleep" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" />
+                  <Pane fx:id="paneFuelOrRepair" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false" />
+                  <Pane fx:id="paneCards" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fx:id="cards" layoutX="132.0" layoutY="532.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/residue/cards.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="crd1" fitHeight="100.0" fitWidth="100.0" layoutX="136.0" layoutY="593.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="crd2" fitHeight="100.0" fitWidth="100.0" layoutX="241.0" layoutY="593.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="crd3" fitHeight="100.0" fitWidth="100.0" layoutX="346.0" layoutY="593.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="crd4" fitHeight="100.0" fitWidth="100.0" layoutX="451.0" layoutY="593.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="crd5" fitHeight="100.0" fitWidth="100.0" layoutX="556.0" layoutY="593.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="crd6" fitHeight="100.0" fitWidth="100.0" layoutX="136.0" layoutY="715.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="crd7" fitHeight="100.0" fitWidth="100.0" layoutX="241.0" layoutY="715.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="crd8" fitHeight="100.0" fitWidth="100.0" layoutX="346.0" layoutY="715.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="crd9" fitHeight="100.0" fitWidth="100.0" layoutX="451.0" layoutY="715.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="crd10" fitHeight="100.0" fitWidth="100.0" layoutX="556.0" layoutY="715.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </Pane>
+                  <Pane fx:id="paneFeatures" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fx:id="featuresSelect" layoutX="1440.0" layoutY="509.0" onMouseClicked="#gameClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/features/char_info.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="featuresBackground" layoutX="813.0" layoutY="532.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/features/features.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="featuresTitles" layoutX="813.0" layoutY="580.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/features/features_defense.png" />
+                           </image>
+                        </ImageView>
+                        <Text fx:id="featuresName" fill="#c34915" layoutX="826.0" layoutY="626.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font" textAlignment="CENTER" wrappingWidth="550.0">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="features1" fill="WHITE" layoutX="1012.0" layoutY="663.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font">
+                           <font>
+                              <Font size="21.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="features2" fill="WHITE" layoutX="1012.0" layoutY="712.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font">
+                           <font>
+                              <Font size="21.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="features3" fill="WHITE" layoutX="1012.0" layoutY="767.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font">
+                           <font>
+                              <Font size="21.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="features4" fill="WHITE" layoutX="1239.0" layoutY="662.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font">
+                           <font>
+                              <Font size="21.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="features5" fill="WHITE" layoutX="1239.0" layoutY="713.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font">
+                           <font>
+                              <Font size="21.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="features6" fill="WHITE" layoutX="1239.0" layoutY="766.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font">
+                           <font>
+                              <Font size="21.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="features7" fill="WHITE" layoutX="1239.0" layoutY="813.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font">
+                           <font>
+                              <Font size="21.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="paneInventory" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fx:id="invSlots" layoutX="829.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/residue/inventory.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="invSlot1" fitHeight="100.0" fitWidth="100.0" layoutX="844.0" layoutY="103.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot2" fitHeight="100.0" fitWidth="100.0" layoutX="979.0" layoutY="103.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot3" fitHeight="100.0" fitWidth="100.0" layoutX="1114.0" layoutY="103.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot4" fitHeight="100.0" fitWidth="100.0" layoutX="1251.0" layoutY="103.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot5" fitHeight="100.0" fitWidth="100.0" layoutX="844.0" layoutY="240.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot6" fitHeight="100.0" fitWidth="100.0" layoutX="979.0" layoutY="240.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot7" fitHeight="100.0" fitWidth="100.0" layoutX="1114.0" layoutY="240.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot8" fitHeight="100.0" fitWidth="100.0" layoutX="1251.0" layoutY="240.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot9" fitHeight="100.0" fitWidth="100.0" layoutX="844.0" layoutY="380.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot10" fitHeight="100.0" fitWidth="100.0" layoutX="979.0" layoutY="380.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot11" fitHeight="100.0" fitWidth="100.0" layoutX="1114.0" layoutY="380.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="invSlot12" fitHeight="100.0" fitWidth="100.0" layoutX="1251.0" layoutY="380.0" onMouseClicked="#invSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </Pane>
+                  <Pane fx:id="paneGear" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fx:id="gearSlots" layoutX="128.0" layoutY="43.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/residue/gear.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearImplant" fitHeight="100.0" fitWidth="100.0" layoutX="137.0" layoutY="101.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_implant.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearHelmet" fitHeight="100.0" fitWidth="100.0" layoutX="275.0" layoutY="101.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_helmet.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearNecklace" fitHeight="100.0" fitWidth="100.0" layoutX="413.0" layoutY="101.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_necklace.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearArtifact" fitHeight="100.0" fitWidth="100.0" layoutX="551.0" layoutY="101.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_artifact.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearHand" fitHeight="100.0" fitWidth="100.0" layoutX="137.0" layoutY="237.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_hand.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearWear" fitHeight="100.0" fitWidth="100.0" layoutX="275.0" layoutY="237.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_wear.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearGloves" fitHeight="100.0" fitWidth="100.0" layoutX="413.0" layoutY="237.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_gloves.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearRing" fitHeight="100.0" fitWidth="100.0" layoutX="551.0" layoutY="237.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_ring.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearSpeeder" fitHeight="100.0" fitWidth="100.0" layoutX="137.0" layoutY="373.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_speeder.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearBoots" fitHeight="100.0" fitWidth="100.0" layoutX="275.0" layoutY="373.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_boots.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearBelt" fitHeight="100.0" fitWidth="100.0" layoutX="413.0" layoutY="373.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_belt.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gearDroid" fitHeight="100.0" fitWidth="100.0" layoutX="551.0" layoutY="373.0" onMouseClicked="#gearSlotClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/gear/gear_droid.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="paneShop" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fx:id="shopBanner" layoutX="189.0" layoutY="62.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/banners/banner_jewelry.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="shopSlots" layoutX="259.0" layoutY="127.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/shops/shop_slots_10.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="shopSlot1" fitHeight="100.0" fitWidth="100.0" layoutX="268.0" layoutY="135.0" onMouseClicked="#shopSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="shopSlot2" fitHeight="100.0" fitWidth="100.0" layoutX="418.0" layoutY="135.0" onMouseClicked="#shopSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="shopSlot3" fitHeight="100.0" fitWidth="100.0" layoutX="269.0" layoutY="282.0" onMouseClicked="#shopSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="shopSlot4" fitHeight="100.0" fitWidth="100.0" layoutX="419.0" layoutY="282.0" onMouseClicked="#shopSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <effect>
+                              <DropShadow>
+                                 <color>
+                                    <Color red="1.0" green="1.0" blue="1.0" />
+                                 </color>
+                              </DropShadow>
+                           </effect>
+                        </ImageView>
+                        <ImageView fx:id="shopSlot5" fitHeight="100.0" fitWidth="100.0" layoutX="268.0" layoutY="431.0" onMouseClicked="#shopSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="shopSlot6" fitHeight="100.0" fitWidth="100.0" layoutX="418.0" layoutY="431.0" onMouseClicked="#shopSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="shopSlot7" fitHeight="100.0" fitWidth="100.0" layoutX="269.0" layoutY="578.0" onMouseClicked="#shopSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="shopSlot8" fitHeight="100.0" fitWidth="100.0" layoutX="419.0" layoutY="578.0" onMouseClicked="#shopSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="shopSlot9" fitHeight="100.0" fitWidth="100.0" layoutX="269.0" layoutY="720.0" onMouseClicked="#shopSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="shopSlot10" fitHeight="100.0" fitWidth="100.0" layoutX="419.0" layoutY="720.0" onMouseClicked="#shopSlotClc" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </Pane>
+                  <Pane fx:id="panePazaak" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fx:id="imgOpponentsTable1" layoutX="137.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsTable2" layoutX="328.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsTable3" layoutX="519.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsTable4" layoutX="137.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsTable5" layoutX="328.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsTable6" layoutX="519.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsTable7" layoutX="137.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsTable8" layoutX="328.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsTable9" layoutX="519.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsHand1" layoutX="119.0" layoutY="652.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsHand2" layoutX="259.0" layoutY="652.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsHand3" layoutX="399.0" layoutY="652.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgOpponentsHand4" layoutX="539.0" layoutY="652.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersTable1" layoutX="875.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersTable2" layoutX="1066.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersTable3" layoutX="1257.0" layoutY="48.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersTable4" layoutX="875.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersTable5" layoutX="1066.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersTable6" layoutX="1257.0" layoutY="228.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersTable7" layoutX="875.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersTable8" layoutX="1066.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersTable9" layoutX="1257.0" layoutY="408.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersHand1" layoutX="856.0" layoutY="652.0" onMouseClicked="#handCardClicked" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersHand2" layoutX="996.0" layoutY="652.0" onMouseClicked="#handCardClicked" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersHand3" layoutX="1136.0" layoutY="652.0" onMouseClicked="#handCardClicked" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="imgPlayersHand4" layoutX="1276.0" layoutY="652.0" onMouseClicked="#handCardClicked" onMouseEntered="#mouseEnteredImgGlow03" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fx:id="handLeft1" layoutX="869.0" layoutY="814.0" onMouseClicked="#turnCard" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_change.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="handRight1" layoutX="929.0" layoutY="814.0" onMouseClicked="#turnCard" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_change.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="handLeft2" layoutX="1009.0" layoutY="814.0" onMouseClicked="#turnCard" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_change.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="handRight2" layoutX="1069.0" layoutY="814.0" onMouseClicked="#turnCard" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_change.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="handLeft3" layoutX="1149.0" layoutY="814.0" onMouseClicked="#turnCard" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_change.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="handRight3" layoutX="1209.0" layoutY="814.0" onMouseClicked="#turnCard" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_change.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="handLeft4" layoutX="1289.0" layoutY="814.0" onMouseClicked="#turnCard" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_change.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="handRight4" layoutX="1349.0" layoutY="814.0" onMouseClicked="#turnCard" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_change.png" />
+                           </image>
+                        </ImageView>
+                        <Text fx:id="playersScore" fill="WHITE" layoutX="896.0" layoutY="615.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" styleClass="text-sofachrome-font" text="0" textAlignment="CENTER">
+                           <font>
+                              <Font size="30.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="opponentsScore" fill="WHITE" layoutX="537.0" layoutY="615.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" styleClass="text-sofachrome-font" text="0" textAlignment="CENTER">
+                           <font>
+                              <Font size="30.0" />
+                           </font>
+                        </Text>
+                        <ImageView fx:id="bannerOpponent" layoutX="108.0" layoutY="606.0" onMouseClicked="#endTurn" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_banner_opponent.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="bannerPlayer" layoutX="823.0" layoutY="606.0" onMouseClicked="#endTurn" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_banner_player.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="pointEnemy1" layoutX="132.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_point_enemy.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="pointEnemy2" layoutX="181.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_point_enemy.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="pointEnemy3" layoutX="230.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_point_enemy.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="pointPlayer3" layoutX="1223.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_point_player.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="pointPlayer2" layoutX="1272.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_point_player.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="pointPlayer3" layoutX="1321.0" layoutY="603.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_point_player.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="stand" layoutX="1424.0" layoutY="461.0" onMouseClicked="#stand" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_stand.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="nextTurn" layoutX="1425.0" layoutY="516.0" onMouseClicked="#endTurn" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_next_turn.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="nextSetStartLeaveGame" layoutX="644.0" layoutY="420.0" onMouseClicked="#mainClick" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/pazaak/pazzak_start_game.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="paneMap" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fx:id="travel" layoutX="154.0" layoutY="166.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_travel.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="sleep" layoutX="153.0" layoutY="323.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_sleep.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="weapons" layoutX="149.0" layoutY="505.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_weapons.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="repair" layoutX="152.0" layoutY="661.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_repair.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="cantine" layoutX="597.0" layoutY="176.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_cantine.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="grocery" layoutX="597.0" layoutY="320.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_grocery.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="armor" layoutX="598.0" layoutY="504.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_armor.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="technique" layoutX="603.0" layoutY="658.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_technique.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="work" layoutX="1039.0" layoutY="167.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_work.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="medications" layoutX="1029.0" layoutY="323.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_medications.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="jewelry" layoutX="1022.0" layoutY="498.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_jewelry.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="fuel" layoutX="1017.0" layoutY="660.0" onMouseClicked="#travellingClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/icons/map/map_fuel.png" />
+                           </image>
+                        </ImageView>
+                        <ProgressIndicator fx:id="loadingIndicator" layoutX="1460.0" layoutY="487.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mouseTransparent="true" prefHeight="85.0" prefWidth="85.0" styleClass="loading" visible="false" />
+                     </children>
+                  </Pane>
+                  <ImageView fx:id="character" layoutX="1484.0" layoutY="17.0" onMouseClicked="#gameClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/icons/navigation/navigation_character.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="actual" layoutX="1484.0" layoutY="134.0" onMouseClicked="#gameClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/icons/navigation/navigation_cantine.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="map" layoutX="1484.0" layoutY="251.0" onMouseClicked="#gameClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/icons/navigation/navigation_map.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="exit" layoutX="1529.0" layoutY="367.0" onMouseClicked="#gameClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/icons/navigation/navigation_exit.png" />
+                     </image>
+                  </ImageView>
+                  <Text fx:id="energy" fill="WHITE" layoutX="1457.0" layoutY="616.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" styleClass="text-sofachrome-font" textAlignment="RIGHT" textOrigin="TOP" wrappingWidth="85.0">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="fullness" fill="WHITE" layoutX="1457.0" layoutY="673.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" styleClass="text-sofachrome-font" textAlignment="RIGHT" textOrigin="TOP" wrappingWidth="85.0">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="hydration" fill="WHITE" layoutX="1457.0" layoutY="730.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" styleClass="text-sofachrome-font" textAlignment="RIGHT" textOrigin="TOP" wrappingWidth="85.0">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="health" fill="WHITE" layoutX="1457.0" layoutY="790.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" styleClass="text-sofachrome-font" textAlignment="RIGHT" textOrigin="TOP" wrappingWidth="85.0">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="credits" fill="WHITE" layoutX="1344.0" layoutY="850.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" styleClass="text-sofachrome-font" textAlignment="RIGHT" textOrigin="TOP" wrappingWidth="200.0">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                  </Text>
+                  <Pane fx:id="paneMainMenu" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0">
+                     <children>
+                        <ImageView fitHeight="900.0" fitWidth="1600.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/main_menu_background.jpg" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="howToPlay" layoutX="1206.0" layoutY="221.0" onMouseClicked="#mainMenuClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/how_to_play.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="gameState1" fitHeight="79.0" fitWidth="490.0" layoutX="566.0" layoutY="340.0" onMouseClicked="#mainMenuClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/main_menu_load.png" />
+                           </image>
+                        </ImageView>
+                        <Text fx:id="gameText1" fill="WHITE" layoutX="587.0" layoutY="391.0" mouseTransparent="true" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font" text="Nová hra" textAlignment="CENTER" wrappingWidth="440.0">
+                           <font>
+                              <Font size="28.0" />
+                           </font>
+                        </Text>
+                        <ImageView fx:id="gameState2" fitHeight="79.0" fitWidth="490.0" layoutX="566.0" layoutY="441.0" onMouseClicked="#mainMenuClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/main_menu_load.png" />
+                           </image>
+                        </ImageView>
+                        <Text fx:id="gameText2" fill="WHITE" layoutX="587.0" layoutY="492.0" mouseTransparent="true" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font" text="Nová hra" textAlignment="CENTER" wrappingWidth="440.0">
+                           <font>
+                              <Font size="28.0" />
+                           </font>
+                        </Text>
+                        <ImageView fx:id="gameState3" fitHeight="79.0" fitWidth="490.0" layoutX="566.0" layoutY="542.0" onMouseClicked="#mainMenuClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/main_menu_load.png" />
+                           </image>
+                        </ImageView>
+                        <Text fx:id="gameText3" fill="WHITE" layoutX="587.0" layoutY="593.0" mouseTransparent="true" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-sofachrome-font" text="Nová hra" textAlignment="CENTER" wrappingWidth="440.0">
+                           <font>
+                              <Font size="28.0" />
+                           </font>
+                        </Text>
+                        <ImageView fx:id="trash1" layoutX="1066.0" layoutY="369.0" onMouseClicked="#mainMenuClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/main_menu_delete.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="trash2" layoutX="1066.0" layoutY="470.0" onMouseClicked="#mainMenuClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/main_menu_delete.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="trash3" layoutX="1066.0" layoutY="575.0" onMouseClicked="#mainMenuClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/main_menu_delete.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="options" layoutX="343.0" layoutY="669.0" onMouseClicked="#mainMenuClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/main_menu__cog.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="quit" layoutX="912.0" layoutY="664.0" onMouseClicked="#mainMenuClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/main_menu__end.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="paneNewGame" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fitHeight="900.0" fitWidth="1600.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/new_game_background.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="back" layoutX="393.0" layoutY="680.0" onMouseClicked="#newGameClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/new_game_back.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="start" layoutX="879.0" layoutY="689.0" onMouseClicked="#newGameClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/new_game_start.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="specialization1" layoutX="661.0" layoutY="407.0" onMouseClicked="#newGameClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/new_game_selected.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="specialization2" layoutX="661.0" layoutY="496.0" onMouseClicked="#newGameClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/new_game_unselected.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="specialization3" layoutX="661.0" layoutY="584.0" onMouseClicked="#newGameClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/new_game_unselected.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="mode1" layoutX="1111.0" layoutY="407.0" onMouseClicked="#newGameClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/new_game_selected.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="mode2" layoutX="1111.0" layoutY="496.0" onMouseClicked="#newGameClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/new_game_unselected.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="mode3" layoutX="1111.0" layoutY="584.0" onMouseClicked="#newGameClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/mainmenu/new_game_unselected.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="paneHowToPlay" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fx:id="howToPlayBackground" fitHeight="900.0" fitWidth="1600.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/residue/how_to_play.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="howToPlayOk" layoutX="677.0" layoutY="775.0" onMouseClicked="#mainMenuClcs" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/dialog/dialog_ok.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="paneOptions" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" visible="false">
+                     <children>
+                        <ImageView fitHeight="900.0" fitWidth="1600.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/options/options_background.jpg" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="res1" layoutX="671.0" layoutY="313.0" onMouseClicked="#optionsClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/options/options_1600x900.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="res2" layoutX="671.0" layoutY="393.0" onMouseClicked="#optionsClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/options/options_1280x720.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="res3" layoutX="671.0" layoutY="474.0" onMouseClicked="#optionsClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/options/options_960x540.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="res4" layoutX="671.0" layoutY="555.0" onMouseClicked="#optionsClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/options/options_640x360.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="arrow" layoutX="600.0" layoutY="491.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/options/options_arrow.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="cancel" layoutX="587.0" layoutY="674.0" onMouseClicked="#optionsClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/options/options_back.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fx:id="save" layoutX="821.0" layoutY="674.0" onMouseClicked="#optionsClicks" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@images/hud/options/options_save.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
+               </children>
+            </Group>
+            <Pane fx:id="paneLoading" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0" style="-fx-background-color: black;" visible="false">
+               <children>
+                  <ProgressBar fx:id="loadingBar" layoutX="200.0" layoutY="800.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="20.0" prefWidth="1200.0" progress="0.0" styleClass="loading" />
+               </children>
+            </Pane>
+            <Pane fx:id="paneBigDialog" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0" visible="false">
+               <children>
+                  <ImageView fx:id="bigDialogBackground" layoutX="363.0" layoutY="143.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/dialog/big_dialog_background.png" />
+                     </image>
+                  </ImageView>
+                  <Text fx:id="bigDialogText" fill="WHITE" layoutX="438.0" layoutY="425.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" styleClass="text-sofachrome-font" textAlignment="CENTER" textOrigin="CENTER" wrappingWidth="650.0">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                  </Text>
+                  <ImageView fx:id="bigDialogOk" layoutX="921.0" layoutY="683.0" onMouseClicked="#dialogNoOrOkCick" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/dialog/dialog_ok.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </Pane>
+            <Pane fx:id="paneSmallDialog" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0" visible="false">
+               <children>
+                  <ImageView fx:id="smallDialogBackground" layoutX="455.0" layoutY="264.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/dialog/dialog_background.png" />
+                     </image>
+                  </ImageView>
+                  <Text fx:id="smallDialogText" fill="WHITE" layoutX="510.0" layoutY="410.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="3.0" styleClass="text-sofachrome-font" textAlignment="CENTER" textOrigin="CENTER" wrappingWidth="486.4166564941405">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                  </Text>
+                  <ImageView fx:id="smallDialogYes" layoutX="802.0" layoutY="541.0" onMouseClicked="#dialogYesClick" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/dialog/dialog_yes.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="smallDialogOk" layoutX="802.0" layoutY="541.0" onMouseClicked="#dialogNoOrOkCick" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/dialog/dialog_ok.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="smallDialogNo" layoutX="505.0" layoutY="538.0" onMouseClicked="#dialogNoOrOkCick" onMouseEntered="#mouseEnteredImgGlow06" onMouseExited="#mouseExitedImg" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/hud/dialog/dialog_no.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </Pane>
+         </children>
+         <effect>
+            <BoxBlur height="2.0" iterations="0" width="2.0" />
+         </effect>
+      </Pane>
+   </children>
+</Pane>

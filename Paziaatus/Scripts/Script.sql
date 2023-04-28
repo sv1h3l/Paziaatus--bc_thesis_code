@@ -1,11 +1,15 @@
-INSERT INTO PUBLIC.NECKLACES (DEFENSE,WEIGHT,PRICE,LUCK,APPEARANCE,PLANET,IMG,WEARANDTEAR,MAXREPAIR) VALUES
-	 (5,5,0,0,-2,2,'1',100,2),
-	 (2,3,0,1,1,1,'2',100,1),
-	 (1,4,0,2,-2,2,'3',100,1),
-	 (-1,2,0,3,1,1,'4',100,0),
-	 (0,2,0,1,1,1,'5',100,0),
-	 (0,4,0,2,2,3,'6',100,0),
-	 (0,4,0,2,1,2,'7',100,0),
-	 (-1,3,0,3,0,2,'8',100,1),
-	 (0,3,0,1,3,3,'9',100,0),
-	 (-2,3,0,7,1,3,'10',100,0);
+INSERT INTO PUBLIC.GLOVES (PRIMARY_FEATURE,WEIGHT,SECONDARY_FEATURE,TERNARY_FEATURE,PLANET,IMG,MAXREPAIR) VALUES
+	 (8,11,1,-3,1,'gloves/1',1),
+	 (10,8,-2,3,2,'gloves/2',2),
+	 (9,12,-3,1,1,'gloves/3',1),
+	 (12,10,2,0,2,'gloves/4',2),
+	 (9,12,0,-2,1,'gloves/5',1),
+	 (14,7,1,1,3,'gloves/6',3),
+	 (11,9,1,1,2,'gloves/7',2),
+	 (16,8,2,1,3,'gloves/8',3),
+	 (13,7,1,2,3,'gloves/9',3),
+	 (11,9,2,0,2,'gloves/10',2),
+	 (12,6,1,1,3,'gloves/11',3),
+	 (8,11,-2,0,1,'gloves/12',1),
+	 (10,6,4,-1,3,'gloves/13',3),
+	 (10,13,-1,-1,1,'gloves/14',1);

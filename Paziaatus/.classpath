@@ -10,5 +10,7 @@
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.USER_LIBRARY/Apache Derby"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/HIGHSENBERG/Hacker-Hajzy/IT/Java/gson-2.8.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/HIGHSENBERG/Hacker-Hajzy/IT/Java/drivers/maven/maven-central/com.h2database/h2-1.4.199.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

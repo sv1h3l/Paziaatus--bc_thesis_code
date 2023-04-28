@@ -3,9 +3,9 @@ package residue;
 public class Item
 {
 	private String	itemType;
-	private int		strenghtDefenseSkillHealthSpeedFunction;
-	private int		appearanceFulnessFuel;
-	private int		luckHydration;
+	private int		primaryFeature;		// strenghtDefenseSkillHealthSpeedFunction
+	private int		secondaryFeature;	// appearanceFulnessFuel
+	private int		ternaryFeature;		// luckHydration
 
 	private int	price;
 	private int	weight;
@@ -15,13 +15,13 @@ public class Item
 	private String	img;
 	private String	active;
 
-	public Item(String itemType, int strenghtDefenseSkillHealthSpeedFunction, int appearanceFulnessFuel, int luckHydration, int price, int weight,
-			int wearAndTear, int maxRepairPossibleUse, String active, String img)
+	public Item(String itemType, int primaryFeature, int secondaryFeature, int ternaryFeature, int price, int weight, int wearAndTear,
+			int maxRepairPossibleUse, String active, String img)
 	{
 		this.itemType = itemType;
-		this.strenghtDefenseSkillHealthSpeedFunction = strenghtDefenseSkillHealthSpeedFunction;
-		this.appearanceFulnessFuel = appearanceFulnessFuel;
-		this.luckHydration = luckHydration;
+		this.primaryFeature = primaryFeature;
+		this.secondaryFeature = secondaryFeature;
+		this.ternaryFeature = ternaryFeature;
 
 		this.price = price;
 		this.weight = weight;
@@ -36,9 +36,9 @@ public class Item
 	{
 		String[] values = new String[7];
 
-		values[0] = String.valueOf(strenghtDefenseSkillHealthSpeedFunction);
-		values[1] = appearanceFulnessFuel != Constants.NO_VALUE ? String.valueOf(appearanceFulnessFuel) : "";
-		values[2] = luckHydration != Constants.NO_VALUE ? String.valueOf(luckHydration) : "";
+		values[0] = String.valueOf(primaryFeature);
+		values[1] = secondaryFeature != Constants.NO_VALUE ? String.valueOf(secondaryFeature) : "";
+		values[2] = ternaryFeature != Constants.NO_VALUE ? String.valueOf(ternaryFeature) : "";
 		values[3] = String.valueOf(price);
 		values[4] = String.valueOf(weight);
 		values[5] = wearAndTear != Constants.NO_VALUE ? String.valueOf(wearAndTear) : "";
@@ -69,12 +69,12 @@ public class Item
 
 	public int getStrenghtDefenseSkillHealthSpeedFunction()
 	{
-		return strenghtDefenseSkillHealthSpeedFunction;
+		return primaryFeature;
 	}
 
 	public void setStrenghtDefenseSkillHealthSpeedFunction(int strenghtDefenseSkillHealthSpeedFunction)
 	{
-		this.strenghtDefenseSkillHealthSpeedFunction = strenghtDefenseSkillHealthSpeedFunction;
+		this.primaryFeature = strenghtDefenseSkillHealthSpeedFunction;
 	}
 
 	public int getPrice()
@@ -109,22 +109,22 @@ public class Item
 
 	public int getAppearanceFulnessFuel()
 	{
-		return appearanceFulnessFuel;
+		return secondaryFeature;
 	}
 
 	public void setAppearanceFulnessFuel(int appearanceFulnessFuel)
 	{
-		this.appearanceFulnessFuel = appearanceFulnessFuel;
+		this.secondaryFeature = appearanceFulnessFuel;
 	}
 
 	public int getLuckHydration()
 	{
-		return luckHydration;
+		return ternaryFeature;
 	}
 
 	public void setLuckHydration(int luckHydration)
 	{
-		this.luckHydration = luckHydration;
+		this.ternaryFeature = luckHydration;
 	}
 
 	public String getImg()

@@ -1,8 +1,9 @@
 package beings;
 
+import residue.Constants;
 import residue.Item;
 
-public class Player extends PazaakPlayer
+public class Player extends PaziakPlayer
 {
 	private int	health;
 	private int	fullness;
@@ -12,19 +13,19 @@ public class Player extends PazaakPlayer
 	private int	appearance;
 	private int	luck;
 	private int	defense;
-	private int	strenght;
+	private int	strength;
 	private int	credits;
 
 	private Item[]	gear;
 	private Item[]	cards;
 	private Item[]	inventory;
 
-	private String planet;
-
-	public final int INVENTORY_AND_GEAR_SIZE = 12;
+	private String actualPlanet;
+	private String gameMode;
+	private String specialization;
 
 	public Player(int energy, int fullness, int hydration, int health, int credits, int weight, int appearance,
-			int luck, int defense, int strenght, String planet)
+			int luck, int defense, int strength, String planet, String gameMode, String specialization)
 	{
 		this.energy = energy;
 		this.fullness = fullness;
@@ -36,51 +37,48 @@ public class Player extends PazaakPlayer
 		this.appearance = appearance;
 		this.luck = luck;
 		this.defense = defense;
-		this.strenght = strenght;
+		this.strength = strength;
 
-		this.planet = planet;
+		this.actualPlanet = planet;
+		this.gameMode = gameMode;
+		this.specialization = specialization;
 
-		inventory = new Item[INVENTORY_AND_GEAR_SIZE];
-		gear = new Item[INVENTORY_AND_GEAR_SIZE];
+		inventory = new Item[Constants.PLAYERS_INVENTORY_SIZE];
+		gear = new Item[Constants.PLAYERS_GEAR_SIZE];
 	}
 
 	public Item[] getGear()
 	{
 		return gear;
 	}
-	
+
 	public Item getNthGear(int nth)
 	{
 		return gear[nth];
 	}
-	
-	public Item changeGear(Item item, int nth)
+
+	public void changeGear(Item item, int nthGearSlot, int nthInventorySlot)
 	{
-		Item previousEquippedGear = gear[nth];
-		gear[nth] = item;
-		return previousEquippedGear;
+		Item previousEquippedGear = gear[nthGearSlot];
+		gear[nthGearSlot] = item;
+		changeItem(previousEquippedGear, nthInventorySlot);
 	}
 
 	public void changeItem(Item item, int nth)
 	{
 		inventory[nth] = item;
 	}
-	
+
 	public void sellItem(int nth)
 	{
 		inventory[nth] = null;
 	}
-	
+
 	public void addOrRemoveCredits(int amount)
 	{
 		credits = credits + amount;
 	}
-	
-	public void addGear(Item gear)
-	{
-		this.gear[0] = gear;
-	}
-	
+
 	public void setGear(Item[] gear)
 	{
 		this.gear = gear;
@@ -100,7 +98,7 @@ public class Player extends PazaakPlayer
 	{
 		return inventory;
 	}
-	
+
 	public Item getNthItemFromInventory(int nth)
 	{
 		return inventory[nth];
@@ -111,9 +109,9 @@ public class Player extends PazaakPlayer
 		this.inventory = inventory;
 	}
 
-	public int addItemInInventory(Item item)
+	public int addItemIntoInventory(Item item)
 	{
-		for (int i = 0; i < INVENTORY_AND_GEAR_SIZE; i++)
+		for (int i = 0; i < Constants.PLAYERS_INVENTORY_SIZE; i++)
 		{
 			if (inventory[i] == null)
 			{
@@ -122,6 +120,14 @@ public class Player extends PazaakPlayer
 			}
 		}
 		return -1;
+	}
+
+	public boolean isFreeSlotInInventory()
+	{
+		for (int i = 0; i < Constants.PLAYERS_INVENTORY_SIZE; i++)
+			if (inventory[i] == null)
+				return true;
+		return false;
 	}
 
 	public int getHealth()
@@ -206,12 +212,12 @@ public class Player extends PazaakPlayer
 
 	public int getStrenght()
 	{
-		return strenght;
+		return strength;
 	}
 
 	public void setStrenght(int strenght)
 	{
-		this.strenght = strenght;
+		this.strength = strenght;
 	}
 
 	public int getCredits()
@@ -224,13 +230,29 @@ public class Player extends PazaakPlayer
 		this.credits = credits;
 	}
 
-	public String getPlanet()
+	public void travelOnNextPlanet()
 	{
-		return planet;
+		if (actualPlanet.equals("Tarrys"))
+			this.actualPlanet = "Narr Sheyda";
+		else
+			this.actualPlanet = "Kerusant";
 	}
 
-	public void setPlanet(String planet)
+	public int planetMultiplier()
 	{
-		this.planet = planet;
+		switch (actualPlanet)
+		{
+			case "Tarrys":
+				return 1;
+			case "Narr Sheyda":
+				return 2;
+			default:
+				return 3;
+		}
+	}
+
+	public String getActualPlanet()
+	{
+		return actualPlanet;
 	}
 }
