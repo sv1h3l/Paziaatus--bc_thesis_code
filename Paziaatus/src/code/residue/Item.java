@@ -67,14 +67,14 @@ public class Item
 		this.weight = weight;
 	}
 
-	public int getStrenghtDefenseSkillHealthSpeedFunction()
+	public int getPrimaryFeature()
 	{
 		return primaryFeature;
 	}
 
-	public void setStrenghtDefenseSkillHealthSpeedFunction(int strenghtDefenseSkillHealthSpeedFunction)
+	public void setPrimaryFeature(int primaryFeature)
 	{
-		this.primaryFeature = strenghtDefenseSkillHealthSpeedFunction;
+		this.primaryFeature = primaryFeature;
 	}
 
 	public int getPrice()
@@ -107,24 +107,24 @@ public class Item
 		this.maxRepairPossibleUse = maxRepairPossibleUse;
 	}
 
-	public int getAppearanceFulnessFuel()
+	public int getSecondaryFeature()
 	{
 		return secondaryFeature;
 	}
 
-	public void setAppearanceFulnessFuel(int appearanceFulnessFuel)
+	public void setSecondaryFeature(int secondaryFeature)
 	{
-		this.secondaryFeature = appearanceFulnessFuel;
+		this.secondaryFeature = secondaryFeature;
 	}
 
-	public int getLuckHydration()
+	public int getTernaryFeature()
 	{
 		return ternaryFeature;
 	}
 
-	public void setLuckHydration(int luckHydration)
+	public void setTernaryFeature(int ternaryFeature)
 	{
-		this.ternaryFeature = luckHydration;
+		this.ternaryFeature = ternaryFeature;
 	}
 
 	public String getImg()

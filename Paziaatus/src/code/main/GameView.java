@@ -28,7 +28,8 @@ public class GameView
 {
 	private GameController gameController;
 
-	private Timeline	loadingBarTimeline;
+	private Timeline	loadingBarWorkTimeline;
+	private Timeline	loadingBarSleepAndTravelTimeline;
 	private Timeline	loadingIndicatorTimeline;
 
 	private ImageView clickedImage;
@@ -38,13 +39,82 @@ public class GameView
 
 	private String dialogText;
 
+	protected int sleepOrTravelCode;
+
 	protected GameView(GameController gameController)
 	{
 		this.gameController = gameController;
 		paneActualNodesKeeper = new ArrayList<>();
+	}
+	
+	public void initialize()
+	{
+		characterNodesVisibler(true, true);
+		gameController.actual.setImage(getImg("icons/navigation/navigation_sleep", false));
 
+		gameController.trashDisablerAndEnabler();
+		
+		paneActualNodesKeeper.add(gameController.middle);
+		paneActualNodesKeeper.add(gameController.paneSleep);
+	}
+
+	
+
+	protected void setSleepAndTravelTimeline(int sleepTravelCode, String gameMode)
+	{
+		loadingBarSleepAndTravelTimeline = new Timeline(
+				new KeyFrame(Duration.ZERO, new KeyValue(gameController.loadingBarSleepAndTravel.progressProperty(), 0)),
+				new KeyFrame(Duration.seconds(gameMode.equals("rychlý") ? 4 : 8), new KeyValue(gameController.loadingBarSleepAndTravel.progressProperty(), 1)));
+
+		switch (sleepTravelCode)
+		{
+			case 1:
+			{
+				dialogText = "Při příletu na Narr Sheyda si cestující odchytl gang Seroko, který po všech vymáhá kredity, jelikož přistáli na přistávací ploše v sektoru ovládaném tímto gangem. Protože nemáš dostatečné množství kreditů na zaplacení, jsi zbit a okraden o většinu výbavy. Nezaplacením sis znepřátelil gang Seroko a tak je tvá činnost na této planetě občas narušena přepadením. Jediným východiskem, jak zabránit neustálým přepadením, je odcestovat na planetu Kerusant.";
+				break;
+			}
+			case 2:
+			{
+				dialogText = "Odletěl jsi na planetu Kerusant. Nyní už jsi daleko od působení gangu Seroko a tak nebudeš během svých aktivit náhodně přepadáván.";
+				break;
+			}
+			case 3:
+			{
+				dialogText = "Během spánku jsi byl přepaden a bohužel jsi nepřežil.\n\nPro pokračování ve hře je nutné načíst poslední uloženou pozici, nebo si založit novou hru.";
+				break;
+			}
+			case 4:
+				dialogText = "Během spánku jsi byl přepaden, ale naštěstí jsi přežil.\n\n";
+		}
+
+		loadingBarSleepAndTravelTimeline.setOnFinished(event -> {
+			gameController.paneLoadingSleepAndTravel.setVisible(false);
+			if (sleepTravelCode != 0)
+				bigGeneralDialog(dialogText);
+		});
+
+		gameController.paneLoadingSleepAndTravel.setVisible(true);
+		
+		loadingBarSleepAndTravelTimeline.play();
+	}
+
+	protected void setWorkTimeline(int duration)
+	{
+		loadingBarWorkTimeline = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(gameController.loadingBar.progressProperty(), 0)),
+				new KeyFrame(Duration.seconds(duration), new KeyValue(gameController.loadingBar.progressProperty(), 1)));
+
+		loadingBarWorkTimeline.setOnFinished(event -> {
+			gameController.paneLoading.setVisible(false);
+			bigGeneralDialog(dialogText);
+		});
+
+		loadingBarWorkTimeline.play();
+	}
+
+	protected void setIndicatorTimeline(int duration)
+	{
 		loadingIndicatorTimeline = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(gameController.loadingIndicator.progressProperty(), 0)),
-				new KeyFrame(Duration.seconds(1), new KeyValue(gameController.loadingIndicator.progressProperty(), 1)));
+				new KeyFrame(Duration.seconds(duration), new KeyValue(gameController.loadingIndicator.progressProperty(), 1)));
 
 		loadingIndicatorTimeline.setOnFinished(event -> {
 			gameController.paneMap.setVisible(false);
@@ -54,26 +124,14 @@ public class GameView
 			keeperNodesVisibler(true);
 		});
 
-		loadingBarTimeline = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(gameController.loadingBar.progressProperty(), 0)),
-				new KeyFrame(Duration.seconds(3), new KeyValue(gameController.loadingBar.progressProperty(), 1)));
-
-		loadingBarTimeline.setOnFinished(event -> {
-			gameController.paneLoading.setVisible(false);
-			bigGeneralDialog(dialogText);
-		});
+		loadingIndicatorTimeline.play();
 	}
 
-	protected void workDuration(int duration)
-	{
-		loadingIndicatorTimeline.getKeyFrames().set(1,
-				new KeyFrame(Duration.seconds(duration), new KeyValue(gameController.loadingBar.progressProperty(), 1)));
-	}
-
-	protected void workClick(String workType, int workCode, int credits, int health)
+	protected void workClick(String workType, int workCode, int credits, int health, int duration)
 	{
 		List<String> dialogTexts = new ArrayList<>();
 		dialogTexts.add("Během převozu laboratorního zařízení tě přepadli zloději.\n\nPřepadení jsi ");
-		dialogTexts.add("Kvůli chybě v obvodu na tebe zaútočil laboratorní droyd.\n\nÚtok jsi ");
+		dialogTexts.add("Kvůli chybě v obvodu na tebe zaútočil laboratorní droid.\n\nÚtok jsi ");
 		dialogTexts.add("Na laboratoř zaútočil gang Yako-Ho.\n\nÚtok jsi ");
 		dialogTexts.add("Během vykonávání práce tě odhalil lovec odměn a napadl tě.\n\nNapadení jsi "); //3
 
@@ -127,7 +185,27 @@ public class GameView
 				break;
 			}
 			default:
-				dialogText = "Vrátil ses z práce.\n\n";
+				dialogText = "Vrátil ses z práce";
+				switch (workType)
+				{
+					case "hunter":
+					{
+						dialogText = dialogText + " lovce.\n\n";
+						break;
+					}
+					case "archeologist":
+					{
+						dialogText = dialogText + " archeologa.\n\n";
+						break;
+					}
+					case "technician":
+					{
+						dialogText = dialogText + " technika.\n\n";
+						break;
+					}
+					default:
+						dialogText = dialogText + ".\n\n";
+				}
 		}
 
 		switch (workCode)
@@ -152,13 +230,15 @@ public class GameView
 			dialogText = dialogText + "Vydělal sis\n" + credits + " kreditů";
 		else
 		{
-			dialogText = "Pro pokračování ve hře je nutné načíst poslední uloženou pozici, nebo si založit novou hru.";
+			quit();
+			dialogText = dialogText + "Pro pokračování ve hře je nutné načíst poslední uloženou pozici, nebo si založit novou hru.";
 		}
 
 		this.dialogText = dialogText;
 
 		gameController.paneLoading.setVisible(true);
-		loadingBarTimeline.play();
+
+		setWorkTimeline(duration);
 	}
 
 	private void disableTravellingImages(boolean disable)
@@ -191,18 +271,37 @@ public class GameView
 			node.setVisible(visible);
 	}
 
-	protected void changeFeatures(boolean featuresOfGear)
+	protected void changeFeatures(boolean featuresOfGear, Player player)
 	{
-		gameController.featuresSelect.setImage(getImg(featuresOfGear ? "features/char_info.png" : "features/item_info.png", false, false));
+		if (player == null)
+			gameController.featuresSelect.setImage(getImg(featuresOfGear ? "features/item_info" : "features/item_info", false));
+		else
+			gameController.featuresSelect.setImage(getImg(featuresOfGear ? "features/char_info" : "features/item_info", false));
+
+		if (featuresOfGear)
+		{
+			gameController.paneFeaturesGear.setVisible(true);
+			gameController.featuresGear1.setText(Integer.toString(player.getStrenght()));
+			gameController.featuresGear2.setText(Integer.toString(player.getDefense()));
+			gameController.featuresGear3.setText(Integer.toString(player.getSkill()));
+			gameController.featuresGear4.setText(Integer.toString(player.getAppearance()));
+			gameController.featuresGear5.setText(Integer.toString(player.getLuck()));
+			gameController.featuresGear6.setText(Integer.toString(player.getWeight()));
+		} else
+			gameController.paneFeaturesGear.setVisible(false);
+
 	}
 
-	protected void characterNodesVisibler(boolean visible)
+	protected void characterNodesVisibler(boolean visible, boolean featuresOfGear)
 	{
 		gameController.paneGear.setVisible(visible);
-		gameController.paneCards.setVisible(visible);
+		gameController.paneDeck.setVisible(visible);
 		gameController.paneInventory.setVisible(visible);
 		gameController.paneFeatures.setVisible(visible);
+		if (featuresOfGear)
+			gameController.paneFeaturesGear.setVisible(visible);
 		gameController.middle.setVisible(visible);
+		gameController.featuresSelect.setVisible(visible);
 	}
 
 	protected void setImagesOfLoadedItems(Player player)
@@ -213,7 +312,7 @@ public class GameView
 			if (items[i] != null)
 			{
 				ImageView inventoryImgView = (ImageView) gameController.paneInventory.getChildren().get(i + 1);
-				inventoryImgView.setImage(getImg(items[i].getImg(), true, true));
+				inventoryImgView.setImage(getImg(items[i].getImg(), true));
 			}
 
 		items = player.getGear();
@@ -221,7 +320,15 @@ public class GameView
 			if (items[i] != null)
 			{
 				ImageView gearImgView = (ImageView) gameController.paneGear.getChildren().get(i + 1);
-				gearImgView.setImage(getImg(items[i].getImg(), true, true));
+				gearImgView.setImage(getImg(items[i].getImg(), true));
+			}
+		
+		items = player.getDeck();
+		for (int i = 0; i < Constants.PLAYERS_DECK_SIZE; i++)
+			if (items[i] != null)
+			{
+				ImageView gearImgView = (ImageView) gameController.paneDeck.getChildren().get(i + 1);
+				gearImgView.setImage(getImg(items[i].getImg(), true));
 			}
 	}
 
@@ -247,7 +354,7 @@ public class GameView
 		gameController.stage.setY((screenBounds.getHeight() - gameController.stage.getHeight()) / 2);
 	}
 
-	private Image getImg(String partOfPath, boolean items, boolean png)
+	private Image getImg(String partOfPath, boolean items)
 	{
 		String itemsOrHud;
 		if (items)
@@ -255,10 +362,10 @@ public class GameView
 		else
 			itemsOrHud = "/hud/";
 
-		return new Image(this.getClass().getResourceAsStream("/images/" + itemsOrHud + partOfPath + (png ? ".png" : "")));
+		return new Image(this.getClass().getResourceAsStream("/images/" + itemsOrHud + partOfPath + ".png"));
 	}
 
-	protected void updateStats(Player player)
+	protected synchronized void updateStats(Player player)
 	{
 		gameController.energy.setText(String.valueOf(player.getEnergy()));
 		gameController.fullness.setText(String.valueOf(player.getFullness()));
@@ -267,31 +374,62 @@ public class GameView
 		gameController.credits.setText(String.valueOf(player.getCredits()));
 	}
 
+	protected void updateCredits(int credits)
+	{
+
+		gameController.credits.setText(String.valueOf(credits));
+	}
+
 	protected void setFieldVisible(String nameOfField, boolean visible)
 	{
 		gameController.getNodeThroughReflection(nameOfField).setVisible(visible);
 	}
 
-	protected void setShopsImages(Shop shop) // TODO
+	protected void setShopsImages(Shop shop, String actualPlanet)
 	{
-		int i = 0;
+		int i = 1;
+		for (; i <= 10; i++)
+			setImageOfNthSlot(i, null, 1);
+
+		int ceiling;
+		switch (actualPlanet)
+		{
+			case "Tarrys":
+			{
+				ceiling = shop.getCountOfShopSlotsFirstPlanet();
+				break;
+			}
+			case "Narr Sheyda":
+			{
+				ceiling = shop.getCountOfShopSlotsSecondPlanet();
+				break;
+			}
+			default:
+				ceiling = shop.getCountOfShopSlotsThirdPlanet();
+		}
+
+		i = 1;
 		for (Item item : shop.getShopItems())
 		{
 			if (item != null)
-				setImageOfNthSlot(i + 1, item.getImg(), true);
-			else
-				setImageOfNthSlot(i + 1, null, true);
+				setImageOfNthSlot(i, item.getImg(), 1);
+			if (i == ceiling)
+				return;
 			i++;
 		}
 	}
 
-	private void setImageOfNthSlot(int nthSlot, String imgPath, boolean shop)
+	protected void setImageOfNthSlot(int nthSlot, String imgPath, int paneCode)
 	{
 		String fieldName;
-		if (shop)
-			fieldName = "shopSlot" + nthSlot;
-		else
+		if (paneCode == 0)
 			fieldName = "invSlot" + nthSlot;
+		else if (paneCode == 1)
+			fieldName = "shopSlot" + nthSlot;
+		else if(paneCode == 2)
+			fieldName = "deckSlot" + nthSlot;
+		else
+			fieldName = "cardSlot" + nthSlot;
 
 		ImageView fieldValue = null;
 		try
@@ -308,7 +446,7 @@ public class GameView
 			fieldValue.setImage(null);
 		else
 		{
-			fieldValue.setImage(getImg(imgPath, true, true));
+			fieldValue.setImage(getImg(imgPath, true));
 		}
 	}
 
@@ -322,9 +460,9 @@ public class GameView
 		showDialog(true);
 	}
 
-	protected void setArrowPosition(int axisY)
+	protected void setArrowPosition(int nthResolution)
 	{
-		gameController.arrow.setLayoutY(axisY);
+		gameController.arrow.setLayoutY(Constants.ARROW_POSITION[nthResolution]);
 	}
 
 	private void showDialog(boolean smallDialog)
@@ -338,33 +476,32 @@ public class GameView
 			gameController.paneBigDialog.setVisible(true);
 	}
 
-	public void setShopsBanner(String shopType)
+	public void setShopsBannerAndSlots(int numberOfShopSlots, String shopType)
 	{
-		gameController.shopBanner.setImage(getImg("banners/banner_" + shopType, false, true));
+		gameController.shopSlots.setImage(getImg("shops/shop_slots_" + numberOfShopSlots, false));
+		gameController.shopBanner.setImage(getImg("banners/banner_" + shopType, false));
 	}
 
-	protected void setEffect(ImageView image, boolean glow, double glowValue)
+	protected void setEffect(ImageView image, boolean glow)
 	{
 		if (glow)
-			image.setEffect(new Glow(glowValue));
+			image.setEffect(new Glow(0.5));
 		else
 			image.setEffect(null);
 	}
 
-	protected void travellingClicks(String idOfSource)
+	protected void travellingClicks(String idOfSource, int duration)
 	{
 		gameController.loadingIndicator.setVisible(true);
-		navigationActualImageKeeper = getImg("/icons/navigation/navigation_" + idOfSource, false, true);
+		navigationActualImageKeeper = getImg("/icons/navigation/navigation_" + idOfSource, false);
 		disableTravellingImages(true);
 
-		loadingIndicatorTimeline.play();
-
+		setIndicatorTimeline(duration);
 	}
 
 	protected void showFeatures(String partOfPath, String itemType, String[] values)
 	{
-
-		gameController.featuresTitles.setImage(getImg(partOfPath, false, false));
+		gameController.featuresTitles.setImage(getImg(partOfPath, false));
 
 		gameController.featuresName.setText(itemType);
 		gameController.features1.setText(values[0]);
@@ -400,14 +537,32 @@ public class GameView
 		if (setGearImageView)
 		{
 			gearImageView.setImage(inventoryImageView.getImage());
+			addListener(gearImageView);
 			inventoryImageView.setImage(null);
 		} else
 			inventoryImageView.setImage(gearImageView.getImage());
 	}
+	
+	protected void setNthDeckImage(int nthDeckSlot, int nthInventorySlot, String imagePath)
+	{
+		((ImageView) gameController.getNodeThroughReflection("deckSlot" + nthDeckSlot)).setImage(getImg(imagePath, true));
+		((ImageView) gameController.getNodeThroughReflection("invSlot" + nthInventorySlot)).setImage(null);
+	}
+
 
 	protected void smallGeneralDialog(String text)
 	{
 		gameController.smallDialogText.setText(text);
+		gameController.smallDialogNo.setVisible(false);
+		gameController.smallDialogYes.setVisible(false);
+		gameController.smallDialogOk.setVisible(true);
+
+		showDialog(true);
+	}
+
+	protected void notEnoughMoney()
+	{
+		gameController.smallDialogText.setText("Pro uskutečnění této akce nemáš dostatečné mžnožství kreditů.");
 		gameController.smallDialogNo.setVisible(false);
 		gameController.smallDialogYes.setVisible(false);
 		gameController.smallDialogOk.setVisible(true);
@@ -464,7 +619,7 @@ public class GameView
 			default:
 				partOfPath = "hand";
 		}
-		return getImg("icons/gear/gear_" + partOfPath, false, true);
+		return getImg("icons/gear/gear_" + partOfPath, false);
 	}
 
 	protected void gearSlotClick(int nthSlot)
@@ -483,7 +638,7 @@ public class GameView
 		{
 			oldImage.setEffect(null);
 			oldImage.setOnMouseEntered(event -> {
-				gameController.mouseEnteredImgGlow03(event);
+				gameController.mouseEnteredImgGlow(event);
 			});
 			oldImage.setOnMouseExited(event -> {
 				gameController.mouseExitedImg(event);
@@ -499,18 +654,21 @@ public class GameView
 		clickedImage = newImage;
 	}
 
-	public void ShopSlotRightClick(ImageView image, int nthSlot, String string)
+	public void ShopSlotRightClick(ImageView image, int nthSlot, String string, Player player, int paneCode)
 	{
 		if (image.getImage() != null)
 			image.setImage(null);
 
-		setImageOfNthSlot(nthSlot + 1, string, false);
+		gameController.credits.setText(Integer.toString(player.getCredits()));
+
+		setImageOfNthSlot(nthSlot + 1, string, paneCode);
 	}
 
-	public void sellItem(int nthSlot)
+	public void sellItem(int nthSlot, Player player)
 	{
 		ImageView invImageView = (ImageView) gameController.paneInventory.getChildren().get(nthSlot + 1);
 		invImageView.setImage(null);
+		gameController.credits.setText(Integer.toString(player.getCredits()));
 	}
 
 	public void changeGear(int nthInvSlot, int nthGearSlot, Item gear)
@@ -525,6 +683,12 @@ public class GameView
 		{
 			setImage(gearImgView, inventoryImageView, true);
 		}
+	}
+
+	public void useItem(int nthInvSlot)
+	{
+		ImageView inventoryImageView = (ImageView) gameController.paneInventory.getChildren().get(nthInvSlot + 1);
+		inventoryImageView.setImage(null);
 	}
 
 	protected void dialogVisibleFalse()
@@ -553,7 +717,10 @@ public class GameView
 				gameController.gameText3.setText(info);
 			}
 		}
+	}
 
+	protected void paneMainMenuShow()
+	{
 		gameController.paneMainMenu.setVisible(true);
 	}
 
@@ -562,101 +729,510 @@ public class GameView
 		gameController.gameText1.setText(info1);
 		gameController.gameText2.setText(info2);
 		gameController.gameText3.setText(info3);
-	}
-
-	protected void travelOnNextPlanet(boolean left)
-	{
-		if (left)
-		{
-			gameController.travelLeft.setVisible(false);
-			gameController.priceLeft.setVisible(false);
-		} else
-		{
-			gameController.travelRight.setVisible(false);
-			gameController.priceRight.setVisible(false);
-		}
+		
+		trashDisablerAndEnabler();
 	}
 
 	protected void newGame()
 	{
 		gameController.paneNewGame.setVisible(true);
-		gameController.specialization1.setImage(getImg("mainmenu/new_game_selected", false, true));
-		gameController.specialization2.setImage(getImg("mainmenu/new_game_unselected", false, true));
-		gameController.specialization3.setImage(getImg("mainmenu/new_game_unselected", false, true));
-		gameController.mode1.setImage(getImg("mainmenu/new_game_selected", false, true));
-		gameController.mode2.setImage(getImg("mainmenu/new_game_unselected", false, true));
-		gameController.mode3.setImage(getImg("mainmenu/new_game_unselected", false, true));
+		gameController.specialization1.setImage(getImg("mainmenu/new_game_selected", false));
+		gameController.specialization2.setImage(getImg("mainmenu/new_game_unselected", false));
+		gameController.specialization3.setImage(getImg("mainmenu/new_game_unselected", false));
+		gameController.mode1.setImage(getImg("mainmenu/new_game_selected", false));
+		gameController.mode2.setImage(getImg("mainmenu/new_game_unselected", false));
+		gameController.mode3.setImage(getImg("mainmenu/new_game_unselected", false));
 	}
 
-	protected void newGameChange(int id, boolean specialization)
+	protected void newGameChange(String name, boolean specialization)
 	{
 		if (specialization)
-			switch (id)
+			switch (name)
 			{
-				case 1:
+				case "šedý válečník":
 				{
-					gameController.specialization1.setImage(getImg("mainmenu/new_game_selected", false, true));
-					gameController.specialization2.setImage(getImg("mainmenu/new_game_unselected", false, true));
-					gameController.specialization3.setImage(getImg("mainmenu/new_game_unselected", false, true));
+					gameController.specialization1.setImage(getImg("mainmenu/new_game_selected", false));
+					gameController.specialization2.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.specialization3.setImage(getImg("mainmenu/new_game_unselected", false));
 					break;
 				}
-				case 2:
+				case "lovec odměn":
 				{
-					gameController.specialization1.setImage(getImg("mainmenu/new_game_unselected", false, true));
-					gameController.specialization2.setImage(getImg("mainmenu/new_game_selected", false, true));
-					gameController.specialization3.setImage(getImg("mainmenu/new_game_unselected", false, true));
+					gameController.specialization1.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.specialization2.setImage(getImg("mainmenu/new_game_selected", false));
+					gameController.specialization3.setImage(getImg("mainmenu/new_game_unselected", false));
 					break;
 				}
-				case 3:
+				case "civilista":
 				{
-					gameController.specialization1.setImage(getImg("mainmenu/new_game_unselected", false, true));
-					gameController.specialization2.setImage(getImg("mainmenu/new_game_unselected", false, true));
-					gameController.specialization3.setImage(getImg("mainmenu/new_game_selected", false, true));
-					break;
+					gameController.specialization1.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.specialization2.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.specialization3.setImage(getImg("mainmenu/new_game_selected", false));
 				}
 			}
 		else
-			switch (id)
+			switch (name)
 			{
-				case 1:
+				case "klasický":
 				{
-					gameController.mode1.setImage(getImg("mainmenu/new_game_selectedg", false, true));
-					gameController.mode2.setImage(getImg("mainmenu/new_game_unselected", false, true));
-					gameController.mode3.setImage(getImg("mainmenu/new_game_unselected", false, true));
+					gameController.mode1.setImage(getImg("mainmenu/new_game_selected", false));
+					gameController.mode2.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.mode3.setImage(getImg("mainmenu/new_game_unselected", false));
 					break;
 				}
-				case 2:
+				case "rychlý":
 				{
-					gameController.mode1.setImage(getImg("mainmenu/new_game_unselected", false, true));
-					gameController.mode2.setImage(getImg("mainmenu/new_game_selected", false, true));
-					gameController.mode3.setImage(getImg("mainmenu/new_game_unselected", false, true));
+					gameController.mode1.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.mode2.setImage(getImg("mainmenu/new_game_selected", false));
+					gameController.mode3.setImage(getImg("mainmenu/new_game_unselected", false));
 					break;
 				}
-				case 3:
+				case "realistický":
 				{
-					gameController.mode1.setImage(getImg("mainmenu/new_game_unselected", false, true));
-					gameController.mode2.setImage(getImg("mainmenu/new_game_unselected", false, true));
-					gameController.mode3.setImage(getImg("mainmenu/new_game_selected", false, true));
-					break;
+					gameController.mode1.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.mode2.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.mode3.setImage(getImg("mainmenu/new_game_selected", false));
 				}
 			}
-
 	}
 
 	protected void quit()
 	{
 		List<Node> paneInventoryContent = gameController.paneInventory.getChildren();
-		List<Node> paneCardsContent = gameController.paneCards.getChildren();
+		List<Node> paneDeckContent = gameController.paneDeck.getChildren();
 		List<Node> paneGearContent = gameController.paneGear.getChildren();
 
 		int i = 1;
 		for (; i <= Constants.PLAYERS_INVENTORY_SIZE; i++)
-			((ImageView)paneInventoryContent.get(i)).setImage(null);
+			((ImageView) paneInventoryContent.get(i)).setImage(null);
 		i = 1;
-		for (; i <= Constants.PLAYERS_CARDS_SIZE; i++)
-			((ImageView)paneCardsContent.get(i)).setImage(null);
-		i=1;
+		for (; i <= Constants.PLAYERS_DECK_SIZE; i++)
+			((ImageView) paneDeckContent.get(i)).setImage(null);
+		i = 1;
 		for (; i <= Constants.PLAYERS_GEAR_SIZE; i++)
-			((ImageView)paneGearContent.get(i)).setImage(getGearDefaultImage(i-1));
+			((ImageView) paneGearContent.get(i)).setImage(getGearDefaultImage(i - 1));
+
+		gameController.paneMap.setVisible(false);
+		keeperNodesVisibler(false);
+		
+		paneMainMenuShow();
+	}
+
+	protected void updateUserInterfaceForSpecificPlanet(String actualPlanet)
+	{
+		ColorAdjust colorAdjust = new ColorAdjust();
+		colorAdjust.setBrightness(-0.4);
+		if (actualPlanet.equals("Tarrys"))
+		{
+			gameController.blue.setVisible(false);
+			gameController.brown.setVisible(false);
+			gameController.red.setVisible(false);
+
+			gameController.priceLeft.setVisible(true);
+			gameController.travelLeft.setVisible(true);
+			gameController.priceRight.setVisible(false);
+			gameController.travelRight.setVisible(false);
+			gameController.narrSheyda.setEffect(null);
+			gameController.kerusant.setEffect(colorAdjust);
+
+			gameController.cardShop.setImage(getImg("cantine/card_shop4", false));
+
+			gameController.leftHotel.setImage(getImg("hotels/left_hotel_tarrys", false));
+			gameController.rightHotel.setImage(getImg("hotels/right_hotel_tarrys", false));
+			gameController.priceLeftHotel.setText("1950");
+			gameController.priceRightHotel.setText("4120");
+
+			gameController.legend.setImage(getImg("map/legend_tarrys_background", false));
+			gameController.mapBackground.setImage(getImg("map/map_tarrys", false));
+
+			gameController.repairer.setVisible(false);
+			gameController.technique.setVisible(false);
+			gameController.fuel.setVisible(false);
+
+			colorClick("blue");
+		} else if (actualPlanet.equals("Narr Sheyda"))
+		{
+			gameController.blue.setVisible(true);
+			gameController.brown.setVisible(true);
+			gameController.red.setVisible(false);
+
+			gameController.priceLeft.setVisible(false);
+			gameController.travelLeft.setVisible(false);
+			gameController.priceRight.setVisible(true);
+			gameController.travelRight.setVisible(true);
+			gameController.narrSheyda.setEffect(colorAdjust);
+			gameController.kerusant.setEffect(null);
+
+			gameController.cardShop.setImage(getImg("cantine/card_shop6", false));
+
+			gameController.leftHotel.setImage(getImg("hotels/left_hotel_narr_sheyda", false));
+			gameController.rightHotel.setImage(getImg("hotels/right_hotel_narr_sheyda", false));
+			gameController.priceLeftHotel.setText("3900");
+			gameController.priceRightHotel.setText("8240");
+
+			gameController.legend.setImage(getImg("map/legend_background", false));
+			gameController.mapBackground.setImage(getImg("map/map_narr_sheyda", false));
+
+			gameController.repairer.setVisible(true);
+			gameController.technique.setVisible(true);
+			gameController.fuel.setVisible(true);
+
+			colorClick("brown");
+		} else
+		{
+			gameController.blue.setVisible(true);
+			gameController.brown.setVisible(true);
+			gameController.red.setVisible(true);
+
+			gameController.priceLeft.setVisible(false);
+			gameController.travelLeft.setVisible(false);
+			gameController.priceRight.setVisible(false);
+			gameController.travelRight.setVisible(false);
+			gameController.narrSheyda.setEffect(colorAdjust);
+			gameController.kerusant.setEffect(colorAdjust);
+
+			gameController.cardShop.setImage(getImg("cantine/card_shop8", false));
+
+			gameController.leftHotel.setImage(getImg("hotels/left_hotel_kerusant", false));
+			gameController.rightHotel.setImage(getImg("hotels/right_hotel_kerusant", false));
+			gameController.priceLeftHotel.setText("5850");
+			gameController.priceRightHotel.setText("12360");
+
+			gameController.legend.setImage(getImg("map/legend_background", false));
+			gameController.mapBackground.setImage(getImg("map/map_kerusant", false));
+
+			gameController.repairer.setVisible(true);
+			gameController.technique.setVisible(true);
+			gameController.fuel.setVisible(true);
+
+			colorClick("red");
+		}
+
+		moveMapIcons(actualPlanet);
+	}
+
+	private void moveMapIcons(String actualPlanet)
+	{
+		if (actualPlanet.equals("Tarrys"))
+		{
+			gameController.migration.setLayoutX(956);
+			gameController.migration.setLayoutY(417);
+
+			gameController.sleep.setLayoutX(993);
+			gameController.sleep.setLayoutY(186);
+
+			gameController.weapons.setLayoutX(593);
+			gameController.weapons.setLayoutY(298);
+
+			gameController.cantine.setLayoutX(857);
+			gameController.cantine.setLayoutY(502);
+
+			gameController.grocery.setLayoutX(808);
+			gameController.grocery.setLayoutY(646);
+
+			gameController.armor.setLayoutX(1153);
+			gameController.armor.setLayoutY(559);
+
+			gameController.work.setLayoutX(569);
+			gameController.work.setLayoutY(708);
+
+			gameController.medications.setLayoutX(1245);
+			gameController.medications.setLayoutY(202);
+
+			gameController.jewelry.setLayoutX(1298);
+			gameController.jewelry.setLayoutY(723);
+		} else if (actualPlanet.equals("Narr Sheyda"))
+		{
+			gameController.migration.setLayoutX(1157);
+			gameController.migration.setLayoutY(751);
+
+			gameController.sleep.setLayoutX(719);
+			gameController.sleep.setLayoutY(684);
+
+			gameController.weapons.setLayoutX(1262);
+			gameController.weapons.setLayoutY(384);
+
+			gameController.cantine.setLayoutX(1083);
+			gameController.cantine.setLayoutY(517);
+
+			gameController.grocery.setLayoutX(731);
+			gameController.grocery.setLayoutY(391);
+
+			gameController.armor.setLayoutX(1220);
+			gameController.armor.setLayoutY(644);
+
+			gameController.work.setLayoutX(724);
+			gameController.work.setLayoutY(291);
+
+			gameController.medications.setLayoutX(876);
+			gameController.medications.setLayoutY(751);
+
+			gameController.jewelry.setLayoutX(945);
+			gameController.jewelry.setLayoutY(289);
+
+			gameController.repairer.setLayoutX(1125);
+			gameController.repairer.setLayoutY(206);
+
+			gameController.technique.setLayoutX(957);
+			gameController.technique.setLayoutY(459);
+
+			gameController.fuel.setLayoutX(635);
+			gameController.fuel.setLayoutY(538);
+		} else
+		{
+			gameController.migration.setLayoutX(882);
+			gameController.migration.setLayoutY(206);
+
+			gameController.sleep.setLayoutX(1058);
+			gameController.sleep.setLayoutY(372);
+
+			gameController.weapons.setLayoutX(696);
+			gameController.weapons.setLayoutY(538);
+
+			gameController.cantine.setLayoutX(1274);
+			gameController.cantine.setLayoutY(546);
+
+			gameController.grocery.setLayoutX(1120);
+			gameController.grocery.setLayoutY(202);
+
+			gameController.armor.setLayoutX(785);
+			gameController.armor.setLayoutY(436);
+
+			gameController.work.setLayoutX(1285);
+			gameController.work.setLayoutY(241);
+
+			gameController.medications.setLayoutX(1001);
+			gameController.medications.setLayoutY(696);
+
+			gameController.jewelry.setLayoutX(667);
+			gameController.jewelry.setLayoutY(428);
+
+			gameController.repairer.setLayoutX(873);
+			gameController.repairer.setLayoutY(715);
+
+			gameController.technique.setLayoutX(519);
+			gameController.technique.setLayoutY(497);
+
+			gameController.fuel.setLayoutX(519);
+			gameController.fuel.setLayoutY(212);
+		}
+	}
+
+	protected void colorClick(String idFromSource)
+	{
+		switch (idFromSource)
+		{
+			case "blue":
+			{
+				gameController.blue.setImage(getImg("residue/selected_blue", false));
+				gameController.brown.setImage(getImg("residue/unselected_brown", false));
+				gameController.red.setImage(getImg("residue/unselected_red", false));
+				gameController.background.setImage(getImg("residue/blue_background", false));
+				break;
+			}
+			case "brown":
+			{
+				gameController.blue.setImage(getImg("residue/unselected_blue", false));
+				gameController.brown.setImage(getImg("residue/selected_brown", false));
+				gameController.red.setImage(getImg("residue/unselected_red", false));
+				gameController.background.setImage(getImg("residue/brown_background", false));
+				break;
+			}
+			default:
+			{
+				gameController.blue.setImage(getImg("residue/unselected_blue", false));
+				gameController.brown.setImage(getImg("residue/unselected_brown", false));
+				gameController.red.setImage(getImg("residue/selected_red", false));
+				gameController.background.setImage(getImg("residue/red_background", false));
+			}
+		}
+	}
+
+	public void clearFeatures()
+	{
+		gameController.featuresTitles.setImage(null);
+
+		gameController.featuresName.setText("");
+		gameController.features1.setText("");
+		gameController.features2.setText("");
+		gameController.features3.setText("");
+		gameController.features4.setText("");
+		gameController.features5.setText("");
+		gameController.features6.setText("");
+		gameController.features7.setText("");
+
+	}
+
+	public void setFuelVisible(boolean fuelClick)
+	{
+		if (fuelClick)
+		{
+			gameController.fuelOrRepairBanner.setImage(getImg("repairfuel/bannerFuel", false));
+			gameController.fuelOrRepairClick.setImage(getImg("repairfuel/refill", false));
+		} else
+		{
+			gameController.fuelOrRepairBanner.setImage(getImg("repairfuel/bannerRepair", false));
+			gameController.fuelOrRepairClick.setImage(getImg("repairfuel/repair", false));
+		}
+	}
+
+	public void setFuelOrRepairSlotImage(String img)
+	{
+		gameController.fuelOrRepairSlot.setImage(getImg(img, true));
+	}
+
+	public void clearFuelOrRepairSlotImage()
+	{
+		gameController.fuelOrRepairSlot.setImage(null);
+	}
+
+	public void checkDestroyedGear(Item[] gear)
+	{
+		for (int i = 0; i < Constants.PLAYERS_GEAR_SIZE; i++)
+			if (gear[i] == null)
+				((ImageView) gameController.paneGear.getChildren().get(i + 1)).setImage(getGearDefaultImage(i));
+	}
+
+	public void paneWorkDisable(boolean disable)
+	{
+		if (disable)
+		{
+			gameController.droidIndicator.setVisible(true);
+			gameController.paneWork.setDisable(true);
+			ColorAdjust colorAdjust = new ColorAdjust();
+			colorAdjust.setBrightness(-0.4);
+			gameController.paneWork.setEffect(colorAdjust);
+		} else
+		{
+			gameController.droidIndicator.setVisible(false);
+			gameController.paneWork.setDisable(false);
+			gameController.paneWork.setEffect(null);
+		}
+	}
+
+	public void setDroidIndicator(int primaryFeatureOfDroid, Player player, int droidsWorkCode, int droidsCredits)
+	{
+		int duration = 4000 / primaryFeatureOfDroid;
+		if(player.getGameMode().equals("rychlý"))
+			duration = duration / 2;
+				
+		Timeline timeline = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(gameController.droidIndicator.progressProperty(), 0)),
+				new KeyFrame(Duration.seconds(duration), new KeyValue(gameController.droidIndicator.progressProperty(), 1)));
+		
+		timeline.setOnFinished(event -> {
+			if (droidsWorkCode == 0)
+			{
+				smallGeneralDialog("Droid byl během práce zničen.");
+				player.getGear()[11] = null;
+				checkDestroyedGear(player.getGear());
+			} else
+			{
+				smallGeneralDialog("Droid se vrátil z práce.\n\nVydělal\n" + droidsCredits + " kreditů.");
+				player.addOrRemoveCredits(droidsCredits, true);
+				updateStats(player);
+			}
+			paneWorkDisable(false);
+		});
+
+		timeline.play();
+	}
+
+	public boolean droidIsWorking()
+	{
+		return gameController.droidIndicator.isVisible();
+	}
+
+	public void addListener(ImageView image)
+	{
+		image.setEffect(null);
+		image.setOnMouseEntered(event -> {
+			gameController.mouseEnteredImgGlow(event);
+		});
+		image.setOnMouseExited(event -> {
+			gameController.mouseExitedImg(event);
+		});
+
+	}
+
+	public void setNewGameListeneres(Item[] gear)
+	{
+		addListener(gameController.gearWear);
+		addListener(gameController.gearHand);
+		addListener(gameController.gearBelt);
+		addListener(gameController.gearBoots);
+		
+	}
+
+	protected void setBet(int paziakBet)
+	{
+		gameController.paziakBet.setText(Integer.toString(paziakBet));
+	}
+
+	public void removeCardImage(ImageView image)
+	{
+		image.setImage(null);
+	}
+
+	public void setCantineCardsImages(Shop shop, String actualPlanet)
+	{
+		int i = 1;
+		for (; i <= 8; i++)
+			setImageOfNthSlot(i, null, 1);
+
+		int ceiling;
+		switch (actualPlanet)
+		{
+			case "Tarrys":
+			{
+				ceiling = shop.getCountOfShopSlotsFirstPlanet();
+				break;
+			}
+			case "Narr Sheyda":
+			{
+				ceiling = shop.getCountOfShopSlotsSecondPlanet();
+				break;
+			}
+			default:
+				ceiling = shop.getCountOfShopSlotsThirdPlanet();
+		}
+
+		i = 1;
+		for (Item item : shop.getShopItems())
+		{
+			if (item != null)
+				setImageOfNthSlot(i, item.getImg(), 3);
+			if (i == ceiling)
+				return;
+			i++;
+		}
+		
+	}
+
+	public void trashDisablerAndEnabler()
+	{
+		gameController.trashDisablerAndEnabler();
+	}
+
+	public void assault(boolean sleep, int health)
+	{
+		String dialogText;
+		if(sleep)
+			dialogText = "Během spánku jsi byl přepaden.\n\nPřepadení jsi\n";
+		else 
+			dialogText = "Během cestování jsi byl přepaden členem gangu Seroko.\n\nPřepadení jsi\n";
+		
+		boolean survived = true;
+		if(health < 1)
+		{
+			survived = false;
+			dialogText = dialogText + "nepřežil.\n\nPro pokračování ve hře je nutné načíst poslední uloženou pozici, nebo si založit novou hru.";
+		}
+		else 
+			dialogText = dialogText + "přežil";
+		
+		if(survived)
+			smallGeneralDialog(dialogText);
+		else 
+			bigGeneralDialog(dialogText);
 	}
 }

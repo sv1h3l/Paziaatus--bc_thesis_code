@@ -5,30 +5,33 @@ import main.GameModel;
 public class TimeChecker implements Runnable
 {
 	private volatile boolean	isRunning	= true;
-	private GameModel		gameProperties;
-
-	public TimeChecker(GameModel gameProperties)
+	private GameModel		gameModel;
+	private String gameMode;
+	
+	public TimeChecker(GameModel gameModel, String gameMode)
 	{
-		this.gameProperties = gameProperties;
+		this.gameModel = gameModel;
+		this.gameMode = gameMode;
 	}
 
 	@Override public void run()
 	{
+		int delay = gameMode.equals("rychlý") ? 45000 : 60000;
+		
 		while (isRunning)
 		{
-
 			try
 			{
-				Thread.sleep(20000);
+				Thread.sleep(delay);
 			} catch (InterruptedException e)
 			{
 				Thread.currentThread().interrupt();
 			}
 			if (!isRunning)
 				break;
-			gameProperties.updateNecessitiesOfLife(false);
+			gameModel.updateNecessitiesOfLife(false);
 		}
-		this.stop(); // TODO zjistit, jestli to pomohlo
+		this.stop();
 	}
 
 	public void stop()

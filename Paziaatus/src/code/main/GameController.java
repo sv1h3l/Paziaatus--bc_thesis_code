@@ -35,8 +35,6 @@ public class GameController
 	private Paziak		pazaak;
 	private GameModel	gameModel;
 
-	private String dialogCaller;
-
 	@FXML protected Group blurGroup;
 
 	@FXML protected Pane	paneMain;
@@ -48,12 +46,12 @@ public class GameController
 	@FXML protected Pane	paneWork;
 	@FXML protected Pane	paneCantine;
 	@FXML protected Pane	paneSleep;
-	@FXML protected Pane	paneFuelOrRepair;
 	@FXML protected Pane	paneGear;
-	@FXML protected Pane	paneCards;
+	@FXML protected Pane	paneDeck;
 	@FXML protected Pane	paneInventory;
 	@FXML protected Pane	paneFeatures;
 	@FXML protected Pane	paneHowToPlay;
+	@FXML protected Pane	paneHowToFeatures;
 
 	@FXML public ImageView		stand;
 	@FXML public ImageView		nextTurn;
@@ -142,6 +140,9 @@ public class GameController
 	@FXML protected ImageView	res2;
 	@FXML protected ImageView	res3;
 	@FXML protected ImageView	res4;
+	@FXML protected ImageView	res5;
+	@FXML protected ImageView	res6;
+	@FXML protected ImageView	res7;
 	@FXML protected ImageView	arrow;
 	@FXML protected ImageView	cancel;
 	@FXML protected ImageView	save;
@@ -164,20 +165,31 @@ public class GameController
 	@FXML protected Text		features6;
 	@FXML protected Text		features7;
 
+	@FXML protected Pane		paneFeaturesGear;
+	@FXML protected ImageView	featuresGearBackground;
+	@FXML protected Text		featuresGear1;
+	@FXML protected Text		featuresGear2;
+	@FXML protected Text		featuresGear3;
+	@FXML protected Text		featuresGear4;
+	@FXML protected Text		featuresGear5;
+	@FXML protected Text		featuresGear6;
+
 	@FXML protected Text	playersScore;
 	@FXML protected Text	opponentsScore;
 
 	@FXML protected Pane				paneLoading;
 	@FXML protected ProgressBar			loadingBar;
+	@FXML protected Pane				paneLoadingSleepAndTravel;
+	@FXML protected ProgressBar			loadingBarSleepAndTravel;
 	@FXML protected ProgressIndicator	loadingIndicator;
 
 	@FXML protected ImageView	map;
 	@FXML protected ImageView	actual;
 	@FXML protected ImageView	character;
-	@FXML protected ImageView	travel;
+	@FXML protected ImageView	migration;
 	@FXML protected ImageView	sleep;
 	@FXML protected ImageView	weapons;
-	@FXML protected ImageView	repair;
+	@FXML protected ImageView	repairer;
 	@FXML protected ImageView	cantine;
 	@FXML protected ImageView	grocery;
 	@FXML protected ImageView	armor;
@@ -216,6 +228,27 @@ public class GameController
 	@FXML protected ImageView	invSlot11;
 	@FXML protected ImageView	invSlot12;
 
+	@FXML protected ImageView	deckSlots;
+	@FXML protected ImageView	deckSlot1;
+	@FXML protected ImageView	deckSlot2;
+	@FXML protected ImageView	deckSlot3;
+	@FXML protected ImageView	deckSlot4;
+	@FXML protected ImageView	deckSlot5;
+	@FXML protected ImageView	deckSlot6;
+	@FXML protected ImageView	deckSlot7;
+	@FXML protected ImageView	deckSlot8;
+	@FXML protected ImageView	deckSlot9;
+	@FXML protected ImageView	deckSlot10;
+
+	@FXML protected ImageView	cardSlot1;
+	@FXML protected ImageView	cardSlot2;
+	@FXML protected ImageView	cardSlot3;
+	@FXML protected ImageView	cardSlot4;
+	@FXML protected ImageView	cardSlot5;
+	@FXML protected ImageView	cardSlot6;
+	@FXML protected ImageView	cardSlot7;
+	@FXML protected ImageView	cardSlot8;
+
 	@FXML protected ImageView	gearSlots;
 	@FXML protected ImageView	gearImplant;
 	@FXML protected ImageView	gearHelmet;
@@ -234,13 +267,16 @@ public class GameController
 	@FXML protected ImageView	travelRight;
 	@FXML protected ImageView	priceLeft;
 	@FXML protected ImageView	priceRight;
+	@FXML protected ImageView	narrSheyda;
+	@FXML protected ImageView	kerusant;
 
-	@FXML protected ImageView	hunter;
-	@FXML protected ImageView	worker;
-	@FXML protected ImageView	archeologist;
-	@FXML protected ImageView	technician;
+	@FXML protected ImageView			hunter;
+	@FXML protected ImageView			worker;
+	@FXML protected ImageView			archeologist;
+	@FXML protected ImageView			technician;
+	@FXML protected ProgressIndicator	droidIndicator;
 
-	@FXML protected Pane	paneNewGame;
+	@FXML protected Pane		paneNewGame;
 	@FXML protected ImageView	back;
 	@FXML protected ImageView	start;
 	@FXML protected ImageView	specialization1;
@@ -250,20 +286,50 @@ public class GameController
 	@FXML protected ImageView	mode2;
 	@FXML protected ImageView	mode3;
 
+	@FXML protected Pane		paneFuelOrRepair;
+	@FXML protected ImageView	fuelOrRepairBanner;
+	@FXML protected ImageView	fuelOrRepairClick;
+	@FXML protected ImageView	fuelOrRepairSlot;
+
+	@FXML protected ImageView background;
+
 	public PauseTransition	opponentPlayedCard				= new PauseTransition(Duration.millis(650));
 	public PauseTransition	visualizeWithDelayOpsTable		= new PauseTransition(Duration.millis(200));
 	public PauseTransition	visualizeWithShortDelayPlsTable	= new PauseTransition(Duration.millis(400));
 	public PauseTransition	visualizeWithDelayPlsTable		= new PauseTransition(Duration.millis(850));
 	public PauseTransition	opponentPlayedCardSoWait		= new PauseTransition(Duration.millis(1400));
 
+	@FXML protected ImageView cardShop;
+
+	@FXML protected ImageView	leftHotel;
+	@FXML protected ImageView	rightHotel;
+	@FXML protected Text		priceLeftHotel;
+	@FXML protected Text		priceRightHotel;
+
+	@FXML protected ImageView	blue;
+	@FXML protected ImageView	brown;
+	@FXML protected ImageView	red;
+
+	@FXML protected ImageView	legend;
+	@FXML protected ImageView	mapBackground;
+
 	@FXML private Pane paneForScaling;
+
+	@FXML protected ImageView	up1;
+	@FXML protected ImageView	up2;
+	@FXML protected ImageView	up3;
+	@FXML protected ImageView	down1;
+	@FXML protected ImageView	down2;
+	@FXML protected ImageView	down3;
+	@FXML protected ImageView	paziakStart;
+	@FXML protected Text		paziakBet;
 
 	private File lockFile;
 
-	public void setStage(Stage stage/*, File lockFile*/)
+	public void setStage(Stage stage, File lockFile)
 	{
 		this.stage = stage;
-		//this.lockFile = lockFile;
+		this.lockFile = lockFile;
 
 		initialize();
 	}
@@ -283,7 +349,7 @@ public class GameController
 				if (gameModel.getPlayer() != null)
 					gameModel.quit();
 
-				//lockFile.delete();
+				lockFile.delete();
 			}
 		});
 	}
@@ -645,28 +711,16 @@ public class GameController
 			playersCards.get(i).setEffect(colorAdjust);
 	}
 
-	@FXML protected void mouseEnteredImgGlow03(Event event)
+	@FXML protected void mouseEnteredImgGlow(Event event)
 	{
 		ImageView enteredImage = (ImageView) event.getSource();
-		gameModel.setEffect(enteredImage, true, 0.3);
-	}
-
-	@FXML protected void mouseEnteredImgGlow06(Event event)
-	{
-		ImageView enteredImage = (ImageView) event.getSource();
-		gameModel.setEffect(enteredImage, true, 0.6);
-	}
-
-	@FXML protected void mouseEnteredImgGlow08(Event event)
-	{
-		ImageView enteredImage = (ImageView) event.getSource();
-		gameModel.setEffect(enteredImage, true, 0.8);
+		gameModel.setEffect(enteredImage, true);
 	}
 
 	@FXML protected void mouseExitedImg(Event event)
 	{
 		ImageView enteredImage = (ImageView) event.getSource();
-		gameModel.setEffect(enteredImage, false, 0);
+		gameModel.setEffect(enteredImage, false);
 	}
 
 	@FXML private void gameClcs(Event event)
@@ -707,6 +761,7 @@ public class GameController
 				gameModel.yesOrNoDialog("exit");
 			}
 		}
+		gameModel.clearFuelOrRepairSlot();
 	}
 
 	@FXML private void travellingClcs(Event event)
@@ -718,7 +773,7 @@ public class GameController
 
 		switch (idOfSource)
 		{
-			case "travel":
+			case "migration":
 			{
 				gameModel.addNodesToKeeper(middle, paneTravel);
 				break;
@@ -735,7 +790,7 @@ public class GameController
 			}
 			case "cantine":
 			{
-				gameModel.addNodesToKeeper(middle, paneCards, paneFeatures, paneCantine);
+				gameModel.addNodesToKeeper(middle, paneDeck, paneFeatures, paneCantine);
 				break;
 			}
 			case "grocery":
@@ -768,8 +823,17 @@ public class GameController
 				gameModel.addNodesToKeeper(middle, paneInventory, paneFeatures, paneShop);
 				break;
 			}
-			default:
+			case "fuel":
+			{
 				gameModel.addNodesToKeeper(middle, paneInventory, paneFeatures, paneFuelOrRepair);
+				gameModel.fuelOrRepair(true);
+				break;
+			}
+			case "repairer":
+			{
+				gameModel.addNodesToKeeper(middle, paneInventory, paneFeatures, paneFuelOrRepair);
+				gameModel.fuelOrRepair(false);
+			}
 		}
 
 		switch (idOfSource)
@@ -783,12 +847,8 @@ public class GameController
 				gameModel.setShop(idOfSource);
 		}
 
-		/*if (/* gameProperties.getPlayer().getPlanet().equals("Narr Sheyda") &&  Tools.getRandomNumber(8) == 0)
-			gameModel.getMissionsAndAssaults().assault();*/
-
 		gameModel.travellingClicks(idOfSource);
 	}
-
 
 	@FXML private void newGameClicks(Event event)
 	{
@@ -799,32 +859,32 @@ public class GameController
 		{
 			case "specialization1":
 			{
-				gameModel.newGameChange(1, true);
+				gameModel.newGameChange("šedý válečník", true);
 				break;
 			}
 			case "specialization2":
 			{
-				gameModel.newGameChange(2, true);
+				gameModel.newGameChange("lovec odměn", true);
 				break;
 			}
 			case "specialization3":
 			{
-				gameModel.newGameChange(3, true);
+				gameModel.newGameChange("civilista", true);
 				break;
 			}
 			case "mode1":
 			{
-				gameModel.newGameChange(1, false);
+				gameModel.newGameChange("klasický", false);
 				break;
 			}
 			case "mode2":
 			{
-				gameModel.newGameChange(2, false);
+				gameModel.newGameChange("rychlý", false);
 				break;
 			}
 			case "mode3":
 			{
-				gameModel.newGameChange(3, false);
+				gameModel.newGameChange("realistický", false);
 				break;
 			}
 			case "back":
@@ -865,9 +925,18 @@ public class GameController
 				gameModel.setFieldVisible("paneHowToPlay", true);
 				break;
 			}
+			case "howToFeatures":
+			{
+				gameModel.setFieldVisible("paneHowToFeatures", true);
+			}
 			case "howToPlayOk":
 			{
 				gameModel.setFieldVisible("paneHowToPlay", false);
+				break;
+			}
+			case "howToFeaturesOk":
+			{
+				gameModel.setFieldVisible("paneHowToFeatures", false);
 				break;
 			}
 			case "quit":
@@ -878,7 +947,7 @@ public class GameController
 			}
 			case "gameState1":
 			{
-				if(gameText1.getText().equals("Nová hra"))
+				if (gameText1.getText().equals("Nová hra"))
 					gameModel.newGame(1);
 				else
 					gameModel.loadGameState(id);
@@ -886,7 +955,7 @@ public class GameController
 			}
 			case "gameState2":
 			{
-				if(gameText2.getText().equals("Nová hra"))
+				if (gameText2.getText().equals("Nová hra"))
 					gameModel.newGame(2);
 				else
 					gameModel.loadGameState(id);
@@ -894,12 +963,106 @@ public class GameController
 			}
 			case "gameState3":
 			{
-				if(gameText3.getText().equals("Nová hra"))
+				if (gameText3.getText().equals("Nová hra"))
 					gameModel.newGame(3);
 				else
 					gameModel.loadGameState(id);
 			}
 		}
+	}
+
+	@FXML private void cantineSlotClicks(Event event) // TODO
+	{
+		ImageView image = (ImageView) event.getSource();
+		if (image.getImage() == null)
+			return;
+
+		MouseEvent mouseEvent = (MouseEvent) event;
+		if (mouseEvent.getButton() == MouseButton.PRIMARY)
+			gameModel.itemLeftClick(image, Tools.getNumberFromString(Tools.idFromSource(event.toString()), "cardSlot") - 1, 2);
+		else if (mouseEvent.getButton() == MouseButton.SECONDARY)
+			gameModel.cantineShopRightClick(image, Tools.getNumberFromString(Tools.idFromSource(event.toString()), "cardSlot") - 1);
+	}
+
+	@FXML private void cantineClicks(Event event)
+	{
+		if (((MouseEvent) event).getButton() != MouseButton.PRIMARY)
+			return;
+
+		gameModel.CantineClicks(Tools.idFromSource(event.toString()));
+	}
+
+	@FXML private void deckSlotClick(Event event)
+	{
+		ImageView image = (ImageView) event.getSource();
+		if (image.getImage() == null)
+			return;
+
+		MouseEvent mouseEvent = (MouseEvent) event;
+		if (mouseEvent.getButton() == MouseButton.PRIMARY)
+			gameModel.itemLeftClick(image, Tools.getNumberFromString(Tools.idFromSource(event.toString()), "deckSlot") - 1, 3);
+		else if (mouseEvent.getButton() == MouseButton.SECONDARY)
+			gameModel.deckSlotRightClick(image, Tools.getNumberFromString(Tools.idFromSource(event.toString()), "deckSlot") - 1, paneCantine.isVisible());
+	}
+
+	protected void trashDisablerAndEnabler()
+	{
+		ColorAdjust colorAdjust = new ColorAdjust();
+		colorAdjust.setBrightness(-0.4);
+
+		if (gameText1.getText().equals("Nová hra"))
+		{
+			trash1.setDisable(true);
+			trash1.setEffect(colorAdjust);;
+		} else
+		{
+			trash1.setDisable(false);
+			trash1.setEffect(null);
+		}
+
+		if (gameText2.getText().equals("Nová hra"))
+		{
+			trash2.setDisable(true);
+			trash2.setEffect(colorAdjust);;
+		} else
+		{
+			trash2.setDisable(false);
+			trash2.setEffect(null);
+		}
+
+		if (gameText3.getText().equals("Nová hra"))
+		{
+			trash3.setDisable(true);
+			trash3.setEffect(colorAdjust);;
+		} else
+		{
+			trash3.setDisable(false);
+			trash3.setEffect(null);
+		}
+	}
+
+	@FXML private void sleepClicks(Event event)
+	{
+		if (((MouseEvent) event).getButton() != MouseButton.PRIMARY)
+			return;
+
+		gameModel.sleepClick(Tools.idFromSource(event.toString()).equals("sleepLeft") ? true : false);
+	}
+
+	@FXML private void fuelOrRepairClick(Event event)
+	{
+		if (((MouseEvent) event).getButton() != MouseButton.PRIMARY)
+			return;
+
+		gameModel.fuelOrRepairClick();
+	}
+
+	@FXML private void colorClicks(Event event)
+	{
+		if (((MouseEvent) event).getButton() != MouseButton.PRIMARY)
+			return;
+
+		gameModel.colorClick(Tools.idFromSource(event.toString()));
 	}
 
 	@FXML private void optionsClicks(Event event)
@@ -912,7 +1075,7 @@ public class GameController
 		{
 			case "cancel":
 			{
-				gameModel.setFieldVisible(id, false);
+				gameModel.setFieldVisible("paneOptions", false);
 				break;
 			}
 			case "save":
@@ -921,7 +1084,7 @@ public class GameController
 				break;
 			}
 			default:
-				gameModel.newResolution(Tools.getNumberFromString(id, "res"));
+				gameModel.newResolution(Tools.getNumberFromString(id, "res") - 1);
 		}
 	}
 
@@ -933,11 +1096,9 @@ public class GameController
 
 		MouseEvent mouseEvent = (MouseEvent) event;
 		if (mouseEvent.getButton() == MouseButton.PRIMARY)
-			gameModel.itemLeftClick(image, Tools.getNumberFromString(Tools.idFromSource(event.toString()), "shopSlot") - 1, false);
+			gameModel.itemLeftClick(image, Tools.getNumberFromString(Tools.idFromSource(event.toString()), "shopSlot") - 1, 1);
 		else if (mouseEvent.getButton() == MouseButton.SECONDARY)
 			gameModel.shopSlotRightClick(image, Tools.getNumberFromString(Tools.idFromSource(event.toString()), "shopSlot") - 1);
-		else
-			return;
 	}
 
 	@FXML private void invSlotClc(Event event) // TODO inventorySlotClick
@@ -948,7 +1109,7 @@ public class GameController
 
 		MouseEvent mouseEvent = (MouseEvent) event;
 		if (mouseEvent.getButton() == MouseButton.PRIMARY)
-			gameModel.itemLeftClick(image, Tools.getNumberFromString(Tools.idFromSource(event.toString()), "invSlot") - 1, true);
+			gameModel.itemLeftClick(image, Tools.getNumberFromString(Tools.idFromSource(event.toString()), "invSlot") - 1, 0);
 		else if (mouseEvent.getButton() == MouseButton.SECONDARY)
 		{
 			int gearOrFuelRepairOrShop;
@@ -959,8 +1120,7 @@ public class GameController
 			else
 				gearOrFuelRepairOrShop = 2;
 			gameModel.invSlotRightClc(image, Tools.getNumberFromString(Tools.idFromSource(event.toString()), "invSlot") - 1, gearOrFuelRepairOrShop);
-		} else
-			return;
+		}
 	}
 
 	@FXML private void gearSlotClicked(Event event) // TODO gearSlotClick
@@ -987,15 +1147,8 @@ public class GameController
 		if (gameModel.getPlayer().getNthGear(nthSlot) == null)
 			return;
 
-		gameModel.gearSlotClick(nthSlot, primaryMouseButton);
-	}
-
-	protected synchronized void changeValuesOfNecessitiesOfLife()
-	{
-		energy.setText(String.valueOf(gameModel.getPlayer().getEnergy()));
-		fullness.setText(String.valueOf(gameModel.getPlayer().getFullness()));
-		hydration.setText(String.valueOf(gameModel.getPlayer().getHydration()));
-		health.setText(String.valueOf(gameModel.getPlayer().getHealth()));
+		ImageView image = (ImageView) event.getSource();
+		gameModel.gearSlotClick(image, nthSlot, primaryMouseButton);
 	}
 
 	@FXML private void dialogYesClick()
@@ -1024,8 +1177,6 @@ public class GameController
 				gameModel.travelOnNextPlanet(false);
 		}
 	}
-
-
 
 	@FXML private void workClicks(Event event)
 	{

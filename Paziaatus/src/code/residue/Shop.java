@@ -6,7 +6,8 @@ public class Shop
 	private int	countOfShopSlotsSecondPlanet;
 	private int	countOfShopSlotsThirdPlanet;
 
-	private String[] itemTypesOfShop;
+	private String[]	itemTypesOfShop;
+	private String		shopType;
 
 	private Item[] shopItems;
 
@@ -15,12 +16,23 @@ public class Shop
 		this.countOfShopSlotsFirstPlanet = countOfShopSlotsFirstPlanet;
 		this.countOfShopSlotsSecondPlanet = countOfShopSlotsSecondPlanet;
 		this.countOfShopSlotsThirdPlanet = countOfShopSlotsThirdPlanet;
+		this.shopType = shopType;
 
-		shopItems = new Item[10];
-		setItemTypesOfShop(shopType);
+		shopItems = new Item[countOfShopSlotsThirdPlanet];
+		setItemTypesOfShop();
 	}
 
-	private void setItemTypesOfShop(String shopType)
+	public void clearShopItems()
+	{
+		shopItems = new Item[countOfShopSlotsThirdPlanet];
+	}
+	
+	public String getShopType()
+	{
+		return shopType;
+	}
+
+	private void setItemTypesOfShop()
 	{
 		switch (shopType)
 		{
@@ -34,7 +46,7 @@ public class Shop
 				itemTypesOfShop = new String[] { "WEAPONS" };
 				break;
 			}
-			case "tech":
+			case "technique":
 			{
 				itemTypesOfShop = new String[] { "TOOLS", "SPEEDERS", "DROIDS" };
 				break;
@@ -64,7 +76,7 @@ public class Shop
 		return itemTypesOfShop;
 	}
 
-	protected int getCountOfShopSlotsFirstPlanet()
+	public int getCountOfShopSlotsFirstPlanet()
 	{
 		return countOfShopSlotsFirstPlanet;
 	}
@@ -74,7 +86,7 @@ public class Shop
 		this.countOfShopSlotsFirstPlanet = countOfShopSlotsFirstPlanet;
 	}
 
-	protected int getCountOfShopSlotsSecondPlanet()
+	public int getCountOfShopSlotsSecondPlanet()
 	{
 		return countOfShopSlotsSecondPlanet;
 	}
@@ -84,7 +96,7 @@ public class Shop
 		this.countOfShopSlotsSecondPlanet = countOfShopSlotsSecondPlanet;
 	}
 
-	protected int getCountOfShopSlotsThirdPlanet()
+	public int getCountOfShopSlotsThirdPlanet()
 	{
 		return countOfShopSlotsThirdPlanet;
 	}
@@ -109,7 +121,7 @@ public class Shop
 		return shopItems;
 	}
 
-	public void addItemIntoShop(Item item/* , String Planet */)
+	public void addItemIntoShop(Item item)
 	{
 		for (int i = 0; i < countOfShopSlotsThirdPlanet; i++)
 

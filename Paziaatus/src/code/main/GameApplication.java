@@ -29,7 +29,7 @@ public class GameApplication extends Application
 
 		GameController controller = fxmlLoader.getController();
 
-		/*String path = this.getClass().getResource("").toString();
+		String path = this.getClass().getResource("").toString();
 		File lockFile = new File(path.substring("file:".length()) + "/game.lock");
 		if (lockFile.exists())
 		{
@@ -43,9 +43,9 @@ public class GameApplication extends Application
 		} else
 		{
 			lockFile.createNewFile();
-		}*/
+		}
 
-		controller.setStage(stage/*, lockFile*/);
+		controller.setStage(stage, lockFile);
 
 		stage.show();
 	}
