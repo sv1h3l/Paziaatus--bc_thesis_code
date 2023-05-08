@@ -20,6 +20,7 @@ import java.util.Properties;
 import com.google.gson.Gson;
 
 import beings.Player;
+import main.GameApplication;
 
 public class GameSaverLoader
 {
@@ -28,7 +29,27 @@ public class GameSaverLoader
 		Gson gson = new Gson();
 		String jsonString = gson.toJson(player);
 
-		String path = this.getClass().getResource("/gamestate" + gameState + ".json").toString();
+		String jarPath;
+		String jarDirPath = "";
+		try
+		{
+			jarPath = GameApplication.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			jarDirPath = new File(jarPath).getParent();
+		} catch (URISyntaxException e)
+		{
+			e.printStackTrace();
+		}
+		
+		File file =  new File(jarDirPath+"/gamestate" + gameState + ".json");
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file)))
+		{
+			writer.write(jsonString);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}	
+		
+		/*-String path = this.getClass().getResource("/gamestate" + gameState + ".json").toString();
 		File file = new File(path.substring("file:".length()));
 
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file)))
@@ -37,7 +58,7 @@ public class GameSaverLoader
 		} catch (IOException e)
 		{
 			e.printStackTrace();
-		}
+		}*/
 
 		LocalDateTime localDateTime = LocalDateTime.now();
 		String info = String.valueOf(localDateTime.getHour()) + " : " + String.valueOf(localDateTime.getMinute()) + " - " + String.valueOf(
@@ -48,12 +69,7 @@ public class GameSaverLoader
 
 	public Player loadGameState(int gameState)
 	{
-		/*-
-		 * String path = this.getClass().getResource("/gamestate" + gameState + ".json").toString();
-		File file = new File(path.substring("file:".length()));
-		 */
-
-		String path = this.getClass().getResource("/gamestate" + gameState + ".json").toString();
+/*-		String path = this.getClass().getResource("/gamestate" + gameState + ".json").toString();
 		File file = new File(path.substring("file:".length()));
 
 		String jsonString = "";
@@ -67,7 +83,33 @@ public class GameSaverLoader
 		} catch (IOException e)
 		{
 			e.printStackTrace();
+		}*/
+		
+		String jarPath;
+		String jarDirPath = "";
+		String jsonString = "";
+		
+		try
+		{
+			jarPath = GameApplication.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			jarDirPath = new File(jarPath).getParent();
+		} catch (URISyntaxException e)
+		{
+			e.printStackTrace();
 		}
+		
+		File file =  new File(jarDirPath+"/gamestate" + gameState + ".json");
+		try (BufferedReader reader = new BufferedReader(new FileReader(file)))
+		{
+			String line;
+			while ((line = reader.readLine()) != null)
+			{
+				jsonString += line;
+			}
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}	
 
 		Gson gson = new Gson();
 		return gson.fromJson(jsonString, Player.class);
@@ -75,7 +117,7 @@ public class GameSaverLoader
 
 	public void saveGameProperties(int saveCode, String content)
 	{
-		Properties properties = new Properties();
+		/*-Properties properties = new Properties();
 		File file = null;
 		try
 		{
@@ -87,7 +129,29 @@ public class GameSaverLoader
 		} catch (URISyntaxException | IOException e)
 		{
 			e.printStackTrace();
+		}*/
+		
+		Properties properties = new Properties();
+
+		String jarPath;
+		String jarDirPath = "";
+		try
+		{
+			jarPath = GameApplication.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			jarDirPath = new File(jarPath).getParent();
+		} catch (URISyntaxException e)
+		{
+			e.printStackTrace();
 		}
+		
+		File file =  new File(jarDirPath+"/game.properties");
+		try (InputStream inputStream = new FileInputStream(file) /* classLoader.getResourceAsStream("game.properties")*/)
+		{
+			properties.load(inputStream);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}	
 
 		String resolution = properties.getProperty("gameResolution");
 		String info1 = properties.getProperty("gameStateInfo1");
@@ -132,29 +196,38 @@ public class GameSaverLoader
 
 	public String[] loadGameProperties()
 	{
-		Properties properties = new Properties();
+		/*-Properties properties = new Properties();
 		try (InputStream is = getClass().getClassLoader().getResourceAsStream("game.properties"))
 		{
 			properties.load(is);
 		} catch (IOException e)
 		{
 			// handle the exception
-		}
+		}*/
+	
+		
+		Properties properties = new Properties();
 
-		/*
-		 * Properties properties = new Properties();
-		 * String path = this.getClass().getResource("/game.properties").toString();
-		 * File file = new File(path.substring("file:".length()));
-		 * try
-		 * {
-		 * FileInputStream in = new FileInputStream(file);
-		 * properties.load(in);
-		 * in.close();
-		 * } catch ( IOException e)
-		 * {
-		 * e.printStackTrace();
-		 * }
-		 */
+		String jarPath;
+		String jarDirPath = "";
+		try
+		{
+			jarPath = GameApplication.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			jarDirPath = new File(jarPath).getParent();
+		} catch (URISyntaxException e)
+		{
+			e.printStackTrace();
+		}
+		
+		File file =  new File(jarDirPath+"/game.properties");
+		try (InputStream inputStream = new FileInputStream(file) /* classLoader.getResourceAsStream("game.properties")*/)
+		{
+			properties.load(inputStream);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}	
+		
 		String info1 = properties.getProperty("gameStateInfo1").equals("Nova hra") ? "Nová hra" : properties.getProperty("gameStateInfo1");
 		String info2 = properties.getProperty("gameStateInfo2").equals("Nova hra") ? "Nová hra" : properties.getProperty("gameStateInfo2");
 		String info3 = properties.getProperty("gameStateInfo3").equals("Nova hra") ? "Nová hra" : properties.getProperty("gameStateInfo3");
@@ -167,7 +240,29 @@ public class GameSaverLoader
 	{
 		saveGameProperties(saveCode, "Nova hra");
 
+		String jarPath;
+		String jarDirPath = "";
 		try
+		{
+			jarPath = GameApplication.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			jarDirPath = new File(jarPath).getParent();
+		} catch (URISyntaxException e)
+		{
+			e.printStackTrace();
+		}
+		
+		try 
+		{
+			File file = new File(jarDirPath+"/gamestate" + saveCode + ".json");
+			PrintWriter writer = new PrintWriter(file);
+			writer.print("");
+			writer.close();
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}	
+		
+		/*-try
 		{
 			File file = new File(this.getClass().getResource("/gamestate" + saveCode + ".json").toURI());
 			PrintWriter writer = new PrintWriter(file);
@@ -175,7 +270,7 @@ public class GameSaverLoader
 			writer.close();
 		} catch (FileNotFoundException | URISyntaxException e)
 		{
-		}
+		}*/
 	}
 
 	public static boolean isGameAlreadyRunning()
@@ -201,27 +296,34 @@ public class GameSaverLoader
 
 	public static void gameIsAlreadyRunning(boolean running)
 	{
-		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+		//ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 		Properties properties = new Properties();
 
-		try (InputStream inputStream = classLoader.getResourceAsStream("game.properties"))
+		String jarPath;
+		String jarDirPath = "";
+		try
+		{
+			jarPath = GameApplication.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			jarDirPath = new File(jarPath).getParent();
+		} catch (URISyntaxException e)
+		{
+			e.printStackTrace();
+		}
+		
+		File file =  new File(jarDirPath+"/game.properties");
+		try (InputStream inputStream = new FileInputStream(file) /* classLoader.getResourceAsStream("game.properties")*/)
 		{
 			properties.load(inputStream);
 		} catch (IOException e)
 		{
 			e.printStackTrace();
-		}
+		}		
 
 		String runningString = running ? "true" : "false";
 		String resolution = properties.getProperty("gameResolution");
 		String info1 = properties.getProperty("gameStateInfo1");
 		String info2 = properties.getProperty("gameStateInfo2");
 		String info3 = properties.getProperty("gameStateInfo3");
-
-		URL resourceUrl = classLoader.getResource("game.properties");
-		String path = resourceUrl.getPath();
-		
-		File file = new File(path);
 		
 		//properties.store(outputStream, "Updated properties");
 		

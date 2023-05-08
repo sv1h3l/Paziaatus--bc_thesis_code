@@ -20,10 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.util.Duration;
-import paziak.DDDCardsImages;
-import paziak.DDDShuffler;
 import paziak.Card;
-import paziak.DDDCard;
 import residue.Constants;
 import residue.Item;
 import residue.Shop;
@@ -1285,29 +1282,10 @@ public class GameView
 				gameController.paziakMainButton.setImage(getImg("paziak/pazzak_next_set", false));
 				break;
 			case 2:
-				gameController.paziakMainButton.setImage(getImg("paziak/pazzak_leave_game", false));				
+				gameController.paziakMainButton.setImage(getImg("paziak/pazzak_leave_game", false));
 		}
-		
-		gameController.paziakMainButton.setVisible(true);
 
-		/*
-		 * opponentPlayedCard.setOnFinished(event -> {
-		 * pazaak.waitingForCardUse();
-		 * });
-		 * visualizeWithDelayOpsTable.setOnFinished(event -> {
-		 * visualizationOfTableCards(false);
-		 * });
-		 * 
-		 * visualizeWithShortDelayPlsTable.setOnFinished(event -> {
-		 * visualizationOfTableCards(true);
-		 * });
-		 * visualizeWithDelayPlsTable.setOnFinished(event -> {
-		 * visualizationOfTableCards(true);
-		 * });
-		 * opponentPlayedCardSoWait.setOnFinished(event -> {
-		 * visualizationOfTableCards(true);
-		 * });
-		 */
+		gameController.paziakMainButton.setVisible(true);
 
 	}
 
@@ -1382,22 +1360,45 @@ public class GameView
 		ColorAdjust colorAdjust = new ColorAdjust();
 		colorAdjust.setBrightness(-0.4);
 
-		List<Node> playersHandCards = gameController.panePaziak.getChildren();
+		List<Node> HandCards = gameController.panePaziak.getChildren();
 		for (int i = 22; i <= 33; i++)
 		{
-			playersHandCards.get(i).setDisable(true);
-			playersHandCards.get(i).setEffect(colorAdjust);
+			HandCards.get(i).setDisable(true);
+			HandCards.get(i).setEffect(colorAdjust);
 		}
+
+		gameController.paziakPlayersBanner.setEffect(colorAdjust);
 	}
 
-	public void paziakBrightenAllCards() // TODO const
+	public void paziakDarkenAllHandCards() // TODO const
+	{
+		ColorAdjust colorAdjust = new ColorAdjust();
+		colorAdjust.setBrightness(-0.4);
+
+		List<Node> HandCards = gameController.panePaziak.getChildren();
+		for (int i = 22; i <= 33; i++)
+		{
+			HandCards.get(i).setDisable(true);
+			HandCards.get(i).setEffect(colorAdjust);
+		}
+
+		for (int i = 9; i <= 12; i++)
+			HandCards.get(i).setEffect(colorAdjust);
+
+		gameController.paziakOpponentsBanner.setEffect(colorAdjust);
+		gameController.paziakPlayersBanner.setEffect(colorAdjust);
+	}
+
+	public void paziakBrightenAll() // TODO const
 	{
 		List<Node> playersCards = gameController.panePaziak.getChildren();
-		for (int i = 0; i <= 25; i++)
+		for (int i = 8; i <= 25; i++)
 			playersCards.get(i).setEffect(null);
+		gameController.paziakPlayersBanner.setEffect(null);
+		gameController.paziakOpponentsBanner.setEffect(null);
 	}
 
-	public void paziakDarkenCards(boolean darkenPlayersCards) // TODO const
+	public void paziakDarkenDeck(boolean darkenPlayersCards) // TODO const
 	{
 		ColorAdjust colorAdjust = new ColorAdjust();
 		colorAdjust.setBrightness(-0.4);
@@ -1405,16 +1406,21 @@ public class GameView
 		int i, max;
 
 		if (darkenPlayersCards)
-			i = 13;
-		else
-			i = 0;
-		max = i + 12;
+		{
+			gameController.paziakPlayersBanner.setEffect(colorAdjust);
+			i = 22;
+		} else
+		{
+			gameController.paziakOpponentsBanner.setEffect(colorAdjust);
+			i = 9;
+		}
+		max = i + 3;
 
 		for (; i <= max; i++)
 			playersCards.get(i).setEffect(colorAdjust);
 	}
 
-	public void paziakVisualizationOfTableCards(boolean visualizationOfPlayersSide, String score, ArrayList<Card> laidCards, ArrayList<Card> sideDeck)
+	public void paziakVisualizationOfTableCards(boolean visualizationOfPlayersSide, ArrayList<Card> laidCards, ArrayList<Card> sideDeck)
 	{
 		int nthChildrenOfPazaakPane;
 		List<Node> imageViewsOfTableCards = gameController.panePaziak.getChildren();
@@ -1422,15 +1428,11 @@ public class GameView
 
 		if (visualizationOfPlayersSide)
 		{
-			gameController.paziakPlayersScore.setText(score);
 			nthChildrenOfPazaakPane = 13;
 			paziakDisableOrEnableNextAndStandButtons(false);
-			paziakBrightenPlayersHandCards();
+			paziakBrightenHandCards();
 		} else
-		{
-			gameController.paziakOpponentsScore.setText(score);
 			nthChildrenOfPazaakPane = 0;
-		}
 
 		for (Card card : laidCards)
 		{
@@ -1440,6 +1442,16 @@ public class GameView
 		}
 
 		paziakVisualizationOfSideDeck(visualizationOfPlayersSide, sideDeck);
+	}
+
+	public void paziakVisualizationPlayersScore(String playersScore)
+	{
+		gameController.paziakPlayersScore.setText(playersScore);
+	}
+
+	public void paziakVisualizationOpponentsScore(String opponentsScore)
+	{
+		gameController.paziakOpponentsScore.setText(opponentsScore);
 	}
 
 	public void paziakVisualizationOfSideDeck(boolean visualizationOfPlayersSide, ArrayList<Card> sideDeck)
@@ -1460,8 +1472,7 @@ public class GameView
 		{
 			imageViewOfCard = (ImageView) imageViewsOfHandCards.get(nthChildrenOfPazaakPane);
 			if (!card.isCardUsed() && !visualizationOfPlayersSide)
-				imageViewOfCard.setImage(paziakWhichSideOfCard(card));
-				//imageViewOfCard.setImage(getImg("cards/cards/b", true));
+				imageViewOfCard.setImage(getImg("cards/cards/b", true));
 			else if (!card.isCardUsed() && visualizationOfPlayersSide)
 				imageViewOfCard.setImage(paziakWhichSideOfCard(card));
 			else
@@ -1482,15 +1493,24 @@ public class GameView
 		return getImg(card.getImage(), true);
 	}
 
-	private void paziakBrightenPlayersHandCards() // TODO const
+	protected void paziakBrightenHandCards() // TODO const
 	{
 		List<Node> playersHandCards = gameController.panePaziak.getChildren();
 		for (int i = 22; i <= 33; i++)
 		{
 			playersHandCards.get(i).setDisable(false);
-			if (i < 26)
-				playersHandCards.get(i).setEffect(null);
+			playersHandCards.get(i).setEffect(null);
 		}
+
+		for (int i = 9; i <= 12; i++)
+		{
+			playersHandCards.get(i).setEffect(null);
+		}
+		
+		
+
+		gameController.paziakPlayersBanner.setEffect(null);
+		gameController.paziakOpponentsBanner.setEffect(null);
 	}
 
 	public void paziakHideAllHandButtons()
@@ -1514,6 +1534,22 @@ public class GameView
 				i = 12;
 		}
 	}
+	
+	public void paziakClearHandImages()
+	{
+		List<Node> playersHandCards = gameController.panePaziak.getChildren();
+		ImageView imageVieqOfCard;
+
+		for (int i = 9; i < 25; i++)
+		{
+			imageVieqOfCard = (ImageView) playersHandCards.get(i);
+			imageVieqOfCard.setImage(null);
+
+			if (i == 12)
+				i = 22;
+		}
+	}
+
 
 	public void paziakActivateHandButtons(List<Card> sideDeck)
 	{
@@ -1583,5 +1619,21 @@ public class GameView
 		List<Node> playersHandButtons = gameController.panePaziak.getChildren();
 		for (int i = 26; i <= 33; i++)
 			playersHandButtons.get(i).setVisible(false);
+	}
+
+	public void paziakDarkenOpponentsHandCards()
+	{
+
+		ColorAdjust colorAdjust = new ColorAdjust();
+		colorAdjust.setBrightness(-0.4);
+
+		List<Node> HandCards = gameController.panePaziak.getChildren();
+
+
+		for (int i = 9; i <= 12; i++)
+			HandCards.get(i).setEffect(colorAdjust);
+
+		gameController.paziakOpponentsBanner.setEffect(colorAdjust);
+
 	}
 }

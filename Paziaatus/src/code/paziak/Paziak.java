@@ -5,7 +5,10 @@ import java.util.List;
 
 import beings.PaziakPlayer;
 import beings.Player;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.util.Duration;
 import main.GameController;
 import main.GameModel;
 import residue.Constants;
@@ -37,6 +40,9 @@ public class Paziak
 	private boolean	end;
 	private boolean	pause;
 	private int		mainButtonCode;
+
+	private boolean	firstStandPlayer;
+	private boolean	firstStandOpponent;
 
 	public Paziak(GameModel gameModel, Player player)
 	{
@@ -92,10 +98,10 @@ public class Paziak
 		player.makeSideDeck(player.getDeck());
 		getOpponent().makeSideDeck(database.createDeckForOpponent(player.planetMultiplier()));
 
-		playersScore = useCard(getAndRemoveCard(mainDeck), playersLaidCards);
+		playersScore = useCard(getAndRemoveCard(mainDeck), playersLaidCards, true);
 
-		gameModel.paziakVsualizationOfTableCards(true);
-		gameModel.paziakVsualizationOfTableCards(false);
+		gameModel.paziakAnimatedVisualization(true, true, playersLaidCards, player.getSideDeck(), Integer.toString(playersScore));
+		gameModel.paziakAnimatedVisualization(false, true, opponentsLaidCards, opponent.getSideDeck(), Integer.toString(opponentsScore));
 	}
 
 	private Card getAndRemoveCard(ArrayList<Card> mainDeck)
@@ -138,6 +144,9 @@ public class Paziak
 		createMainDeck();
 		Tools.shuffleDeck(mainDeck);
 
+		firstStandOpponent = false;
+		firstStandPlayer = false;
+
 		playersLaidCards = new ArrayList<>();
 		opponentsLaidCards = new ArrayList<>();
 	}
@@ -149,8 +158,8 @@ public class Paziak
 
 		if (!opponentStand)
 		{
-			opponentsScore = useCard(getAndRemoveCard(mainDeck), opponentsLaidCards);
-			gameModel.paziakVsualizationOfTableCards(false);
+			opponentsScore = useCard(getAndRemoveCard(mainDeck), opponentsLaidCards, false);
+			gameModel.paziakAnimatedVisualization(false, true, opponentsLaidCards, opponent.getSideDeck(), Integer.toString(opponentsScore));
 			temporaryScoreOfOpponentsCards = opponentsScore;
 
 			if (opponentConsidersUsingACard(opponent.getSideDeck()))
@@ -162,25 +171,25 @@ public class Paziak
 			}
 
 			if (temporaryScoreOfOpponentsCards == 20)
-				opponentStand = true;
+				firstStandCheckAndSetOfOpponent();
 			else if (getPlayersScore() > 20)
-				opponentStand = true;
+				firstStandCheckAndSetOfOpponent();
 			else if (temporaryScoreOfOpponentsCards > getPlayersScore() && playerStand)
-				opponentStand = true;
+				firstStandCheckAndSetOfOpponent();
 			else if ((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18) && temporaryScoreOfOpponentsCards == getPlayersScore()
 					&& playerStand)
-				opponentStand = true;
+				firstStandCheckAndSetOfOpponent();
 			else if ((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18) && temporaryScoreOfOpponentsCards < getPlayersScore()
 					&& playerStand)
 				opponentStand = false;
 			else if ((temporaryScoreOfOpponentsCards == 19 || temporaryScoreOfOpponentsCards == 18) && temporaryScoreOfOpponentsCards > getPlayersScore())
-				opponentStand = true;
+				firstStandCheckAndSetOfOpponent();
 			else if (temporaryScoreOfOpponentsCards > 20)
-				opponentStand = true;
+				firstStandCheckAndSetOfOpponent();
 
-			if (opponentStand)
-				gameModel.paziakDarkenCards(false);
 		}
+		if (opponentStand)
+			gameModel.paziakDarkenDeck(false);
 
 		if (!opponentPlayedCard)
 			temporaryScoreOfOpponentsCards = 0;
@@ -353,81 +362,88 @@ public class Paziak
 
 		if (getPlayersScore() > 20)
 		{
-			playerStand = true;
-			gameModel.paziakDarkenCards(true);
+			firstStandCheckAndSetOfPlayer();
+			gameModel.paziakDarkenDeck(true);
 		}
 
 		if (finalOpponentsScore > 20)
 		{
-			opponentStand = true;
-			gameModel.paziakDarkenCards(false);
+			firstStandCheckAndSetOfOpponent();
+			gameModel.paziakDarkenDeck(false);
+		}
+
+		if (playersLaidCards.size() > 8)
+		{
+
+			firstStandCheckAndSetOfPlayer();
+			gameModel.paziakDarkenDeck(true);
+		}
+
+		if (opponentsLaidCards.size() > 8)
+		{
+			firstStandCheckAndSetOfOpponent();
+			gameModel.paziakDarkenDeck(false);
 		}
 
 		if (playerStand && opponentStand)
 		{
 			if (finalOpponentsScore == getPlayersScore())
 			{
-				gameModel.paziakSmallGeneralDialog(Constants.DRAW);
-				gameModel.setPaziakMainButton(1);
+				showDialogWithDelay(Constants.DRAW);
 				newGameSet();
 			} else if (getPlayersScore() > 20 && finalOpponentsScore > 20)
 			{
-				gameModel.paziakSmallGeneralDialog(Constants.DRAW);
+				showDialogWithDelay(Constants.DRAW);
 				newGameSet();
-				gameModel.setPaziakMainButton(1);
 			} else if (getPlayersScore() > 20)
 			{
 				opponentsSets++;
-				gameModel.paziakSmallGeneralDialog(Constants.SET_OPPONENT);
+				showDialogWithDelay(Constants.SET_OPPONENT);
 				newGameSet();
-				gameModel.setPaziakMainButton(1);
 			} else if (finalOpponentsScore > 20)
 			{
 				playersSets++;
-				gameModel.paziakSmallGeneralDialog(Constants.SET_PLAYER);
+				showDialogWithDelay(Constants.SET_PLAYER);
 				newGameSet();
-				gameModel.setPaziakMainButton(1);
 			} else if (finalOpponentsScore < getPlayersScore())
 			{
 				playersSets++;
-				gameModel.paziakSmallGeneralDialog(Constants.SET_PLAYER);
+				showDialogWithDelay(Constants.SET_PLAYER);
 				newGameSet();
-				gameModel.setPaziakMainButton(1);
 			} else
 			{
 				opponentsSets++;
-				gameModel.paziakSmallGeneralDialog(Constants.SET_OPPONENT);
+				showDialogWithDelay(Constants.SET_OPPONENT);
 				newGameSet();
-				gameModel.setPaziakMainButton(1);
 			}
 
 			if (playersSets == 3)
 			{
-				gameModel.paziakVsualizationOfTableCards(true);
-				gameModel.paziakSmallGeneralDialog(Constants.GAME_PLAYER);
+				gameModel.paziakAnimatedVisualization(true, false, playersLaidCards, player.getSideDeck(), Integer.toString(playersScore));
+				mainButtonCode = 2;
+				showDialogWithDelay(Constants.GAME_PLAYER);
 				end = true;
 			} else if (opponentsSets == 3)
 			{
-				gameModel.paziakVsualizationOfTableCards(false);
-				gameModel.paziakSmallGeneralDialog(Constants.GAME_OPPONENT);
+				gameModel.paziakAnimatedVisualization(false, false, opponentsLaidCards, opponent.getSideDeck(), Integer.toString(opponentsScore));
+				mainButtonCode = 2;
+				showDialogWithDelay(Constants.GAME_OPPONENT);
 				end = true;
 			}
 
 			if (end)
 			{
-				mainButtonCode = 2;
-				gameModel.setPaziakMainButton(2);
+				playersScore = calculateScore(playersLaidCards, false);
+				opponentsScore = finalOpponentsScore;
 			}
 		}
 
 		if (!end && !playerStand && !pause)
 		{
-			playersScore = useCard(getAndRemoveCard(mainDeck), playersLaidCards);
-			gameModel.paziakVsualizationOfTableCards(true);
-		} else if (opponentPlayedCard)
-			gameModel.paziakVsualizationOfTableCards(true);
-		else if (end)
-			gameModel.paziakVsualizationOfTableCards(true);
+			playersScore = useCard(getAndRemoveCard(mainDeck), playersLaidCards, true);
+			gameModel.paziakAnimatedVisualization(true, true, playersLaidCards, player.getSideDeck(), Integer.toString(playersScore));
+		} else if (end)
+			gameModel.paziakAnimatedVisualization(true, false, playersLaidCards, player.getSideDeck(), Integer.toString(playersScore));
 
 		if (playerStand)
 			opponentsTurn();
@@ -436,16 +452,36 @@ public class Paziak
 	public void waitingForCardUse()
 	{
 		opponent.getSideDeck().get(whichCardOpponentPlayed).useCard();
-		opponentsScore = useCard(lockedOpponentsPlayedCard, opponentsLaidCards);
-		gameModel.paziakVsualizationOfTableCards(false);
+		opponentsScore = useCard(lockedOpponentsPlayedCard, opponentsLaidCards, false);
+		gameModel.paziakAnimatedVisualization(false, true, playersLaidCards, player.getSideDeck(), Integer.toString(playersScore));
 	}
 
-	public int useCard(Card card, List<Card> personsCardsOnTable)
+	public int useCard(Card card, List<Card> personsCardsOnTable, boolean tryLuck)
 	{
+		if (tryLuck)
+			card = tryLuck(card);
+
 		personsCardsOnTable.add(card);
 		return calculateScore(personsCardsOnTable, false);
 	}
 
+	private Card tryLuck(Card card)
+	{
+		int random = Tools.getRandomNumber(150);
+		if(random <= player.getLuck() && (card.getValue() > mainDeck.get(0).getValue()))
+		{
+			Card newCard = mainDeck.get(0);
+			mainDeck.set(0, card);
+			return newCard;
+		}
+		return card;
+	}
+
+	public void newCard()
+	{
+		playersScore = useCard(getAndRemoveCard(mainDeck), playersLaidCards, true);
+	}
+	
 	public void pause()
 	{
 		this.pause = true;
@@ -465,10 +501,20 @@ public class Paziak
 
 		List<Integer> cardValues = new ArrayList<>();
 		int calculatedScore;
+		int previousValue = 0;
 
 		for (Card card : calculationList)
 		{
-			cardValues.add(card.getValue());
+			if (card.getCardTypeCode() == Constants.CARD_TYPE_DOUBLE)
+				cardValues.add(previousValue * 2);
+			else if (card.getCardTypeCode() == Constants.CARD_TYPE_2A4)
+				cardValues = transformValues(cardValues, true);
+			else if (card.getCardTypeCode() == Constants.CARD_TYPE_3A6)
+				cardValues = transformValues(cardValues, false);
+			else
+				cardValues.add(card.getValue());
+
+			previousValue = card.getValue();
 		}
 
 		calculatedScore = cardValues.stream().mapToInt(Integer::valueOf).sum();
@@ -476,25 +522,15 @@ public class Paziak
 		return calculatedScore;
 	}
 
-	private int getCardsValue(int value, boolean dec)
-	{
-		if (!dec)
-			return value;
-		else
-			return value * -1;
-	}
-
-	private ArrayList<Integer> transformValues(List<Integer> cardValues, boolean doubleCard, boolean twoAndFourCard)
+	private ArrayList<Integer> transformValues(List<Integer> cardValues, boolean twoAndFourCard)
 	{
 		ArrayList<Integer> transformedCardValues = new ArrayList<>();
 
 		for (Integer value : cardValues)
 		{
-			if (doubleCard)
-				transformedCardValues.add(value * 2);
-			else if (twoAndFourCard && (value == 2 || value == 4))
+			if (twoAndFourCard && (value == 2 || value == 4))
 				transformedCardValues.add(value * -1);
-			else if (value == 3 || value == 6)
+			else if (!twoAndFourCard && (value == 3 || value == 6))
 				transformedCardValues.add(value * -1);
 			else
 				transformedCardValues.add(value);
@@ -543,11 +579,6 @@ public class Paziak
 		return opponent;
 	}
 
-	public void setPlayerStand(boolean playerStand)
-	{
-		this.playerStand = playerStand;
-	}
-
 	public void setPlayersScore(int playersScore)
 	{
 		this.playersScore = playersScore;
@@ -563,10 +594,56 @@ public class Paziak
 		opponentsTurn();
 	}
 
+	public boolean isFirstStandOpponent()
+	{
+		return firstStandOpponent;
+	}
+
+	public void firstStandCheckAndSetOfOpponent()
+	{
+		firstStandOpponent = isPlayerStand() ? false : true;
+
+		opponentStand = true;
+		gameModel.paziakDarkenOpponentsHandCards();
+	}
+
+	public boolean isPaused()
+	{
+		return pause;
+	}
+
+	private void showDialogWithDelay(String text)
+	{
+		pause();
+		gameModel.paziakDarkenAllHandCards();
+		Timeline timeline = new Timeline(new KeyFrame(Duration.ZERO), new KeyFrame(Duration.millis(firstStandPlayer ? 2400 : 1100)));
+
+		timeline.setOnFinished(event -> {
+			gameModel.paziakPointsVisibler();
+			gameModel.paziakDarkenAllHandCards();
+			gameModel.paziakSmallGeneralDialog(text);
+			gameModel.setPaziakMainButton(mainButtonCode);
+		});
+		timeline.play();
+
+	}
+
 	public void stand()
 	{
-		playerStand = true;
+		firstStandCheckAndSetOfPlayer();
 		opponentsTurn();
+	}
+
+	public void firstStandCheckAndSetOfPlayer()
+	{
+		firstStandPlayer = isOpponentStand() ? false : true;
+
+		playerStand = true;
+	}
+
+	public boolean isOpponentStand()
+	{
+		return opponentStand;
 	}
 
 	public void paziakHandCardClicked(int numberOfSource)
@@ -574,13 +651,14 @@ public class Paziak
 
 		if (!player.getSideDeck().get(numberOfSource).isCardUsed())
 		{
-			setPlayersScore(useCard(player.getSideDeck().get(numberOfSource), getPlayersLaidCards()));
+			setPlayersScore(useCard(player.getSideDeck().get(numberOfSource), getPlayersLaidCards(), false));
 			player.getSideDeck().get(numberOfSource).useCard();
+			gameModel.paziakPointsVisibler();
 		}
 	}
 
-	public void newCard()
+	public boolean isPlayerStand()
 	{
-		playersScore = useCard(getAndRemoveCard(mainDeck), playersLaidCards);
+		return playerStand;
 	}
 }

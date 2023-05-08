@@ -4,9 +4,13 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import beings.Player;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
+import javafx.util.Duration;
 import paziak.Card;
 import paziak.Paziak;
 import residue.Constants;
@@ -894,16 +898,16 @@ public class GameModel
 			return;
 		}
 
-		if(getPlayer().travelOnNextPlanet())
+		if (getPlayer().travelOnNextPlanet())
 		{
 			getPlayer().migrateOnNarrSheyda();
 			gameView.removeDeletedImages();
 			gameView.setImagesOfLoadedItems(player);
 		}
-		
+
 		getDatabase().createShopItems(getShops(), player.getActualPlanet());
 		gameView.setCantineCardsImages(cards, player.getActualPlanet());
-		
+
 		gameView.updateUserInterfaceForSpecificPlanet(getPlayer().getActualPlanet());
 		gameView.setSleepAndTravelTimeline(left ? 1 : 2, player.getGameMode(), true);
 	}
@@ -1216,9 +1220,10 @@ public class GameModel
 					gameView.paziakResetTheScore();
 					gameView.paziakShowOrHidehandCards(false);
 					gameView.paziakClearImages();
+					gameView.paziakClearHandImages();
 
 					gameView.paziakMainButtonVisibler(0);
-					
+
 					gameView.setFieldVisible("panePaziak", true);
 					gameView.keeperNodesVisibler(false);
 					gameView.setFieldVisible("middlePartition", true);
@@ -1257,12 +1262,20 @@ public class GameModel
 	{
 		gameView.paziakResetTheScore();
 		paziak.newCard();
-		gameView.paziakPointsVisibler(paziak.getPlayersSets(), paziak.getOpponentsSets());
 		gameView.paziakHideAllHandButtons();
 		gameView.paziakActivateHandButtons(paziak.getPlayer().getSideDeck());
 		gameView.paziakClearImages();
-		gameView.paziakVisualizationOfTableCards(true, Integer.toString(paziak.getPlayersScore()), paziak.getPlayersLaidCards(),
-				paziak.getPlayer().getSideDeck());
+		gameView.paziakVisualizationOfTableCards(true, paziak.getPlayersLaidCards(), paziak.getPlayer().getSideDeck());
+
+		gameView.paziakBrightenHandCards();
+
+		gameView.paziakVisualizationPlayersScore(Integer.toString(paziak.getPlayersScore()));
+		gameView.paziakVisualizationOpponentsScore(paziak.getOpponentsScore());
+	}
+
+	public void paziakPointsVisibler()
+	{
+		gameView.paziakPointsVisibler(paziak.getPlayersSets(), paziak.getOpponentsSets());
 	}
 
 	public void cantineShopRightClick(ImageView image, int nthSlot)
@@ -1332,20 +1345,17 @@ public class GameModel
 		{
 			case "paziakNextTurnButton":
 			{
+				gameView.paziakDisableOrEnableNextAndStandButtons(true);
+				gameView.paziakDarkenAllPlayersHandCards();
 				paziak.nextTurn();
-				/*
-				 * gameView.paziakDisableOrEnableNextAndStandButtons(true);
-				 * gameView.paziakDarkenAllPlayersHandCards();
-				 */
 				break;
 			}
 			case "paziakStandButton":
 			{
+
+				gameView.paziakDisableOrEnableNextAndStandButtons(true);
+				gameView.paziakDarkenAllPlayersHandCards();
 				paziak.stand();
-				/*
-				 * gameView.paziakDisableOrEnableNextAndStandButtons(true);
-				 * gameView.paziakDarkenCards(true);
-				 */
 				break;
 			}
 			case "paziakMainButton":
@@ -1357,8 +1367,9 @@ public class GameModel
 	{
 		paziak.paziakHandCardClicked(numberOfSource);
 
-		gameView.paziakVisualizationOfTableCards(true, Integer.toString(paziak.getPlayersScore()), paziak.getPlayersLaidCards(),
-				paziak.getPlayer().getSideDeck());
+		gameView.paziakVisualizationOfTableCards(true, paziak.getPlayersLaidCards(), paziak.getPlayer().getSideDeck());
+		gameView.paziakVisualizationPlayersScore(Integer.toString(paziak.getPlayersScore()));
+		gameView.paziakVisualizationOpponentsScore(paziak.getOpponentsScore());
 		gameView.paziakDarkenPlayersHandCards(numberOfSource);
 	}
 
@@ -1368,22 +1379,23 @@ public class GameModel
 		String removeThisFromidOfSource;
 
 		if (left)
-			removeThisFromidOfSource = "handLeft";
+			removeThisFromidOfSource = "paziakLeftTurnOfSideDeckCard";
 		else
-			removeThisFromidOfSource = "handRight";
+			removeThisFromidOfSource = "paziakRightTurnOfSideDeckCard";
 		int numberOfSource = Tools.getNumberFromString(idOfSource, removeThisFromidOfSource) - 1;
 
 		if (!paziak.getPlayer().getSideDeck().get(numberOfSource).isCardUsed())
 		{
 			paziak.getPlayer().getSideDeck().get(numberOfSource).changeValue(left);
-			gameView.paziakVisualizationOfTableCards(true, Integer.toString(paziak.getPlayersScore()), paziak.getPlayersLaidCards(),
-					paziak.getPlayer().getSideDeck());
+			gameView.paziakVisualizationOfTableCards(true, paziak.getPlayersLaidCards(), paziak.getPlayer().getSideDeck());
+			gameView.paziakVisualizationPlayersScore(Integer.toString(paziak.getPlayersScore()));
+			gameView.paziakVisualizationOpponentsScore(paziak.getOpponentsScore());
 		}
 	}
 
-	public void paziakDarkenCards(boolean darkenPlayersCards)
+	public void paziakDarkenDeck(boolean darkenPlayersCards)
 	{
-		gameView.paziakDarkenCards(darkenPlayersCards);
+		gameView.paziakDarkenDeck(darkenPlayersCards);
 	}
 
 	public void paziakSmallGeneralDialog(String dialogContent)
@@ -1391,16 +1403,30 @@ public class GameModel
 		gameView.smallGeneralDialog(dialogContent);
 	}
 
-	public void paziakVsualizationOfTableCards(boolean visualizationOfPlayersSide)
+	public void paziakAnimatedVisualization(boolean visualizationOfPlayersSide, boolean scoreVisualization, ArrayList<Card> laidCards,
+			ArrayList<Card> sideDeck, String score)
 	{
-		if (visualizationOfPlayersSide)
-			gameView.paziakVisualizationOfTableCards(visualizationOfPlayersSide, Integer.toString(paziak.getPlayersScore()), paziak.getPlayersLaidCards(),
-					paziak.getPlayer().getSideDeck());
-		else
-			gameView.paziakVisualizationOfTableCards(visualizationOfPlayersSide, paziak.getOpponentsScore(), paziak.getOpponentsLaidCards(),
-					paziak.getOpponent().getSideDeck());
+
+		int duration = visualizationOfPlayersSide ? 1000 : 500;
+		if (paziak.isFirstStandOpponent() && visualizationOfPlayersSide)
+			duration = 500;
+
+		Timeline timeline = new Timeline(new KeyFrame(Duration.ZERO), new KeyFrame(Duration.millis(duration)));
+
+		timeline.setOnFinished(event -> {
+			gameView.paziakVisualizationOfTableCards(visualizationOfPlayersSide, laidCards, sideDeck);
+			if (scoreVisualization)
+				if (visualizationOfPlayersSide && !paziak.isPaused())
+					gameView.paziakVisualizationPlayersScore(score);
+				else if (!visualizationOfPlayersSide)
+					gameView.paziakVisualizationOpponentsScore(score);
+			if(paziak.isOpponentStand())
+				paziakDarkenOpponentsHandCards();
+		});
+		timeline.play();
 
 	}
+
 
 	public void mainButtonClick(int mainButtonCode)
 	{
@@ -1439,5 +1465,15 @@ public class GameModel
 		paziak.pause();
 		gameView.paziakDisableOrEnableNextAndStandButtons(true);
 		gameView.paziakMainButtonVisibler(mainButtonCode);
+	}
+
+	public void paziakDarkenAllHandCards()
+	{
+		gameView.paziakDarkenAllHandCards();
+	}
+
+	public void paziakDarkenOpponentsHandCards()
+	{
+		gameView.paziakDarkenOpponentsHandCards();
 	}
 }
