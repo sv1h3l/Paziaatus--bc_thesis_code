@@ -4,81 +4,161 @@ import java.util.ArrayList;
 import java.util.List;
 
 import beings.PaziakPlayer;
+import beings.Player;
+import javafx.fxml.FXML;
 import main.GameController;
+import main.GameModel;
+import residue.Constants;
+import residue.Database;
+import residue.Tools;
 
 public class Paziak
 {
-	private GameController	controller;
-	private int					playersSets;
-	private int					opponentsSets;
-	private int					playersScore;
-	private int					opponentsScore;
-	private List<SideDeckCard>		cardsOnPlayersTable;
-	private List<SideDeckCard>		cardsOnOpponentsTable;
-	private boolean				playerStand;
-	private boolean				opponentStand;
-	private DDDMainDeck			mainDeck;
-	private DDDSideDeck			sideDeck;
-	private PaziakPlayer		player;
-	private PaziakPlayer		opponent;
-	private boolean				end;
-	private boolean				opponentPlayedCard;
-	private int					whichCardOpPlayed;
+	private GameModel gameModel;
 
-	public Paziak(GameController controller)
+	private ArrayList<Card> mainDeck;
+
+	private Player			player;
+	private boolean			playerStand;
+	private int				playersSets;
+	private int				playersScore;
+	private ArrayList<Card>	playersLaidCards;
+
+	private PaziakPlayer	opponent;
+	private boolean			opponentStand;
+	private int				opponentsSets;
+	private int				opponentsScore;
+	private ArrayList<Card>	opponentsLaidCards;
+
+	private boolean	opponentPlayedCard;
+	private Card	lockedOpponentsPlayedCard;
+	private int		whichCardOpponentPlayed;
+
+	private boolean	end;
+	private boolean	pause;
+	private int		mainButtonCode;
+
+	public Paziak(GameModel gameModel, Player player)
 	{
-		this.controller = controller;
-		this.playersSets = 0;
-		this.opponentsSets = 0;
-		this.playersScore = 0;
-		this.opponentsScore = 0;
-		this.cardsOnPlayersTable = new ArrayList<>();
-		this.cardsOnOpponentsTable = new ArrayList<>();
+		this.gameModel = gameModel;
+
+		this.player = player;
 		this.playerStand = false;
-		this.opponentStand = false;
-		this.mainDeck = new DDDMainDeck();
-		this.sideDeck = new DDDSideDeck();
-		this.player = new PaziakPlayer();
+		this.playersSets = 0;
+		this.playersScore = 0;
+		this.playersLaidCards = new ArrayList<>();
+
 		this.opponent = new PaziakPlayer();
+		this.opponentStand = false;
+		this.opponentsSets = 0;
+		this.opponentsScore = 0;
+		this.opponentsLaidCards = new ArrayList<>();
+
+		this.pause = false;
 		this.end = false;
+		mainButtonCode = 0;
 	}
 
-	public void newGame() throws InterruptedException
+	public void mainButtonClick(Database database)
 	{
-		mainDeck.fillAndShuffleMainDeck();
+		switch (mainButtonCode)
+		{
+			case 0:
+			{
+				newGame(database);
+				gameModel.mainButtonClick(0);
+				mainButtonCode = 1; // TODO
+				break;
+			}
+			case 1:
+			{
+				gameModel.paziakNewGameSet();
+				gameModel.mainButtonClick(1);
+				break;
+			}
+			case 2:
+			{
+				gameModel.mainButtonClick(2);
+			}
+		}
 
-		sideDeck.fillSideDeck();
-		player.makeOpponentsSideDeck(sideDeck.getSideDeck());
-		sideDeck.fillSideDeck();
-		opponent.makeOpponentsSideDeck(sideDeck.getSideDeck());
-
-		controller.showOrHidehandCards(true);
-		controller.activateHandButtons();
-		controller.visualizationOfTableCards(true);
-
-		playersScore = useCard(mainDeck.getAndRemoveCard(), cardsOnPlayersTable);
-
-		controller.visualizeWithShortDelayPlsTable.play();
-		controller.visualizationOfTableCards(false);
 	}
 
-	public void opponentsTurn() throws InterruptedException
+	public void newGame(Database database)
+	{
+		createMainDeck();
+		Tools.shuffleDeck(mainDeck);
+
+		player.makeSideDeck(player.getDeck());
+		getOpponent().makeSideDeck(database.createDeckForOpponent(player.planetMultiplier()));
+
+		playersScore = useCard(getAndRemoveCard(mainDeck), playersLaidCards);
+
+		gameModel.paziakVsualizationOfTableCards(true);
+		gameModel.paziakVsualizationOfTableCards(false);
+	}
+
+	private Card getAndRemoveCard(ArrayList<Card> mainDeck)
+	{
+		Card card = mainDeck.get(0);
+		mainDeck.remove(0);
+		return card;
+	}
+
+	public void createMainDeck()
+	{
+		ArrayList<Card> mainDeck = new ArrayList<Card>();
+		int noValue = Constants.NO_VALUE;
+		String pathPrefix = "cards/cards/";
+
+		for (int i = 0; i < 4; ++i)
+		{
+			mainDeck.add(new Card(0, 1, noValue, pathPrefix + "m1", "", "", ""));
+			mainDeck.add(new Card(0, 2, noValue, pathPrefix + "m2", "", "", ""));
+			mainDeck.add(new Card(0, 3, noValue, pathPrefix + "m3", "", "", ""));
+			mainDeck.add(new Card(0, 4, noValue, pathPrefix + "m4", "", "", ""));
+			mainDeck.add(new Card(0, 5, noValue, pathPrefix + "m5", "", "", ""));
+			mainDeck.add(new Card(0, 6, noValue, pathPrefix + "m6", "", "", ""));
+			mainDeck.add(new Card(0, 7, noValue, pathPrefix + "m7", "", "", ""));
+			mainDeck.add(new Card(0, 8, noValue, pathPrefix + "m8", "", "", ""));
+			mainDeck.add(new Card(0, 9, noValue, pathPrefix + "m9", "", "", ""));
+			mainDeck.add(new Card(0, 10, noValue, pathPrefix + "m10", "", "", ""));
+		}
+
+		this.mainDeck = mainDeck;
+	}
+
+	private void newGameSet()
+	{
+		playerStand = false;
+		opponentStand = false;
+		playersScore = 0;
+		opponentsScore = 0;
+
+		createMainDeck();
+		Tools.shuffleDeck(mainDeck);
+
+		playersLaidCards = new ArrayList<>();
+		opponentsLaidCards = new ArrayList<>();
+	}
+
+	public void opponentsTurn()
 	{
 		opponentPlayedCard = false;
 		int temporaryScoreOfOpponentsCards = 0;
 
 		if (!opponentStand)
 		{
-			opponentsScore = useCard(mainDeck.getAndRemoveCard(), cardsOnOpponentsTable);
-			controller.visualizeWithDelayOpsTable.play();
+			opponentsScore = useCard(getAndRemoveCard(mainDeck), opponentsLaidCards);
+			gameModel.paziakVsualizationOfTableCards(false);
 			temporaryScoreOfOpponentsCards = opponentsScore;
 
-			if (opponentConsidersUsingACard(opponent.getCardsForMatch()))
+			if (opponentConsidersUsingACard(opponent.getSideDeck()))
 			{
 				opponentPlayedCard = true;
-				temporaryScoreOfOpponentsCards = calculateScore(cardsOnOpponentsTable, true);
+				temporaryScoreOfOpponentsCards = calculateScore(opponentsLaidCards, true);
 
-				controller.opponentPlayedCard.play();
+				waitingForCardUse();
 			}
 
 			if (temporaryScoreOfOpponentsCards == 20)
@@ -99,7 +179,7 @@ public class Paziak
 				opponentStand = true;
 
 			if (opponentStand)
-				controller.darkenCards(false);
+				gameModel.paziakDarkenCards(false);
 		}
 
 		if (!opponentPlayedCard)
@@ -108,152 +188,161 @@ public class Paziak
 		endOfTurn(temporaryScoreOfOpponentsCards);
 	}
 
-	public boolean opponentConsidersUsingACard(List<SideDeckCard> cards)
+	public boolean opponentConsidersUsingACard(List<Card> cards)
 	{
-		int scoreIfCardIsUsed[] = new int[4], index = 0;
+		if (playerStand && opponentsScore > playersScore && opponentsScore <= 20)
+			return false;
 
-		List<SideDeckCard> opponentConsidersToUseOneOfTheseCards = new ArrayList<>();
+		int scoreIfCardIsUsed[] = new int[Constants.MAX_SIDE_DECK_CARDS], index = 0;
 
-		for (SideDeckCard card : cards)
+		List<Card> opponentConsidersToUseOneOfTheseCards = new ArrayList<>();
+
+		for (Card card : cards)
 		{
 			card.resetLeftTurn();
 			card.resetRightTurn();
+			int cardType = card.getCardTypeCode();
 
-			if (card.getCard().isItDoubleCard() && (opponentsScore == 10 || opponentsScore == 9))
+			if (cardType == Constants.CARD_TYPE_DOUBLE && (opponentsLaidCards.get(opponentsLaidCards.size() - 1).getPrimaryValue() * 2 == 20
+					|| opponentsLaidCards.get(opponentsLaidCards.size() - 1).getPrimaryValue() * 2 == 19))
 			{
-				scoreIfCardIsUsed[index++] = opponentsScore * 2;
+				scoreIfCardIsUsed[index] = opponentsScore + opponentsLaidCards.get(opponentsLaidCards.size() - 1).getPrimaryValue() * 2;
 				opponentConsidersToUseOneOfTheseCards.add(card);
 			}
 
-			else if (card.getCard().getSecondValue() == 0)
+			else if (cardType == Constants.CARD_TYPE_BOTH)
 			{
-				if (!card.getCard().isItMinusCard())
+				if (opponentsScore + card.getPrimaryValue() == 20 || opponentsScore + card.getPrimaryValue() == 19)
 				{
-					if (opponentsScore + card.getCard().getFirstValue() == 20 || opponentsScore + card.getCard().getFirstValue() == 19)
-					{
-						scoreIfCardIsUsed[index++] = opponentsScore + card.getCard().getFirstValue();
-						opponentConsidersToUseOneOfTheseCards.add(card);
-					}
-				} else
+					scoreIfCardIsUsed[index] = opponentsScore + card.getPrimaryValue();
+					opponentConsidersToUseOneOfTheseCards.add(card);
+				} else if (opponentsScore > 20 && opponentsScore + card.getSecondaryValue() < 21)
 				{
-					if (opponentsScore > 20 && opponentsScore - card.getCard().getFirstValue() < 21)
-					{
-						card.setLeftTurnActive();
-						scoreIfCardIsUsed[index++] = opponentsScore - card.getCard().getFirstValue();
-						opponentConsidersToUseOneOfTheseCards.add(card);
-					}
+					card.setLeftTurnActive();
+					scoreIfCardIsUsed[index] = opponentsScore + card.getSecondaryValue();
+					opponentConsidersToUseOneOfTheseCards.add(card);
 				}
+
 			}
 
-			else if (card.getCard().getFirstValue() == 1 && card.getCard().getSecondValue() == 2)
+			else if (cardType == Constants.CARD_TYPE_1A2)
 			{
 				if (opponentsScore == 18 || opponentsScore == 17 || opponentsScore == 16)
 				{
 					card.setLeftTurnActive();
-					scoreIfCardIsUsed[index++] = opponentsScore + 2;
+					scoreIfCardIsUsed[index] = opponentsScore + 2;
 					opponentConsidersToUseOneOfTheseCards.add(card);
 				} else if (opponentsScore == 19)
 				{
-					scoreIfCardIsUsed[index++] = 20;
+					scoreIfCardIsUsed[index] = 20;
 					opponentConsidersToUseOneOfTheseCards.add(card);
 				} else if (opponentsScore == 21)
 				{
 					card.setRightTurnActive();
-					scoreIfCardIsUsed[index++] = 20;
+					scoreIfCardIsUsed[index] = 20;
 					opponentConsidersToUseOneOfTheseCards.add(card);
 				} else if (opponentsScore == 22)
 				{
 					card.setLeftTurnActive();
 					card.setRightTurnActive();
-					scoreIfCardIsUsed[index++] = 20;
+					scoreIfCardIsUsed[index] = 20;
 					opponentConsidersToUseOneOfTheseCards.add(card);
 				}
 			}
 
-			else if (card.getCard().equals(DDDCard.TWO_AND_FOUR) && opponentsScore > 20)
+			else if (cardType == Constants.CARD_TYPE_2A4 && opponentsScore > 20)
 			{
 				int countOf2 = 0, countOf4 = 0;
-				for (SideDeckCard cardFromTable : cardsOnOpponentsTable)
+				for (Card cardFromTable : opponentsLaidCards)
 				{
-					if (cardFromTable.getCard().getFirstValue() == 2)
+					if (cardFromTable.getPrimaryValue() == 2)
 						countOf2++;
-					else if (cardFromTable.getCard().getFirstValue() == 4)
+					else if (cardFromTable.getPrimaryValue() == 4)
 						countOf4++;
 				}
 				if (opponentsScore - ((countOf2 * 2 + countOf4 * 4) * 2) < 21)
 				{
-					scoreIfCardIsUsed[index++] = opponentsScore - ((countOf2 * 2 + countOf4 * 4) * 2);
+					scoreIfCardIsUsed[index] = opponentsScore - ((countOf2 * 2 + countOf4 * 4) * 2);
 					opponentConsidersToUseOneOfTheseCards.add(card);
 				}
 			}
 
-			else if (card.getCard().equals(DDDCard.THREE_AND_SIX) && opponentsScore > 20)
+			else if (cardType == Constants.CARD_TYPE_3A6 && opponentsScore > 20)
 			{
 				int countOf3 = 0, countOf6 = 0;
-				for (SideDeckCard cardFromTable : cardsOnOpponentsTable)
+				for (Card cardFromTable : opponentsLaidCards)
 				{
-					if (cardFromTable.getCard().getFirstValue() == 3)
+					if (cardFromTable.getPrimaryValue() == 3)
 						countOf3++;
-					else if (cardFromTable.getCard().getFirstValue() == 6)
+					else if (cardFromTable.getPrimaryValue() == 6)
 						countOf6++;
 				}
 				if (opponentsScore - ((countOf3 * 3 + countOf6 * 6) * 2) < 21)
 				{
-					scoreIfCardIsUsed[index++] = opponentsScore - ((countOf3 * 3 + countOf6 * 6) * 2);
+					scoreIfCardIsUsed[index] = opponentsScore - ((countOf3 * 3 + countOf6 * 6) * 2);
 					opponentConsidersToUseOneOfTheseCards.add(card);
 				}
 			}
 
-			else
+			else if (cardType == Constants.CARD_TYPE_INCREASE
+					&& (card.getPrimaryValue() + opponentsScore == 19 || card.getPrimaryValue() + opponentsScore == 20))
 			{
-				if (opponentsScore < 20)
-				{
-					if ((card.getCard().equals(DDDCard.PLUS_ONE) || card.getCard().equals(DDDCard.PLUS_TWO) || card.getCard().equals(DDDCard.PLUS_THREE)
-							|| card.getCard().equals(DDDCard.PLUS_FOUR) || card.getCard().equals(DDDCard.PLUS_FIVE) || card.getCard().equals(DDDCard.PLUS_SIX))
-							&& (card.getCard().getFirstValue() + opponentsScore == 19 || card.getCard().getFirstValue() + opponentsScore == 20))
-					{
-						scoreIfCardIsUsed[index++] = opponentsScore + card.getCard().getFirstValue();
-						opponentConsidersToUseOneOfTheseCards.add(card);
-					}
-				} else if ((card.getCard().equals(DDDCard.MINUS_ONE) || card.getCard().equals(DDDCard.MINUS_TWO) || card.getCard().equals(DDDCard.MINUS_THREE)
-						|| card.getCard().equals(DDDCard.MINUS_FOUR) || card.getCard().equals(DDDCard.MINUS_FIVE) || card.getCard().equals(DDDCard.MINUS_SIX))
-						&& opponentsScore - card.getCard().getFirstValue() < 21)
-				{
-					card.setLeftTurnActive();
-					scoreIfCardIsUsed[index++] = opponentsScore - card.getCard().getFirstValue();
-					opponentConsidersToUseOneOfTheseCards.add(card);
-				}
+				scoreIfCardIsUsed[index] = opponentsScore + card.getPrimaryValue();
+				opponentConsidersToUseOneOfTheseCards.add(card);
+
+			} else if (cardType == Constants.CARD_TYPE_DECREASE && opponentsScore + card.getPrimaryValue() < 21
+					&& opponentsScore + card.getPrimaryValue() > 17)
+			{
+				scoreIfCardIsUsed[index] = opponentsScore + card.getPrimaryValue();
+				opponentConsidersToUseOneOfTheseCards.add(card);
 			}
-		}
-		int score = scoreIfCardIsUsed[0], nth = 0;
-		if (scoreIfCardIsUsed[1] > score)
-		{
-			score = scoreIfCardIsUsed[1];
-			nth = 1;
-		}
-		if (scoreIfCardIsUsed[2] > score)
-		{
-			score = scoreIfCardIsUsed[2];
-			nth = 2;
-		}
-		if (scoreIfCardIsUsed[3] > score)
-		{
-			score = scoreIfCardIsUsed[3];
-			nth = 3;
+
+			index++;
 		}
 
-		if (playerStand && opponentsScore > playersScore && opponentsScore <= 20)
-			return false;
-		else if ((score == 18 || score == 19 || score == 20) && score >= playersScore && !cards.get(nth).isCardUsed())
+		for (int nth = 0; nth < Constants.MAX_SIDE_DECK_CARDS; nth++)
+			if (playerStand && scoreIfCardIsUsed[nth] >= playersScore && scoreIfCardIsUsed[nth] < 21 && !cards.get(nth).isCardUsed())
+			{
+				lockedOpponentsPlayedCard = cards.get(nth);
+				whichCardOpponentPlayed = nth;
+				return true;
+			}
+
+		int nth = -1, wantedValue = 20;
+
+		for (; wantedValue > 17; wantedValue--)
 		{
-			opponent.lockedOpponentsPlayedCard = cards.get(nth);
-			whichCardOpPlayed = nth;
+			if (scoreIfCardIsUsed[0] == wantedValue)
+			{
+				nth = 0;
+				break;
+			} else if (scoreIfCardIsUsed[1] == wantedValue)
+			{
+				nth = 1;
+				break;
+			} else if (scoreIfCardIsUsed[2] == wantedValue)
+			{
+				nth = 2;
+				break;
+			} else if (scoreIfCardIsUsed[3] == wantedValue)
+			{
+				nth = 3;
+				break;
+			}
+		}
+
+		if (nth == -1)
+			return false;
+		else if (wantedValue >= playersScore && !cards.get(nth).isCardUsed() && wantedValue < 21 && !playerStand)
+		{
+			lockedOpponentsPlayedCard = cards.get(nth);
+			whichCardOpponentPlayed = nth;
 			return true;
 		} else
 			return false;
 	}
 
-	private void endOfTurn(int valueOfTemporaryUsedCard) throws InterruptedException
+	private void endOfTurn(int valueOfTemporaryUsedCard)
 	{
 		int finalOpponentsScore;
 
@@ -265,160 +354,121 @@ public class Paziak
 		if (getPlayersScore() > 20)
 		{
 			playerStand = true;
-			controller.darkenCards(true);
+			gameModel.paziakDarkenCards(true);
 		}
 
 		if (finalOpponentsScore > 20)
 		{
 			opponentStand = true;
-			controller.darkenCards(false);
+			gameModel.paziakDarkenCards(false);
 		}
 
-		/*-if (playerStand && opponentStand)
+		if (playerStand && opponentStand)
 		{
 			if (finalOpponentsScore == getPlayersScore())
 			{
-				controller.generalDialog(Constants.DRAW);
+				gameModel.paziakSmallGeneralDialog(Constants.DRAW);
+				gameModel.setPaziakMainButton(1);
 				newGameSet();
 			} else if (getPlayersScore() > 20 && finalOpponentsScore > 20)
 			{
-				controller.generalDialog(Constants.DRAW);
+				gameModel.paziakSmallGeneralDialog(Constants.DRAW);
 				newGameSet();
+				gameModel.setPaziakMainButton(1);
 			} else if (getPlayersScore() > 20)
 			{
 				opponentsSets++;
-				controller.generalDialog(Constants.SET_OPPONENT);
+				gameModel.paziakSmallGeneralDialog(Constants.SET_OPPONENT);
 				newGameSet();
+				gameModel.setPaziakMainButton(1);
 			} else if (finalOpponentsScore > 20)
 			{
 				playersSets++;
-				controller.generalDialog(Constants.SET_PLAYER);
+				gameModel.paziakSmallGeneralDialog(Constants.SET_PLAYER);
 				newGameSet();
+				gameModel.setPaziakMainButton(1);
 			} else if (finalOpponentsScore < getPlayersScore())
 			{
 				playersSets++;
-				controller.generalDialog(Constants.SET_PLAYER);
+				gameModel.paziakSmallGeneralDialog(Constants.SET_PLAYER);
 				newGameSet();
+				gameModel.setPaziakMainButton(1);
 			} else
 			{
 				opponentsSets++;
-				controller.generalDialog(Constants.SET_OPPONENT);
+				gameModel.paziakSmallGeneralDialog(Constants.SET_OPPONENT);
 				newGameSet();
+				gameModel.setPaziakMainButton(1);
 			}
 
 			if (playersSets == 3)
 			{
-				controller.visualizeWithDelayPlsTable.play();
-				controller.generalDialog(Constants.GAME_PLAYER);
+				gameModel.paziakVsualizationOfTableCards(true);
+				gameModel.paziakSmallGeneralDialog(Constants.GAME_PLAYER);
 				end = true;
 			} else if (opponentsSets == 3)
 			{
-				controller.visualizeWithDelayOpsTable.play();
-				controller.generalDialog(Constants.GAME_OPPONENT);
+				gameModel.paziakVsualizationOfTableCards(false);
+				gameModel.paziakSmallGeneralDialog(Constants.GAME_OPPONENT);
 				end = true;
 			}
 
 			if (end)
 			{
-				controller.showOrHidehandCards(false);
-				controller.nextSetStartLeaveGame.setVisible(true);
-				controller.disableNextAndStandButtons(true);
+				mainButtonCode = 2;
+				gameModel.setPaziakMainButton(2);
 			}
-		}*/
+		}
 
-		if (!end && !playerStand)
+		if (!end && !playerStand && !pause)
 		{
-			playersScore = useCard(mainDeck.getAndRemoveCard(), cardsOnPlayersTable);
-			if (opponentPlayedCard)
-				controller.opponentPlayedCardSoWait.play();
-			else
-				controller.visualizeWithDelayPlsTable.play();
+			playersScore = useCard(getAndRemoveCard(mainDeck), playersLaidCards);
+			gameModel.paziakVsualizationOfTableCards(true);
 		} else if (opponentPlayedCard)
-			controller.opponentPlayedCardSoWait.play();
+			gameModel.paziakVsualizationOfTableCards(true);
 		else if (end)
-			controller.visualizeWithShortDelayPlsTable.play();
-		else
-			controller.visualizeWithDelayPlsTable.play();
+			gameModel.paziakVsualizationOfTableCards(true);
 
 		if (playerStand)
 			opponentsTurn();
 	}
 
-	private void newGameSet()
-	{
-		playerStand = false;
-		opponentStand = false;
-		playersScore = 0;
-		opponentsScore = 0;
-		controller.resetScore();
-		mainDeck.fillAndShuffleMainDeck();
-		cardsOnPlayersTable = new ArrayList<>();
-		cardsOnOpponentsTable = new ArrayList<>();
-		controller.pointVisibler(playersSets, opponentsSets);
-		controller.hideAllHandButtons();
-		controller.activateHandButtons();
-		controller.clearImages();
-	}
-
 	public void waitingForCardUse()
 	{
-		opponent.getCardsForMatch().get(whichCardOpPlayed).useCard();
-		opponentsScore = useCard(opponent.lockedOpponentsPlayedCard, cardsOnOpponentsTable);
-		controller.visualizationOfTableCards(false);
+		opponent.getSideDeck().get(whichCardOpponentPlayed).useCard();
+		opponentsScore = useCard(lockedOpponentsPlayedCard, opponentsLaidCards);
+		gameModel.paziakVsualizationOfTableCards(false);
 	}
 
-	public int useCard(SideDeckCard card, List<SideDeckCard> personsCardsOnTable)
+	public int useCard(Card card, List<Card> personsCardsOnTable)
 	{
 		personsCardsOnTable.add(card);
 		return calculateScore(personsCardsOnTable, false);
 	}
 
-	private int calculateScore(List<SideDeckCard> personsCardsOnTable, boolean preCalculation)
+	public void pause()
 	{
-		List<SideDeckCard> calculationList = new ArrayList<>(personsCardsOnTable);
+		this.pause = true;
+	}
+
+	public void unpause()
+	{
+		this.pause = false;
+	}
+
+	private int calculateScore(List<Card> personsCardsOnTable, boolean preCalculation)
+	{
+		List<Card> calculationList = new ArrayList<>(personsCardsOnTable);
 
 		if (preCalculation)
-			calculationList.add(opponent.lockedOpponentsPlayedCard);
+			calculationList.add(lockedOpponentsPlayedCard);
 
 		List<Integer> cardValues = new ArrayList<>();
 		int calculatedScore;
 
-		for (SideDeckCard card : calculationList)
+		for (Card card : calculationList)
 		{
-			if (card.getCard().equals(DDDCard.PLUS_MINUS_ONE_TWO))
-			{
-				if (card.hasInactiveLeftTurn())
-				{
-					if (card.hasInactiveRightTurn())
-						cardValues.add(getCardsValue(card.getCard().getFirstValue(), false));
-					else
-						cardValues.add(getCardsValue(card.getCard().getFirstValue(), true));
-				} else
-				{
-					if (card.hasInactiveRightTurn())
-						cardValues.add(getCardsValue(card.getCard().getSecondValue(), false));
-					else
-						cardValues.add(getCardsValue(card.getCard().getSecondValue(), true));
-				}
-			} else if (card.hasInactiveLeftTurn())
-			{
-				if (card.getCard().isItDoubleCard())
-					cardValues = new ArrayList<>(transformValues(cardValues, true, false));
-				else if (card.getCard().isItThreeAndSixCard())
-					cardValues = new ArrayList<>(transformValues(cardValues, false, false));
-				else if (card.getCard().isItTwoAndFourCard())
-					cardValues = new ArrayList<>(transformValues(cardValues, false, true));
-				else if (card.hasInactiveRightTurn())
-					cardValues.add(getCardsValue(card.getCard().getFirstValue(), card.getCard().isItMinusCard()));
-				else
-					cardValues.add(getCardsValue(card.getCard().getSecondValue(), card.getCard().isItMinusCard()));
-			} else
-			{
-				if (card.hasInactiveRightTurn())
-					cardValues.add(getCardsValue(card.getCard().getFirstValue(), true));
-				else
-					cardValues.add(getCardsValue(card.getCard().getSecondValue(), true));
-			}
+			cardValues.add(card.getValue());
 		}
 
 		calculatedScore = cardValues.stream().mapToInt(Integer::valueOf).sum();
@@ -473,14 +523,14 @@ public class Paziak
 		return String.valueOf(opponentsScore);
 	}
 
-	public List<SideDeckCard> getCardsOnPlayersTable()
+	public ArrayList<Card> getPlayersLaidCards()
 	{
-		return cardsOnPlayersTable;
+		return playersLaidCards;
 	}
 
-	public List<SideDeckCard> getCardsOnOpponentsTable()
+	public ArrayList<Card> getOpponentsLaidCards()
 	{
-		return cardsOnOpponentsTable;
+		return opponentsLaidCards;
 	}
 
 	public PaziakPlayer getPlayer()
@@ -508,4 +558,29 @@ public class Paziak
 		return end;
 	}
 
+	public void nextTurn()
+	{
+		opponentsTurn();
+	}
+
+	public void stand()
+	{
+		playerStand = true;
+		opponentsTurn();
+	}
+
+	public void paziakHandCardClicked(int numberOfSource)
+	{
+
+		if (!player.getSideDeck().get(numberOfSource).isCardUsed())
+		{
+			setPlayersScore(useCard(player.getSideDeck().get(numberOfSource), getPlayersLaidCards()));
+			player.getSideDeck().get(numberOfSource).useCard();
+		}
+	}
+
+	public void newCard()
+	{
+		playersScore = useCard(getAndRemoveCard(mainDeck), playersLaidCards);
+	}
 }

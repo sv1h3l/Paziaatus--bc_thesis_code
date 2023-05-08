@@ -34,8 +34,20 @@ public class Item
 
 	public String[] getContentOfFieldsLikeString()
 	{
-		String[] values = new String[7];
+		String[] values = new String[8];
 
+		if(itemType.equals("karta"))
+		{
+			values[0] = "";
+			values[1] = "";
+			values[2] = "";
+			values[3] = String.valueOf(price);
+			values[4] = String.valueOf(weight);
+			values[5] = "";
+			values[6] = "";
+			values[7] = String.valueOf(active);
+		}
+		else {
 		values[0] = String.valueOf(primaryFeature);
 		values[1] = secondaryFeature != Constants.NO_VALUE ? String.valueOf(secondaryFeature) : "";
 		values[2] = ternaryFeature != Constants.NO_VALUE ? String.valueOf(ternaryFeature) : "";
@@ -43,6 +55,8 @@ public class Item
 		values[4] = String.valueOf(weight);
 		values[5] = wearAndTear != Constants.NO_VALUE ? String.valueOf(wearAndTear) : "";
 		values[6] = maxRepairPossibleUse != Constants.NO_VALUE ? String.valueOf(maxRepairPossibleUse) : "";
+		values[7] = "";
+		}
 
 		return values;
 	}

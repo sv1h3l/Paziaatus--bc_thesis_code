@@ -7,6 +7,7 @@ import java.util.List;
 import beings.Player;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -19,6 +20,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.util.Duration;
+import paziak.DDDCardsImages;
+import paziak.DDDShuffler;
+import paziak.Card;
+import paziak.DDDCard;
 import residue.Constants;
 import residue.Item;
 import residue.Shop;
@@ -41,36 +46,44 @@ public class GameView
 
 	protected int sleepOrTravelCode;
 
+	public PauseTransition	opponentPlayedCard				= new PauseTransition(Duration.millis(650));
+	public PauseTransition	visualizeWithDelayOpsTable		= new PauseTransition(Duration.millis(200));
+	public PauseTransition	visualizeWithShortDelayPlsTable	= new PauseTransition(Duration.millis(400));
+	public PauseTransition	visualizeWithDelayPlsTable		= new PauseTransition(Duration.millis(850));
+	public PauseTransition	opponentPlayedCardSoWait		= new PauseTransition(Duration.millis(1400));
+
+	private boolean migrateNarrSheyda;
+
 	protected GameView(GameController gameController)
 	{
 		this.gameController = gameController;
 		paneActualNodesKeeper = new ArrayList<>();
 	}
-	
-	public void initialize()
+
+	public void initialize(Player player)
 	{
-		characterNodesVisibler(true, true);
-		gameController.actual.setImage(getImg("icons/navigation/navigation_sleep", false));
+		characterNodesVisibler(true, true, player);
+		gameController.navigationActualLocation.setImage(getImg("icons/navigation/navigation_lodging", false));
 
 		gameController.trashDisablerAndEnabler();
-		
-		paneActualNodesKeeper.add(gameController.middle);
-		paneActualNodesKeeper.add(gameController.paneSleep);
+
+		paneActualNodesKeeper.add(gameController.middlePartition);
+		paneActualNodesKeeper.add(gameController.paneLodging);
+
+		migrateNarrSheyda = false;
 	}
 
-	
-
-	protected void setSleepAndTravelTimeline(int sleepTravelCode, String gameMode)
+	protected void setSleepAndTravelTimeline(int sleepTravelCode, String gameMode, boolean survived)
 	{
 		loadingBarSleepAndTravelTimeline = new Timeline(
-				new KeyFrame(Duration.ZERO, new KeyValue(gameController.loadingBarSleepAndTravel.progressProperty(), 0)),
-				new KeyFrame(Duration.seconds(gameMode.equals("rychlý") ? 4 : 8), new KeyValue(gameController.loadingBarSleepAndTravel.progressProperty(), 1)));
+				new KeyFrame(Duration.ZERO, new KeyValue(gameController.loadingBarSleepAndTravel.progressProperty(), 0)), new KeyFrame(
+						Duration.seconds(gameMode.equals("rychlý") ? 4 : 8), new KeyValue(gameController.loadingBarSleepAndTravel.progressProperty(), 1)));
 
 		switch (sleepTravelCode)
 		{
 			case 1:
 			{
-				dialogText = "Při příletu na Narr Sheyda si cestující odchytl gang Seroko, který po všech vymáhá kredity, jelikož přistáli na přistávací ploše v sektoru ovládaném tímto gangem. Protože nemáš dostatečné množství kreditů na zaplacení, jsi zbit a okraden o většinu výbavy. Nezaplacením sis znepřátelil gang Seroko a tak je tvá činnost na této planetě občas narušena přepadením. Jediným východiskem, jak zabránit neustálým přepadením, je odcestovat na planetu Kerusant.";
+				dialogText = "Při příletu na Narr Sheyda si cestující odchytl gang Seroko, který po všech vymáhá kredity, jelikož přistáli na přistávací ploše v sektoru ovládaném tímto gangem. Protože nemáš dostatečné množství kreditů na zaplacení, jsi zbit a okraden o většinu výbavy.";
 				break;
 			}
 			case 2:
@@ -80,21 +93,28 @@ public class GameView
 			}
 			case 3:
 			{
-				dialogText = "Během spánku jsi byl přepaden a bohužel jsi nepřežil.\n\nPro pokračování ve hře je nutné načíst poslední uloženou pozici, nebo si založit novou hru.";
-				break;
+				dialogText = "Během spánku jsi byl přepaden.\n\nPřepadení jsi\n";
 			}
-			case 4:
-				dialogText = "Během spánku jsi byl přepaden, ale naštěstí jsi přežil.\n\n";
 		}
+
+		if (sleepTravelCode == 3 || sleepTravelCode == 4)
+			if (survived)
+				dialogText = dialogText + "přežil";
+			else
+				dialogText = dialogText + "nepřežil.\n\nPro pokračování ve hře je nutné načíst poslední uloženou pozici, nebo si založit novou hru.";
 
 		loadingBarSleepAndTravelTimeline.setOnFinished(event -> {
 			gameController.paneLoadingSleepAndTravel.setVisible(false);
 			if (sleepTravelCode != 0)
+			{
+				if (sleepTravelCode == 1)
+					migrateNarrSheyda = true;
 				bigGeneralDialog(dialogText);
+			}
 		});
 
 		gameController.paneLoadingSleepAndTravel.setVisible(true);
-		
+
 		loadingBarSleepAndTravelTimeline.play();
 	}
 
@@ -111,7 +131,7 @@ public class GameView
 		loadingBarWorkTimeline.play();
 	}
 
-	protected void setIndicatorTimeline(int duration)
+	protected void setIndicatorTimeline(int duration, boolean ambushed, boolean survived, Player player)
 	{
 		loadingIndicatorTimeline = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(gameController.loadingIndicator.progressProperty(), 0)),
 				new KeyFrame(Duration.seconds(duration), new KeyValue(gameController.loadingIndicator.progressProperty(), 1)));
@@ -119,12 +139,33 @@ public class GameView
 		loadingIndicatorTimeline.setOnFinished(event -> {
 			gameController.paneMap.setVisible(false);
 			gameController.loadingIndicator.setVisible(false);
-			gameController.actual.setImage(navigationActualImageKeeper);
+			gameController.navigationActualLocation.setImage(navigationActualImageKeeper);
 			disableTravellingImages(false);
 			keeperNodesVisibler(true);
+
+			if (ambushed)
+			{
+				updateStats(player);
+				dialogText = "Během cestování jsi byl přepaden členem gangu Seroko.\n\nPřepadení jsi\n";
+				if (survived)
+				{
+					dialogText = dialogText + "přežil";
+				} else
+				{
+					dialogText = dialogText + "nepřežil.\n\nPro pokračování ve hře je nutné načíst poslední uloženou pozici, nebo si založit novou hru.";
+					quit();
+				}
+				bigGeneralDialog(dialogText);
+			}
 		});
 
 		loadingIndicatorTimeline.play();
+	}
+
+	protected void actualLocation()
+	{
+		gameController.paneMap.setVisible(false);
+		keeperNodesVisibler(true);
 	}
 
 	protected void workClick(String workType, int workCode, int credits, int health, int duration)
@@ -241,7 +282,7 @@ public class GameView
 		setWorkTimeline(duration);
 	}
 
-	private void disableTravellingImages(boolean disable)
+	protected void disableTravellingImages(boolean disable)
 	{
 		ColorAdjust colorAdjust = new ColorAdjust();
 		colorAdjust.setBrightness(-0.4);
@@ -254,15 +295,15 @@ public class GameView
 			children.get(i).setDisable(disable);
 		}
 
-		gameController.actual.setEffect(disable ? colorAdjust : null);
-		gameController.character.setEffect(disable ? colorAdjust : null);
-		gameController.map.setEffect(disable ? colorAdjust : null);
-		gameController.exit.setEffect(disable ? colorAdjust : null);
+		gameController.navigationActualLocation.setEffect(disable ? colorAdjust : null);
+		gameController.navigationCharacter.setEffect(disable ? colorAdjust : null);
+		gameController.navigationMap.setEffect(disable ? colorAdjust : null);
+		gameController.navigationExit.setEffect(disable ? colorAdjust : null);
 
-		gameController.actual.setDisable(disable);
-		gameController.character.setDisable(disable);
-		gameController.map.setDisable(disable);
-		gameController.exit.setDisable(disable);
+		gameController.navigationActualLocation.setDisable(disable);
+		gameController.navigationCharacter.setDisable(disable);
+		gameController.navigationMap.setDisable(disable);
+		gameController.navigationExit.setDisable(disable);
 	}
 
 	protected void keeperNodesVisibler(boolean visible)
@@ -281,26 +322,29 @@ public class GameView
 		if (featuresOfGear)
 		{
 			gameController.paneFeaturesGear.setVisible(true);
-			gameController.featuresGear1.setText(Integer.toString(player.getStrenght()));
-			gameController.featuresGear2.setText(Integer.toString(player.getDefense()));
-			gameController.featuresGear3.setText(Integer.toString(player.getSkill()));
-			gameController.featuresGear4.setText(Integer.toString(player.getAppearance()));
-			gameController.featuresGear5.setText(Integer.toString(player.getLuck()));
-			gameController.featuresGear6.setText(Integer.toString(player.getWeight()));
+			gameController.gearStrengthFeature.setText(Integer.toString(player.getStrenght()));
+			gameController.gearDefenseFeature.setText(Integer.toString(player.getDefense()));
+			gameController.gearSkillFeature.setText(Integer.toString(player.getSkill()));
+			gameController.gearAppearanceFeature.setText(Integer.toString(player.getAppearance()));
+			gameController.gearLuckFeature.setText(Integer.toString(player.getLuck()));
+			gameController.gearWeightFeature.setText(Integer.toString(player.getWeight()));
 		} else
 			gameController.paneFeaturesGear.setVisible(false);
 
 	}
 
-	protected void characterNodesVisibler(boolean visible, boolean featuresOfGear)
+	protected void characterNodesVisibler(boolean visible, boolean featuresOfGear, Player player)
 	{
 		gameController.paneGear.setVisible(visible);
 		gameController.paneDeck.setVisible(visible);
 		gameController.paneInventory.setVisible(visible);
-		gameController.paneFeatures.setVisible(visible);
+		gameController.paneItemFeatures.setVisible(visible);
 		if (featuresOfGear)
+		{
+			changeFeatures(true, player);
 			gameController.paneFeaturesGear.setVisible(visible);
-		gameController.middle.setVisible(visible);
+		}
+		gameController.middlePartition.setVisible(visible);
 		gameController.featuresSelect.setVisible(visible);
 	}
 
@@ -322,7 +366,7 @@ public class GameView
 				ImageView gearImgView = (ImageView) gameController.paneGear.getChildren().get(i + 1);
 				gearImgView.setImage(getImg(items[i].getImg(), true));
 			}
-		
+
 		items = player.getDeck();
 		for (int i = 0; i < Constants.PLAYERS_DECK_SIZE; i++)
 			if (items[i] != null)
@@ -358,9 +402,9 @@ public class GameView
 	{
 		String itemsOrHud;
 		if (items)
-			itemsOrHud = "/items/";
+			itemsOrHud = "items/";
 		else
-			itemsOrHud = "/hud/";
+			itemsOrHud = "hud/";
 
 		return new Image(this.getClass().getResourceAsStream("/images/" + itemsOrHud + partOfPath + ".png"));
 	}
@@ -423,10 +467,10 @@ public class GameView
 	{
 		String fieldName;
 		if (paneCode == 0)
-			fieldName = "invSlot" + nthSlot;
+			fieldName = "inventorySlot" + nthSlot;
 		else if (paneCode == 1)
 			fieldName = "shopSlot" + nthSlot;
-		else if(paneCode == 2)
+		else if (paneCode == 2)
 			fieldName = "deckSlot" + nthSlot;
 		else
 			fieldName = "cardSlot" + nthSlot;
@@ -453,16 +497,16 @@ public class GameView
 	public void yesOrNoDialog(String dialogText)
 	{
 		gameController.smallDialogText.setText(dialogText);
-		gameController.smallDialogNo.setVisible(true);
-		gameController.smallDialogYes.setVisible(true);
-		gameController.smallDialogOk.setVisible(false);
+		gameController.smallDialogNoButton.setVisible(true);
+		gameController.smallDialogYesButton.setVisible(true);
+		gameController.smallDialogOkButton.setVisible(false);
 
 		showDialog(true);
 	}
 
 	protected void setArrowPosition(int nthResolution)
 	{
-		gameController.arrow.setLayoutY(Constants.ARROW_POSITION[nthResolution]);
+		gameController.resolutionPointer.setLayoutY(Constants.ARROW_POSITION[nthResolution]);
 	}
 
 	private void showDialog(boolean smallDialog)
@@ -490,13 +534,13 @@ public class GameView
 			image.setEffect(null);
 	}
 
-	protected void travellingClicks(String idOfSource, int duration)
+	protected void travellingClicks(String idOfSource, int duration, boolean ambushed, boolean survived, Player player)
 	{
 		gameController.loadingIndicator.setVisible(true);
 		navigationActualImageKeeper = getImg("/icons/navigation/navigation_" + idOfSource, false);
 		disableTravellingImages(true);
 
-		setIndicatorTimeline(duration);
+		setIndicatorTimeline(duration, ambushed, survived, player);
 	}
 
 	protected void showFeatures(String partOfPath, String itemType, String[] values)
@@ -504,13 +548,14 @@ public class GameView
 		gameController.featuresTitles.setImage(getImg(partOfPath, false));
 
 		gameController.featuresName.setText(itemType);
-		gameController.features1.setText(values[0]);
-		gameController.features2.setText(values[1]);
-		gameController.features3.setText(values[2]);
-		gameController.features4.setText(values[3]);
-		gameController.features5.setText(values[4]);
-		gameController.features6.setText(values[5]);
-		gameController.features7.setText(values[6]);
+		gameController.primaryFeature.setText(values[0]);
+		gameController.secondaryFeature.setText(values[1]);
+		gameController.ternaryFeature.setText(values[2]);
+		gameController.priceFeature.setText(values[3]);
+		gameController.weightFeature.setText(values[4]);
+		gameController.stateFeature.setText(values[5]);
+		gameController.possibleRepairesFeature.setText(values[6]);
+		gameController.functionFeature.setText(values[7]);
 	}
 
 	protected void takeOffGear(int nthGearSlot, int nthInventorySlot)
@@ -542,20 +587,19 @@ public class GameView
 		} else
 			inventoryImageView.setImage(gearImageView.getImage());
 	}
-	
+
 	protected void setNthDeckImage(int nthDeckSlot, int nthInventorySlot, String imagePath)
 	{
 		((ImageView) gameController.getNodeThroughReflection("deckSlot" + nthDeckSlot)).setImage(getImg(imagePath, true));
-		((ImageView) gameController.getNodeThroughReflection("invSlot" + nthInventorySlot)).setImage(null);
+		((ImageView) gameController.getNodeThroughReflection("inventorySlot" + nthInventorySlot)).setImage(null);
 	}
-
 
 	protected void smallGeneralDialog(String text)
 	{
 		gameController.smallDialogText.setText(text);
-		gameController.smallDialogNo.setVisible(false);
-		gameController.smallDialogYes.setVisible(false);
-		gameController.smallDialogOk.setVisible(true);
+		gameController.smallDialogNoButton.setVisible(false);
+		gameController.smallDialogYesButton.setVisible(false);
+		gameController.smallDialogOkButton.setVisible(true);
 
 		showDialog(true);
 	}
@@ -563,9 +607,9 @@ public class GameView
 	protected void notEnoughMoney()
 	{
 		gameController.smallDialogText.setText("Pro uskutečnění této akce nemáš dostatečné mžnožství kreditů.");
-		gameController.smallDialogNo.setVisible(false);
-		gameController.smallDialogYes.setVisible(false);
-		gameController.smallDialogOk.setVisible(true);
+		gameController.smallDialogNoButton.setVisible(false);
+		gameController.smallDialogYesButton.setVisible(false);
+		gameController.smallDialogOkButton.setVisible(true);
 
 		showDialog(true);
 	}
@@ -573,7 +617,6 @@ public class GameView
 	protected void bigGeneralDialog(String text)
 	{
 		gameController.bigDialogText.setText(text);
-		gameController.bigDialogOk.setVisible(true);
 
 		showDialog(false);
 	}
@@ -693,6 +736,14 @@ public class GameView
 
 	protected void dialogVisibleFalse()
 	{
+		if (migrateNarrSheyda)
+		{
+			bigGeneralDialog(
+					"Nezaplacením sis znepřátelil gang Seroko a tak je tvá činnost na této planetě čas od času narušena přepadením. Jediným východiskem, jak zabránit neustálým přepadením, je odcestovat na planetu Kerusant.");
+			migrateNarrSheyda = false;
+			return;
+		}
+
 		gameController.paneSmallDialog.setVisible(false);
 		gameController.paneBigDialog.setVisible(false);
 		gameController.blurGroup.setEffect(null);
@@ -704,17 +755,17 @@ public class GameView
 		{
 			case 1:
 			{
-				gameController.gameText1.setText(info);
+				gameController.informationTextOfGameState1.setText(info);
 				break;
 			}
 			case 2:
 			{
-				gameController.gameText2.setText(info);
+				gameController.informationTextOfGameState2.setText(info);
 				break;
 			}
 			case 3:
 			{
-				gameController.gameText3.setText(info);
+				gameController.informationTextOfGameState3.setText(info);
 			}
 		}
 	}
@@ -726,22 +777,22 @@ public class GameView
 
 	protected void setGameSetText(String info1, String info2, String info3)
 	{
-		gameController.gameText1.setText(info1);
-		gameController.gameText2.setText(info2);
-		gameController.gameText3.setText(info3);
-		
+		gameController.informationTextOfGameState1.setText(info1);
+		gameController.informationTextOfGameState2.setText(info2);
+		gameController.informationTextOfGameState3.setText(info3);
+
 		trashDisablerAndEnabler();
 	}
 
 	protected void newGame()
 	{
 		gameController.paneNewGame.setVisible(true);
-		gameController.specialization1.setImage(getImg("mainmenu/new_game_selected", false));
-		gameController.specialization2.setImage(getImg("mainmenu/new_game_unselected", false));
-		gameController.specialization3.setImage(getImg("mainmenu/new_game_unselected", false));
-		gameController.mode1.setImage(getImg("mainmenu/new_game_selected", false));
-		gameController.mode2.setImage(getImg("mainmenu/new_game_unselected", false));
-		gameController.mode3.setImage(getImg("mainmenu/new_game_unselected", false));
+		gameController.characterSpecialization1.setImage(getImg("mainmenu/new_game_selected", false));
+		gameController.characterSpecialization2.setImage(getImg("mainmenu/new_game_unselected", false));
+		gameController.characterSpecialization3.setImage(getImg("mainmenu/new_game_unselected", false));
+		gameController.gameMode1.setImage(getImg("mainmenu/new_game_selected", false));
+		gameController.gameMode2.setImage(getImg("mainmenu/new_game_unselected", false));
+		gameController.gameMode3.setImage(getImg("mainmenu/new_game_unselected", false));
 	}
 
 	protected void newGameChange(String name, boolean specialization)
@@ -751,23 +802,23 @@ public class GameView
 			{
 				case "šedý válečník":
 				{
-					gameController.specialization1.setImage(getImg("mainmenu/new_game_selected", false));
-					gameController.specialization2.setImage(getImg("mainmenu/new_game_unselected", false));
-					gameController.specialization3.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.characterSpecialization1.setImage(getImg("mainmenu/new_game_selected", false));
+					gameController.characterSpecialization2.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.characterSpecialization3.setImage(getImg("mainmenu/new_game_unselected", false));
 					break;
 				}
 				case "lovec odměn":
 				{
-					gameController.specialization1.setImage(getImg("mainmenu/new_game_unselected", false));
-					gameController.specialization2.setImage(getImg("mainmenu/new_game_selected", false));
-					gameController.specialization3.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.characterSpecialization1.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.characterSpecialization2.setImage(getImg("mainmenu/new_game_selected", false));
+					gameController.characterSpecialization3.setImage(getImg("mainmenu/new_game_unselected", false));
 					break;
 				}
 				case "civilista":
 				{
-					gameController.specialization1.setImage(getImg("mainmenu/new_game_unselected", false));
-					gameController.specialization2.setImage(getImg("mainmenu/new_game_unselected", false));
-					gameController.specialization3.setImage(getImg("mainmenu/new_game_selected", false));
+					gameController.characterSpecialization1.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.characterSpecialization2.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.characterSpecialization3.setImage(getImg("mainmenu/new_game_selected", false));
 				}
 			}
 		else
@@ -775,28 +826,39 @@ public class GameView
 			{
 				case "klasický":
 				{
-					gameController.mode1.setImage(getImg("mainmenu/new_game_selected", false));
-					gameController.mode2.setImage(getImg("mainmenu/new_game_unselected", false));
-					gameController.mode3.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.gameMode1.setImage(getImg("mainmenu/new_game_selected", false));
+					gameController.gameMode2.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.gameMode3.setImage(getImg("mainmenu/new_game_unselected", false));
 					break;
 				}
 				case "rychlý":
 				{
-					gameController.mode1.setImage(getImg("mainmenu/new_game_unselected", false));
-					gameController.mode2.setImage(getImg("mainmenu/new_game_selected", false));
-					gameController.mode3.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.gameMode1.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.gameMode2.setImage(getImg("mainmenu/new_game_selected", false));
+					gameController.gameMode3.setImage(getImg("mainmenu/new_game_unselected", false));
 					break;
 				}
 				case "realistický":
 				{
-					gameController.mode1.setImage(getImg("mainmenu/new_game_unselected", false));
-					gameController.mode2.setImage(getImg("mainmenu/new_game_unselected", false));
-					gameController.mode3.setImage(getImg("mainmenu/new_game_selected", false));
+					gameController.gameMode1.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.gameMode2.setImage(getImg("mainmenu/new_game_unselected", false));
+					gameController.gameMode3.setImage(getImg("mainmenu/new_game_selected", false));
 				}
 			}
 	}
 
 	protected void quit()
+	{
+		removeDeletedImages();
+
+		gameController.paneFeaturesGear.setVisible(false);
+		gameController.paneMap.setVisible(false);
+		keeperNodesVisibler(false);
+
+		paneMainMenuShow();
+	}
+
+	protected void removeDeletedImages()
 	{
 		List<Node> paneInventoryContent = gameController.paneInventory.getChildren();
 		List<Node> paneDeckContent = gameController.paneDeck.getChildren();
@@ -811,11 +873,6 @@ public class GameView
 		i = 1;
 		for (; i <= Constants.PLAYERS_GEAR_SIZE; i++)
 			((ImageView) paneGearContent.get(i)).setImage(getGearDefaultImage(i - 1));
-
-		gameController.paneMap.setVisible(false);
-		keeperNodesVisibler(false);
-		
-		paneMainMenuShow();
 	}
 
 	protected void updateUserInterfaceForSpecificPlanet(String actualPlanet)
@@ -824,86 +881,86 @@ public class GameView
 		colorAdjust.setBrightness(-0.4);
 		if (actualPlanet.equals("Tarrys"))
 		{
-			gameController.blue.setVisible(false);
-			gameController.brown.setVisible(false);
-			gameController.red.setVisible(false);
+			gameController.blueButton.setVisible(false);
+			gameController.brownButton.setVisible(false);
+			gameController.redButton.setVisible(false);
 
-			gameController.priceLeft.setVisible(true);
-			gameController.travelLeft.setVisible(true);
-			gameController.priceRight.setVisible(false);
-			gameController.travelRight.setVisible(false);
+			gameController.leftMigratePrice.setVisible(true);
+			gameController.leftMigrate.setVisible(true);
+			gameController.rightMigratePrice.setVisible(false);
+			gameController.rightMigrate.setVisible(false);
 			gameController.narrSheyda.setEffect(null);
 			gameController.kerusant.setEffect(colorAdjust);
 
-			gameController.cardShop.setImage(getImg("cantine/card_shop4", false));
+			gameController.cardSlots.setImage(getImg("cantine/card_shop4", false));
 
 			gameController.leftHotel.setImage(getImg("hotels/left_hotel_tarrys", false));
 			gameController.rightHotel.setImage(getImg("hotels/right_hotel_tarrys", false));
-			gameController.priceLeftHotel.setText("1950");
-			gameController.priceRightHotel.setText("4120");
+			gameController.leftHotelPrice.setText("1950");
+			gameController.rightHotelPrice.setText("4120");
 
 			gameController.legend.setImage(getImg("map/legend_tarrys_background", false));
-			gameController.mapBackground.setImage(getImg("map/map_tarrys", false));
+			gameController.map.setImage(getImg("map/map_tarrys", false));
 
 			gameController.repairer.setVisible(false);
 			gameController.technique.setVisible(false);
-			gameController.fuel.setVisible(false);
+			gameController.filling.setVisible(false);
 
 			colorClick("blue");
 		} else if (actualPlanet.equals("Narr Sheyda"))
 		{
-			gameController.blue.setVisible(true);
-			gameController.brown.setVisible(true);
-			gameController.red.setVisible(false);
+			gameController.blueButton.setVisible(true);
+			gameController.brownButton.setVisible(true);
+			gameController.redButton.setVisible(false);
 
-			gameController.priceLeft.setVisible(false);
-			gameController.travelLeft.setVisible(false);
-			gameController.priceRight.setVisible(true);
-			gameController.travelRight.setVisible(true);
+			gameController.leftMigratePrice.setVisible(false);
+			gameController.leftMigrate.setVisible(false);
+			gameController.rightMigratePrice.setVisible(true);
+			gameController.rightMigrate.setVisible(true);
 			gameController.narrSheyda.setEffect(colorAdjust);
 			gameController.kerusant.setEffect(null);
 
-			gameController.cardShop.setImage(getImg("cantine/card_shop6", false));
+			gameController.cardSlots.setImage(getImg("cantine/card_shop6", false));
 
 			gameController.leftHotel.setImage(getImg("hotels/left_hotel_narr_sheyda", false));
 			gameController.rightHotel.setImage(getImg("hotels/right_hotel_narr_sheyda", false));
-			gameController.priceLeftHotel.setText("3900");
-			gameController.priceRightHotel.setText("8240");
+			gameController.leftHotelPrice.setText("3900");
+			gameController.rightHotelPrice.setText("8240");
 
 			gameController.legend.setImage(getImg("map/legend_background", false));
-			gameController.mapBackground.setImage(getImg("map/map_narr_sheyda", false));
+			gameController.map.setImage(getImg("map/map_narr_sheyda", false));
 
 			gameController.repairer.setVisible(true);
 			gameController.technique.setVisible(true);
-			gameController.fuel.setVisible(true);
+			gameController.filling.setVisible(true);
 
 			colorClick("brown");
 		} else
 		{
-			gameController.blue.setVisible(true);
-			gameController.brown.setVisible(true);
-			gameController.red.setVisible(true);
+			gameController.blueButton.setVisible(true);
+			gameController.brownButton.setVisible(true);
+			gameController.redButton.setVisible(true);
 
-			gameController.priceLeft.setVisible(false);
-			gameController.travelLeft.setVisible(false);
-			gameController.priceRight.setVisible(false);
-			gameController.travelRight.setVisible(false);
+			gameController.leftMigratePrice.setVisible(false);
+			gameController.leftMigrate.setVisible(false);
+			gameController.rightMigratePrice.setVisible(false);
+			gameController.rightMigrate.setVisible(false);
 			gameController.narrSheyda.setEffect(colorAdjust);
 			gameController.kerusant.setEffect(colorAdjust);
 
-			gameController.cardShop.setImage(getImg("cantine/card_shop8", false));
+			gameController.cardSlots.setImage(getImg("cantine/card_shop8", false));
 
 			gameController.leftHotel.setImage(getImg("hotels/left_hotel_kerusant", false));
 			gameController.rightHotel.setImage(getImg("hotels/right_hotel_kerusant", false));
-			gameController.priceLeftHotel.setText("5850");
-			gameController.priceRightHotel.setText("12360");
+			gameController.leftHotelPrice.setText("5850");
+			gameController.rightHotelPrice.setText("12360");
 
 			gameController.legend.setImage(getImg("map/legend_background", false));
-			gameController.mapBackground.setImage(getImg("map/map_kerusant", false));
+			gameController.map.setImage(getImg("map/map_kerusant", false));
 
 			gameController.repairer.setVisible(true);
 			gameController.technique.setVisible(true);
-			gameController.fuel.setVisible(true);
+			gameController.filling.setVisible(true);
 
 			colorClick("red");
 		}
@@ -918,8 +975,8 @@ public class GameView
 			gameController.migration.setLayoutX(956);
 			gameController.migration.setLayoutY(417);
 
-			gameController.sleep.setLayoutX(993);
-			gameController.sleep.setLayoutY(186);
+			gameController.lodging.setLayoutX(993);
+			gameController.lodging.setLayoutY(186);
 
 			gameController.weapons.setLayoutX(593);
 			gameController.weapons.setLayoutY(298);
@@ -946,8 +1003,8 @@ public class GameView
 			gameController.migration.setLayoutX(1157);
 			gameController.migration.setLayoutY(751);
 
-			gameController.sleep.setLayoutX(719);
-			gameController.sleep.setLayoutY(684);
+			gameController.lodging.setLayoutX(719);
+			gameController.lodging.setLayoutY(684);
 
 			gameController.weapons.setLayoutX(1262);
 			gameController.weapons.setLayoutY(384);
@@ -976,15 +1033,15 @@ public class GameView
 			gameController.technique.setLayoutX(957);
 			gameController.technique.setLayoutY(459);
 
-			gameController.fuel.setLayoutX(635);
-			gameController.fuel.setLayoutY(538);
+			gameController.filling.setLayoutX(635);
+			gameController.filling.setLayoutY(538);
 		} else
 		{
 			gameController.migration.setLayoutX(882);
 			gameController.migration.setLayoutY(206);
 
-			gameController.sleep.setLayoutX(1058);
-			gameController.sleep.setLayoutY(372);
+			gameController.lodging.setLayoutX(1058);
+			gameController.lodging.setLayoutY(372);
 
 			gameController.weapons.setLayoutX(696);
 			gameController.weapons.setLayoutY(538);
@@ -1013,8 +1070,8 @@ public class GameView
 			gameController.technique.setLayoutX(519);
 			gameController.technique.setLayoutY(497);
 
-			gameController.fuel.setLayoutX(519);
-			gameController.fuel.setLayoutY(212);
+			gameController.filling.setLayoutX(519);
+			gameController.filling.setLayoutY(212);
 		}
 	}
 
@@ -1024,26 +1081,26 @@ public class GameView
 		{
 			case "blue":
 			{
-				gameController.blue.setImage(getImg("residue/selected_blue", false));
-				gameController.brown.setImage(getImg("residue/unselected_brown", false));
-				gameController.red.setImage(getImg("residue/unselected_red", false));
-				gameController.background.setImage(getImg("residue/blue_background", false));
+				gameController.blueButton.setImage(getImg("residue/selected_blue", false));
+				gameController.brownButton.setImage(getImg("residue/unselected_brown", false));
+				gameController.redButton.setImage(getImg("residue/unselected_red", false));
+				gameController.gameBackground.setImage(getImg("residue/blue_background", false));
 				break;
 			}
 			case "brown":
 			{
-				gameController.blue.setImage(getImg("residue/unselected_blue", false));
-				gameController.brown.setImage(getImg("residue/selected_brown", false));
-				gameController.red.setImage(getImg("residue/unselected_red", false));
-				gameController.background.setImage(getImg("residue/brown_background", false));
+				gameController.blueButton.setImage(getImg("residue/unselected_blue", false));
+				gameController.brownButton.setImage(getImg("residue/selected_brown", false));
+				gameController.redButton.setImage(getImg("residue/unselected_red", false));
+				gameController.gameBackground.setImage(getImg("residue/brown_background", false));
 				break;
 			}
 			default:
 			{
-				gameController.blue.setImage(getImg("residue/unselected_blue", false));
-				gameController.brown.setImage(getImg("residue/unselected_brown", false));
-				gameController.red.setImage(getImg("residue/selected_red", false));
-				gameController.background.setImage(getImg("residue/red_background", false));
+				gameController.blueButton.setImage(getImg("residue/unselected_blue", false));
+				gameController.brownButton.setImage(getImg("residue/unselected_brown", false));
+				gameController.redButton.setImage(getImg("residue/selected_red", false));
+				gameController.gameBackground.setImage(getImg("residue/red_background", false));
 			}
 		}
 	}
@@ -1053,13 +1110,14 @@ public class GameView
 		gameController.featuresTitles.setImage(null);
 
 		gameController.featuresName.setText("");
-		gameController.features1.setText("");
-		gameController.features2.setText("");
-		gameController.features3.setText("");
-		gameController.features4.setText("");
-		gameController.features5.setText("");
-		gameController.features6.setText("");
-		gameController.features7.setText("");
+		gameController.primaryFeature.setText("");
+		gameController.secondaryFeature.setText("");
+		gameController.ternaryFeature.setText("");
+		gameController.priceFeature.setText("");
+		gameController.weightFeature.setText("");
+		gameController.stateFeature.setText("");
+		gameController.possibleRepairesFeature.setText("");
+		gameController.functionFeature.setText("");
 
 	}
 
@@ -1068,11 +1126,11 @@ public class GameView
 		if (fuelClick)
 		{
 			gameController.fuelOrRepairBanner.setImage(getImg("repairfuel/bannerFuel", false));
-			gameController.fuelOrRepairClick.setImage(getImg("repairfuel/refill", false));
+			gameController.fuelOrRepairButton.setImage(getImg("repairfuel/refill", false));
 		} else
 		{
 			gameController.fuelOrRepairBanner.setImage(getImg("repairfuel/bannerRepair", false));
-			gameController.fuelOrRepairClick.setImage(getImg("repairfuel/repair", false));
+			gameController.fuelOrRepairButton.setImage(getImg("repairfuel/repair", false));
 		}
 	}
 
@@ -1113,12 +1171,12 @@ public class GameView
 	public void setDroidIndicator(int primaryFeatureOfDroid, Player player, int droidsWorkCode, int droidsCredits)
 	{
 		int duration = 4000 / primaryFeatureOfDroid;
-		if(player.getGameMode().equals("rychlý"))
+		if (player.getGameMode().equals("rychlý"))
 			duration = duration / 2;
-				
+
 		Timeline timeline = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(gameController.droidIndicator.progressProperty(), 0)),
 				new KeyFrame(Duration.seconds(duration), new KeyValue(gameController.droidIndicator.progressProperty(), 1)));
-		
+
 		timeline.setOnFinished(event -> {
 			if (droidsWorkCode == 0)
 			{
@@ -1160,12 +1218,12 @@ public class GameView
 		addListener(gameController.gearHand);
 		addListener(gameController.gearBelt);
 		addListener(gameController.gearBoots);
-		
+
 	}
 
 	protected void setBet(int paziakBet)
 	{
-		gameController.paziakBet.setText(Integer.toString(paziakBet));
+		gameController.paziakPlayersBet.setText(Integer.toString(paziakBet));
 	}
 
 	public void removeCardImage(ImageView image)
@@ -1177,7 +1235,7 @@ public class GameView
 	{
 		int i = 1;
 		for (; i <= 8; i++)
-			setImageOfNthSlot(i, null, 1);
+			setImageOfNthSlot(i, null, 3);
 
 		int ceiling;
 		switch (actualPlanet)
@@ -1205,7 +1263,7 @@ public class GameView
 				return;
 			i++;
 		}
-		
+
 	}
 
 	public void trashDisablerAndEnabler()
@@ -1213,26 +1271,317 @@ public class GameView
 		gameController.trashDisablerAndEnabler();
 	}
 
-	public void assault(boolean sleep, int health)
+	public void paziakMainButtonVisibler(int buttonCode)
 	{
-		String dialogText;
-		if(sleep)
-			dialogText = "Během spánku jsi byl přepaden.\n\nPřepadení jsi\n";
-		else 
-			dialogText = "Během cestování jsi byl přepaden členem gangu Seroko.\n\nPřepadení jsi\n";
-		
-		boolean survived = true;
-		if(health < 1)
+
+		switch (buttonCode)
 		{
-			survived = false;
-			dialogText = dialogText + "nepřežil.\n\nPro pokračování ve hře je nutné načíst poslední uloženou pozici, nebo si založit novou hru.";
+			case 0:
+			{
+				gameController.paziakMainButton.setImage(getImg("paziak/pazzak_start_game", false));
+				break;
+			}
+			case 1:
+				gameController.paziakMainButton.setImage(getImg("paziak/pazzak_next_set", false));
+				break;
+			case 2:
+				gameController.paziakMainButton.setImage(getImg("paziak/pazzak_leave_game", false));				
 		}
-		else 
-			dialogText = dialogText + "přežil";
 		
-		if(survived)
-			smallGeneralDialog(dialogText);
-		else 
-			bigGeneralDialog(dialogText);
+		gameController.paziakMainButton.setVisible(true);
+
+		/*
+		 * opponentPlayedCard.setOnFinished(event -> {
+		 * pazaak.waitingForCardUse();
+		 * });
+		 * visualizeWithDelayOpsTable.setOnFinished(event -> {
+		 * visualizationOfTableCards(false);
+		 * });
+		 * 
+		 * visualizeWithShortDelayPlsTable.setOnFinished(event -> {
+		 * visualizationOfTableCards(true);
+		 * });
+		 * visualizeWithDelayPlsTable.setOnFinished(event -> {
+		 * visualizationOfTableCards(true);
+		 * });
+		 * opponentPlayedCardSoWait.setOnFinished(event -> {
+		 * visualizationOfTableCards(true);
+		 * });
+		 */
+
+	}
+
+	public void paziakResetTheScore()
+	{
+		gameController.paziakPlayersScore.setText("0");
+		gameController.paziakOpponentsScore.setText("0");
+	}
+
+	public void paziakShowOrHidehandCards(boolean show) // TODO constant
+	{
+		ColorAdjust colorAdjust = new ColorAdjust();
+		colorAdjust.setBrightness(-0.4);
+
+		List<Node> playersHandCards = gameController.panePaziak.getChildren();
+		for (int i = 9; i <= 33; i++)
+		{
+			playersHandCards.get(i).setVisible(show);
+
+			if (i == 12)
+				i = 21;
+			else if (i == 25 && show)
+				break;
+		}
+	}
+
+	public void paziakPointsVisibler(int playersSets, int opponentsSets)
+	{
+		if (playersSets == 3)
+			gameController.paziakPlayersPoint1.setVisible(true);
+		else if (playersSets == 2)
+			gameController.paziakPlayersPoint2.setVisible(true);
+		else if (playersSets == 1)
+			gameController.paziakPlayersPoint3.setVisible(true);
+
+		if (opponentsSets == 3)
+			gameController.paziakOpponentsPoint1.setVisible(true);
+		else if (opponentsSets == 2)
+			gameController.paziakOpponentsPoint2.setVisible(true);
+		else if (opponentsSets == 1)
+			gameController.paziakOpponentsPoint3.setVisible(true);
+	}
+
+	protected void paziakPointsHider() // TODO constant
+	{
+		List<Node> playersCards = gameController.panePaziak.getChildren();
+		for (int i = 38; i <= 43; i++)
+			playersCards.get(i).setVisible(false);
+	}
+
+	protected void paziakDisableOrEnableNextAndStandButtons(boolean disable)
+	{
+		gameController.paziakNextTurnButton.setDisable(disable);
+		gameController.paziakStandButton.setDisable(disable);
+
+		if (disable)
+		{
+			ColorAdjust colorAdjust = new ColorAdjust();
+			colorAdjust.setBrightness(-0.4);
+			gameController.paziakNextTurnButton.setEffect(colorAdjust);
+			gameController.paziakStandButton.setEffect(colorAdjust);
+		} else
+		{
+			gameController.paziakNextTurnButton.setEffect(null);
+			gameController.paziakStandButton.setEffect(null);
+		}
+
+	}
+
+	public void paziakDarkenAllPlayersHandCards() // TODO const
+	{
+		ColorAdjust colorAdjust = new ColorAdjust();
+		colorAdjust.setBrightness(-0.4);
+
+		List<Node> playersHandCards = gameController.panePaziak.getChildren();
+		for (int i = 22; i <= 33; i++)
+		{
+			playersHandCards.get(i).setDisable(true);
+			playersHandCards.get(i).setEffect(colorAdjust);
+		}
+	}
+
+	public void paziakBrightenAllCards() // TODO const
+	{
+		List<Node> playersCards = gameController.panePaziak.getChildren();
+		for (int i = 0; i <= 25; i++)
+			playersCards.get(i).setEffect(null);
+	}
+
+	public void paziakDarkenCards(boolean darkenPlayersCards) // TODO const
+	{
+		ColorAdjust colorAdjust = new ColorAdjust();
+		colorAdjust.setBrightness(-0.4);
+		List<Node> playersCards = gameController.panePaziak.getChildren();
+		int i, max;
+
+		if (darkenPlayersCards)
+			i = 13;
+		else
+			i = 0;
+		max = i + 12;
+
+		for (; i <= max; i++)
+			playersCards.get(i).setEffect(colorAdjust);
+	}
+
+	public void paziakVisualizationOfTableCards(boolean visualizationOfPlayersSide, String score, ArrayList<Card> laidCards, ArrayList<Card> sideDeck)
+	{
+		int nthChildrenOfPazaakPane;
+		List<Node> imageViewsOfTableCards = gameController.panePaziak.getChildren();
+		ImageView imageViewOfCard;
+
+		if (visualizationOfPlayersSide)
+		{
+			gameController.paziakPlayersScore.setText(score);
+			nthChildrenOfPazaakPane = 13;
+			paziakDisableOrEnableNextAndStandButtons(false);
+			paziakBrightenPlayersHandCards();
+		} else
+		{
+			gameController.paziakOpponentsScore.setText(score);
+			nthChildrenOfPazaakPane = 0;
+		}
+
+		for (Card card : laidCards)
+		{
+			imageViewOfCard = (ImageView) imageViewsOfTableCards.get(nthChildrenOfPazaakPane);
+			imageViewOfCard.setImage(paziakWhichSideOfCard(card));
+			nthChildrenOfPazaakPane++;
+		}
+
+		paziakVisualizationOfSideDeck(visualizationOfPlayersSide, sideDeck);
+	}
+
+	public void paziakVisualizationOfSideDeck(boolean visualizationOfPlayersSide, ArrayList<Card> sideDeck)
+	{
+		int nthChildrenOfPazaakPane;
+		List<Node> imageViewsOfHandCards = gameController.panePaziak.getChildren();
+		ImageView imageViewOfCard;
+
+		if (visualizationOfPlayersSide)
+		{
+			nthChildrenOfPazaakPane = 22;
+		} else
+		{
+			nthChildrenOfPazaakPane = 9;
+		}
+
+		for (Card card : sideDeck)
+		{
+			imageViewOfCard = (ImageView) imageViewsOfHandCards.get(nthChildrenOfPazaakPane);
+			if (!card.isCardUsed() && !visualizationOfPlayersSide)
+				imageViewOfCard.setImage(paziakWhichSideOfCard(card));
+				//imageViewOfCard.setImage(getImg("cards/cards/b", true));
+			else if (!card.isCardUsed() && visualizationOfPlayersSide)
+				imageViewOfCard.setImage(paziakWhichSideOfCard(card));
+			else
+			{
+				imageViewOfCard.setImage(null);
+				if (visualizationOfPlayersSide)
+				{
+					imageViewsOfHandCards.get(nthChildrenOfPazaakPane + 4).setVisible(false);
+					imageViewsOfHandCards.get(nthChildrenOfPazaakPane + 5).setVisible(false);
+				}
+			}
+			nthChildrenOfPazaakPane++;
+		}
+	}
+
+	private Image paziakWhichSideOfCard(Card card)
+	{
+		return getImg(card.getImage(), true);
+	}
+
+	private void paziakBrightenPlayersHandCards() // TODO const
+	{
+		List<Node> playersHandCards = gameController.panePaziak.getChildren();
+		for (int i = 22; i <= 33; i++)
+		{
+			playersHandCards.get(i).setDisable(false);
+			if (i < 26)
+				playersHandCards.get(i).setEffect(null);
+		}
+	}
+
+	public void paziakHideAllHandButtons()
+	{
+		List<Node> playersHandButtons = gameController.panePaziak.getChildren();
+		for (int i = 26; i <= 33; i++)
+			playersHandButtons.get(i).setVisible(false);
+	}
+
+	public void paziakClearImages()
+	{
+		List<Node> playersHandCards = gameController.panePaziak.getChildren();
+		ImageView imageVieqOfCard;
+
+		for (int i = 0; i < 22; i++)
+		{
+			imageVieqOfCard = (ImageView) playersHandCards.get(i);
+			imageVieqOfCard.setImage(null);
+
+			if (i == 8)
+				i = 12;
+		}
+	}
+
+	public void paziakActivateHandButtons(List<Card> sideDeck)
+	{
+		paziakDeactivateOldHandButtons();
+
+		ImageView imageViewHandLeft = gameController.paziakLeftTurnOfSideDeckCard1; // TODO delete
+		ImageView imageViewHandRight = gameController.paziakRightTurnOfSideDeckCard1;
+		int i = 1;
+
+		for (Card card : sideDeck)
+		{
+			if (!card.isCardUsed())
+				try
+				{
+					imageViewHandLeft = (ImageView) gameController.getClass().getDeclaredField("paziakLeftTurnOfSideDeckCard" + i).get(gameController); // TODO change
+					imageViewHandRight = (ImageView) gameController.getClass().getDeclaredField("paziakRightTurnOfSideDeckCard" + i).get(gameController);
+
+					if (!card.getSecondImage().equals(""))
+						imageViewHandLeft.setVisible(true);
+					if (!card.getThirdImage().equals(""))
+						imageViewHandRight.setVisible(true);
+				} catch (IllegalAccessException | NoSuchFieldException e)
+				{
+					e.printStackTrace();
+				}
+			i++;
+		}
+	}
+
+	protected void paziakDarkenPlayersHandCards(int nthUsedCard)
+	{
+		ColorAdjust colorAdjust = new ColorAdjust();
+		colorAdjust.setBrightness(-0.4);
+		ImageView fieldValue = gameController.paziakPlayersSideDeckCard1; // TODO smazat
+
+		String[] playersHandsWithoutNthHand = paziakGetOtherPlayersHandImgViews(nthUsedCard);
+		for (String fieldName : playersHandsWithoutNthHand)
+		{
+			try
+			{
+				Field field = gameController.getClass().getDeclaredField(fieldName);
+				field.setAccessible(true);
+				fieldValue = (ImageView) field.get(gameController);
+			} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
+			{
+				e.printStackTrace();
+			}
+			fieldValue.setDisable(true);
+			fieldValue.setEffect(colorAdjust);
+		}
+	}
+
+	public String[] paziakGetOtherPlayersHandImgViews(int nth) // TODO const
+	{
+		String[] values = new String[3];
+		for (int i = 0, j = 0; j < 3; i++)
+			if (i != nth)
+			{
+				values[j] = "paziakPlayersSideDeckCard" + (i + 1);
+				j++;
+			}
+		return values;
+	}
+
+	private void paziakDeactivateOldHandButtons()
+	{
+		List<Node> playersHandButtons = gameController.panePaziak.getChildren();
+		for (int i = 26; i <= 33; i++)
+			playersHandButtons.get(i).setVisible(false);
 	}
 }

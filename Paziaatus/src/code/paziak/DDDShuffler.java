@@ -5,9 +5,9 @@ import java.util.Random;
 
 public class DDDShuffler
 {
-    public static ArrayList<SideDeckCard> shuffle(ArrayList<SideDeckCard> deck)
+    public static ArrayList<Card> shuffle(ArrayList<Card> deck)
     {
-        ArrayList<SideDeckCard> shuffledDeck = new ArrayList<>();
+        ArrayList<Card> shuffledDeck = new ArrayList<>();
         Random random = new Random();
         int randomIndex;
         int originalSize = deck.size();

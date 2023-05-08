@@ -136,7 +136,7 @@ public class Player extends PaziakPlayer
 	public void addOrRemoveCredits(int amount, boolean add)
 	{
 		if (add)
-			credits = credits + amount;
+			credits = (credits + amount) > 999999 ? 999999 : credits + amount;
 		else
 			credits = credits - amount;
 
@@ -144,6 +144,9 @@ public class Player extends PaziakPlayer
 
 	public void addOrRemoveWeight(Item item, boolean add)
 	{
+		if(item == null)
+			return;
+		
 		if (add)
 			weight = weight + item.getWeight();
 		else
@@ -169,11 +172,9 @@ public class Player extends PaziakPlayer
 			case "vznášedlo":
 			case "implantát":
 			case "artefakt":
-				break;
+				return;
 			default:
-			{
 				defense = defense + item.getPrimaryFeature();
-			}
 		}
 		int value = item.getSecondaryFeature();
 		appearance = appearance + (value == Constants.NO_VALUE ? 0 : value);
@@ -183,6 +184,9 @@ public class Player extends PaziakPlayer
 
 	public void removeFeatures(Item item)
 	{
+		if(item == null)
+			return;
+		
 		switch (item.getItemType())
 		{
 			case "světelný meč":
@@ -200,7 +204,7 @@ public class Player extends PaziakPlayer
 			case "vznášedlo":
 			case "implantát":
 			case "artefakt":
-				break;
+				return;
 			default:
 			{
 				defense = defense - item.getPrimaryFeature();
@@ -355,8 +359,6 @@ public class Player extends PaziakPlayer
 		return defense;
 	}
 
-	;
-
 	public void setBackgroundColor(String backgroundColor)
 	{
 		this.backgroundColor = backgroundColor;
@@ -392,18 +394,61 @@ public class Player extends PaziakPlayer
 		this.credits = credits;
 	}
 
-	public void travelOnNextPlanet()
+	public boolean travelOnNextPlanet()
 	{
 		if (actualPlanet.equals("Tarrys"))
 		{
 			this.actualPlanet = "Narr Sheyda";
 			backgroundColor = "brown";
+			return true;
 		} else
 		{
 			this.actualPlanet = "Kerusant";
 			backgroundColor = "red";
+			return false;
 		}
 	}
+	
+	public void migrateOnNarrSheyda()
+	{	
+		addOrRemoveWeight(inventory[0], false);
+		addOrRemoveWeight(inventory[1], false);
+		addOrRemoveWeight(inventory[2], false);
+		addOrRemoveWeight(inventory[6], false);
+		addOrRemoveWeight(inventory[7], false);
+		addOrRemoveWeight(inventory[9], false);
+		addOrRemoveWeight(inventory[10], false);
+		
+		addOrRemoveWeight(gear[1], false);
+		addOrRemoveWeight(gear[2], false);
+		addOrRemoveWeight(gear[6], false);
+		addOrRemoveWeight(gear[7], false);
+		addOrRemoveWeight(gear[9], false);
+		addOrRemoveWeight(gear[10], false);
+		
+		inventory[0] = null;
+		inventory[1] = null;
+		inventory[2] = null;
+		inventory[6] = null;
+		inventory[7] = null;
+		inventory[9] = null;
+		inventory[10] = null;
+		
+		removeFeatures(gear[1]);
+		removeFeatures(gear[2]);
+		removeFeatures(gear[6]);
+		removeFeatures(gear[7]);
+		removeFeatures(gear[9]);
+		removeFeatures(gear[10]);
+		
+		gear[1] = null;
+		gear[2] = null;
+		gear[6] = null;
+		gear[7] = null;
+		gear[9] = null;
+		gear[10] = null;
+	}
+
 
 	public int planetMultiplier()
 	{

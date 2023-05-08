@@ -10,8 +10,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Properties;
 
@@ -50,7 +52,7 @@ public class GameSaverLoader
 		 * String path = this.getClass().getResource("/gamestate" + gameState + ".json").toString();
 		File file = new File(path.substring("file:".length()));
 		 */
-		
+
 		String path = this.getClass().getResource("/gamestate" + gameState + ".json").toString();
 		File file = new File(path.substring("file:".length()));
 
@@ -87,10 +89,10 @@ public class GameSaverLoader
 			e.printStackTrace();
 		}
 
-		String resolution = properties.getProperty("resolution");
-		String info1 = properties.getProperty("info1");
-		String info2 = properties.getProperty("info2");
-		String info3 = properties.getProperty("info3");
+		String resolution = properties.getProperty("gameResolution");
+		String info1 = properties.getProperty("gameStateInfo1");
+		String info2 = properties.getProperty("gameStateInfo2");
+		String info3 = properties.getProperty("gameStateInfo3");
 
 		switch (saveCode)
 		{
@@ -116,10 +118,10 @@ public class GameSaverLoader
 		try
 		{
 			FileOutputStream out = new FileOutputStream(file);
-			properties.setProperty("resolution", resolution);
-			properties.setProperty("info1", info1);
-			properties.setProperty("info2", info2);
-			properties.setProperty("info3", info3);
+			properties.setProperty("gameResolution", resolution);
+			properties.setProperty("gameStateInfo1", info1);
+			properties.setProperty("gameStateInfo2", info2);
+			properties.setProperty("gameStateInfo3", info3);
 			properties.store(out, null);
 			out.close();
 		} catch (IOException e)
@@ -131,29 +133,33 @@ public class GameSaverLoader
 	public String[] loadGameProperties()
 	{
 		Properties properties = new Properties();
-		try (InputStream is = getClass().getClassLoader().getResourceAsStream("game.properties")) {
+		try (InputStream is = getClass().getClassLoader().getResourceAsStream("game.properties"))
+		{
 			properties.load(is);
-		} catch (IOException e) {
-		    // handle the exception
+		} catch (IOException e)
+		{
+			// handle the exception
 		}
-		
-		/*Properties properties = new Properties();
-		String path = this.getClass().getResource("/game.properties").toString();
-		File file = new File(path.substring("file:".length()));
-		try
-		{
-			FileInputStream in = new FileInputStream(file);
-			properties.load(in);
-			in.close();
-		} catch ( IOException e)
-		{
-			e.printStackTrace();
-		}*/
-		String info1 = properties.getProperty("info1").equals("Nova hra") ? "Nová hra" : properties.getProperty("info1");
-		String info2 = properties.getProperty("info2").equals("Nova hra") ? "Nová hra" : properties.getProperty("info2");
-		String info3 = properties.getProperty("info3").equals("Nova hra") ? "Nová hra" : properties.getProperty("info3");
 
-		String[] values = { properties.getProperty("resolution"), info1, info2, info3 };
+		/*
+		 * Properties properties = new Properties();
+		 * String path = this.getClass().getResource("/game.properties").toString();
+		 * File file = new File(path.substring("file:".length()));
+		 * try
+		 * {
+		 * FileInputStream in = new FileInputStream(file);
+		 * properties.load(in);
+		 * in.close();
+		 * } catch ( IOException e)
+		 * {
+		 * e.printStackTrace();
+		 * }
+		 */
+		String info1 = properties.getProperty("gameStateInfo1").equals("Nova hra") ? "Nová hra" : properties.getProperty("gameStateInfo1");
+		String info2 = properties.getProperty("gameStateInfo2").equals("Nova hra") ? "Nová hra" : properties.getProperty("gameStateInfo2");
+		String info3 = properties.getProperty("gameStateInfo3").equals("Nova hra") ? "Nová hra" : properties.getProperty("gameStateInfo3");
+
+		String[] values = { properties.getProperty("gameResolution"), info1, info2, info3 };
 		return values;
 	}
 
@@ -170,6 +176,68 @@ public class GameSaverLoader
 		} catch (FileNotFoundException | URISyntaxException e)
 		{
 		}
+	}
+
+	public static boolean isGameAlreadyRunning()
+	{
+		String propertyValue = "false";
+		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+		
+		try (InputStream inputStream = classLoader.getResourceAsStream("game.properties"))
+		{
+			Properties properties = new Properties();
+			properties.load(inputStream);
+			propertyValue = properties.getProperty("gameIsAlreadyRunning");
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		if (propertyValue.equals("true"))
+			return true;
+		else
+			return false;
+	}
+
+	public static void gameIsAlreadyRunning(boolean running)
+	{
+		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+		Properties properties = new Properties();
+
+		try (InputStream inputStream = classLoader.getResourceAsStream("game.properties"))
+		{
+			properties.load(inputStream);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		String runningString = running ? "true" : "false";
+		String resolution = properties.getProperty("gameResolution");
+		String info1 = properties.getProperty("gameStateInfo1");
+		String info2 = properties.getProperty("gameStateInfo2");
+		String info3 = properties.getProperty("gameStateInfo3");
+
+		URL resourceUrl = classLoader.getResource("game.properties");
+		String path = resourceUrl.getPath();
+		
+		File file = new File(path);
+		
+		//properties.store(outputStream, "Updated properties");
+		
+		try (OutputStream outputStream = new FileOutputStream(file))
+		{
+			properties = new Properties();
+			properties.setProperty("gameIsAlreadyRunning", runningString);
+			properties.setProperty("gameResolution", resolution);
+			properties.setProperty("gameStateInfo1", info1);
+			properties.setProperty("gameStateInfo2", info2);
+			properties.setProperty("gameStateInfo3", info3);
+			properties.store(outputStream, null);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}	
 	}
 
 }

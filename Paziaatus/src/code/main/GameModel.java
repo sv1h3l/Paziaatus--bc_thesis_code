@@ -1,10 +1,14 @@
 package main;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 import beings.Player;
+import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
+import paziak.Card;
+import paziak.Paziak;
 import residue.Constants;
 import residue.Database;
 import residue.GameSaverLoader;
@@ -41,6 +45,8 @@ public class GameModel
 	private Shop	grocery;
 	private Shop	medications;
 	private Shop	technique;
+
+	private Paziak paziak;
 
 	private Shop actualShop;
 
@@ -88,12 +94,14 @@ public class GameModel
 		Thread thread = new Thread(timeChecker);
 		thread.start();
 
+		actualLocation = "sleep";
+
 		database.createShopItems(getShops(), player.getActualPlanet());
 
 		if (featuresOfGear)
 			gameView.changeFeatures(true, player);
 
-		gameView.initialize();
+		gameView.initialize(player);
 
 		gameView.setCantineCardsImages(cards, player.getActualPlanet());
 		gameView.setBet(player.getPaziakBet());
@@ -157,7 +165,7 @@ public class GameModel
 
 	protected void characterNodesVisibler(boolean visible)
 	{
-		gameView.characterNodesVisibler(visible, featuresOfGear);
+		gameView.characterNodesVisibler(visible, featuresOfGear, player);
 	}
 
 	protected void quit()
@@ -384,12 +392,35 @@ public class GameModel
 
 	protected void travellingClicks(String idOfSource)
 	{
-		if (player.getActualPlanet().equals("Narr Sheyda") && Tools.getRandomNumber(8) == 0)
-			assault(false);
+		if (idOfSource.equals(actualLocation))
+		{
+			gameView.actualLocation();
+			return;
+		}
+
+		actualLocation = idOfSource;
+		boolean ambushed = false, survived = true;
+		if (player.getActualPlanet().equals("Narr Sheyda") && Tools.getRandomNumber(7) == 0)
+		{
+			ambushed = true;
+			survived = assault(false);
+		}
+
+		if (!survived)
+		{
+			quitTravelAmbush();
+			deathInRealisticMode(player.getGameMode());
+		}
 
 		itemForRepairingOrRefilling = null;
 		gameView.clearFuelOrRepairSlotImage();
-		gameView.travellingClicks(idOfSource, durationOfTravelling());
+		gameView.travellingClicks(idOfSource, durationOfTravelling(), ambushed, survived, player);
+	}
+
+	private void quitTravelAmbush()
+	{
+		database.stop();
+		timeChecker.stop();
 	}
 
 	private int durationOfTravelling()
@@ -415,7 +446,7 @@ public class GameModel
 			duration = duration / speed;
 		}
 
-		if (worker && player.getGear()[4].getItemType().equals("nástroj"))
+		if (worker && player.getGear()[4] != null && player.getGear()[4].getItemType().equals("nástroj"))
 			duration = duration - (player.getGear()[4].getPrimaryFeature() / 2);
 
 		duration = duration < 10 ? 10 : duration;
@@ -472,10 +503,12 @@ public class GameModel
 		String itemType = item.getItemType();
 		String partOfPath;
 
-		if (itemType.equals("laserový meč") || itemType.equals("laserová puška"))
+		if (itemType.equals("světelný meč") || itemType.equals("laserová puška"))
 			partOfPath = "attack";
-		else if (itemType.equals("droid") || itemType.equals("speeder"))
-			partOfPath = "speed";
+		else if (itemType.equals("vznášedlo"))
+			partOfPath = "speeder";
+		else if (itemType.equals("droid"))
+			partOfPath = "droid";
 		else if (itemType.equals("jídlo") || itemType.equals("pití") || itemType.equals("léčivo"))
 			partOfPath = "consumer";
 		else if (itemType.equals("nástroj"))
@@ -602,7 +635,7 @@ public class GameModel
 	{
 		Item item = getPlayer().getNthItemFromInventory(nthInvSlot);
 
-		if (item.getItemType() == "pití" || item.getItemType() == "jídlo" || item.getItemType() == "léčivo")
+		if (item.getItemType().equals("pití") || item.getItemType().equals("jídlo") || item.getItemType().equals("léčivo"))
 		{
 			player.useItem(item, nthInvSlot);
 
@@ -615,7 +648,7 @@ public class GameModel
 			gameView.useItem(nthInvSlot);
 			gameView.updateStats(player);
 			return;
-		} else if (item.getItemType() == "karta")
+		} else if (item.getItemType().equals("karta"))
 		{
 			int nthDeckSlot = player.moveCardFromInventoryToDeck(nthInvSlot);
 			if (nthDeckSlot == -1)
@@ -705,12 +738,36 @@ public class GameModel
 
 		Player player = new Player(100, 100, 100, 100, 8420999, 0, 0, 0, 0, 0, "Tarrys", this.gameMode, this.specialization, 1500);
 
-		Item belt = new Item("opasek", 7, -1, 0, 600, 11, 100, 0, "", "belts/11");
-		Item boots = new Item("boty", 8, 0, -1, 650, 17, 100, 0, "", "boots/2");
-		Item wear = new Item("oděv", 14, 0, 0, 700, 24, 100, 0, "", "wears/24");
+		int beltImg;
+		int bootsImg;
+		int wearImg;
 		Item weapon;
 
-		Item med = new Item("léčivo", 18, -1, -2, 300, 2, Constants.NO_VALUE, Constants.NO_VALUE, "", "medications/9");
+		if (this.specialization.equals("šedý válečník"))
+		{
+			weapon = new Item("světelný meč", 17, 0, 1, 750, 14, 100, 0, "", "weapons/9");
+			beltImg = 8;
+			bootsImg = 8;
+			wearImg = 11;
+		} else if (this.specialization.equals("lovec odměn"))
+		{
+			weapon = new Item("laserová puška", 20, 1, 0, 750, 19, 100, 0, "", "weapons/25");
+			beltImg = 7;
+			bootsImg = 2;
+			wearImg = 15;
+		} else
+		{
+			weapon = new Item("nástroj", 12, -1, -1, 750, 24, 100, 0, "", "tools/10");
+			beltImg = 10;
+			bootsImg = 5;
+			wearImg = 24;
+		}
+
+		Item belt = new Item("opasek", 7, -1, 0, 600, 11, 100, 0, "", "belts/" + beltImg);
+		Item boots = new Item("boty", 8, 0, -1, 650, 17, 100, 0, "", "boots/" + bootsImg);
+		Item wear = new Item("oděv", 14, 0, 0, 700, 24, 100, 0, "", "wears/" + wearImg);
+
+		Item med = new Item("léčivo", 18, -1, -2, 300, 2, Constants.NO_VALUE, Constants.NO_VALUE, "", "medications/7");
 		Item food = new Item("jídlo", 4, 13, 1, 265, 3, Constants.NO_VALUE, Constants.NO_VALUE, "", "food/14");
 		Item drink = new Item("pití", 3, 1, 12, 250, 2, Constants.NO_VALUE, Constants.NO_VALUE, "", "drinks/6");
 
@@ -735,13 +792,6 @@ public class GameModel
 		Item card10 = new Item("karta", 6, Constants.NO_VALUE, 1, 500, 1, Constants.NO_VALUE, Constants.NO_VALUE,
 				"Zvýší celkovou hodnotu vyložených karet o 6.", "cards/i6");
 
-		if (this.specialization.equals("šedý válečník"))
-			weapon = new Item("světelný meč", 17, 0, 1, 750, 14, 100, 0, "", "weapons/9");
-		else if (this.specialization.equals("lovec odměn"))
-			weapon = new Item("laserová puška", 20, 1, 0, 750, 19, 100, 0, "", "weapons/25");
-		else
-			weapon = new Item("nástroj", 12, -1, -1, 750, 24, 100, 0, "", "tools/1");
-
 		Item[] gear = player.getGear();
 		gear[4] = weapon;
 		gear[5] = wear;
@@ -751,9 +801,9 @@ public class GameModel
 		gameView.setNewGameListeneres(gear);
 
 		Item[] inventory = player.getInventory();
-		inventory[0] = med;
-		inventory[1] = food;
-		inventory[2] = drink;
+		inventory[0] = food;
+		inventory[1] = drink;
+		inventory[2] = med;
 
 		Item[] deck = player.getDeck();
 		deck[0] = card1;
@@ -844,11 +894,18 @@ public class GameModel
 			return;
 		}
 
-		getPlayer().travelOnNextPlanet();
+		if(getPlayer().travelOnNextPlanet())
+		{
+			getPlayer().migrateOnNarrSheyda();
+			gameView.removeDeletedImages();
+			gameView.setImagesOfLoadedItems(player);
+		}
+		
 		getDatabase().createShopItems(getShops(), player.getActualPlanet());
-
+		gameView.setCantineCardsImages(cards, player.getActualPlanet());
+		
 		gameView.updateUserInterfaceForSpecificPlanet(getPlayer().getActualPlanet());
-		gameView.setSleepAndTravelTimeline(left ? 1 : 2, player.getGameMode());
+		gameView.setSleepAndTravelTimeline(left ? 1 : 2, player.getGameMode(), true);
 	}
 
 	protected void workClick(String workType)
@@ -905,19 +962,18 @@ public class GameModel
 		updateNecessitiesOfLife(true);
 	}
 
-	private void assault(boolean sleep)
+	private boolean assault(boolean updateStats)
 	{
 		worksAndAssaults.calculateFight(player);
 
-		if (player.getHealth() < 1)
-		{
-			quit();
-			deathInRealisticMode(player.getGameMode());
-		}
+		if (updateStats)
+			gameView.updateStats(player);
 
-		gameView.assault(sleep, player.getHealth());
-		gameView.updateStats(player);
 		gameView.checkDestroyedGear(player.getGear());
+
+		if (player.getHealth() < 1)
+			return false;
+		return true;
 
 	}
 
@@ -987,8 +1043,8 @@ public class GameModel
 
 	public void sleepClick(boolean left)
 	{
-		int price;
-		boolean save = true;
+		int price, ambush = 0;
+		boolean survived = true;
 
 		if (left)
 			price = 1950;
@@ -1016,25 +1072,23 @@ public class GameModel
 		{
 			player.setEnergy((player.getEnergy() + 50) > 100 ? 100 : player.getEnergy() + 50);
 			if (Tools.getRandomNumber(5) == 0)
-				assault(true);
-			if(player.getHealth() < 1)
-				save = false;
+			{
+				ambush = 3;
+				survived = assault(true);
+			}
 		} else
-		{
 			player.setEnergy((player.getEnergy() + 75) > 100 ? 100 : player.getEnergy() + 75);
-			save = true;
-		}
 
 		player.addOrRemoveCredits(price, false);
 		gameView.updateStats(player);
 
-		if (save)
+		gameView.setSleepAndTravelTimeline(ambush, player.getGameMode(), survived);
+		if (survived)
 		{
 			String info = gameSaverLoader.saveGameState(player, gameState);
 			gameSaverLoader.saveGameProperties(gameState, info);
 			gameView.changeGameText(info, gameState);
 			getDatabase().createShopItems(getShops(), player.getActualPlanet());
-			gameView.setSleepAndTravelTimeline(0, player.getGameMode()); //TODO
 			gameView.setCantineCardsImages(cards, player.getActualPlanet());
 		} else
 		{
@@ -1065,9 +1119,15 @@ public class GameModel
 				return;
 			}
 
+			if (!player.checkCreditsValue(Constants.REFILL_PRICE))
+			{
+				gameView.notEnoughMoney();
+				return;
+			}
+
 			int value = itemForRepairingOrRefilling.getSecondaryFeature() + 20 + Tools.getRandomNumber(10);
 			itemForRepairingOrRefilling.setSecondaryFeature(value > 100 ? 100 : value);
-			player.setCredits(-750 * player.planetMultiplier());
+			player.setCredits(player.getCredits() - (Constants.REFILL_PRICE * player.planetMultiplier()));
 		} else
 		{
 			if (itemForRepairingOrRefilling.getWearAndTear() == 100)
@@ -1082,11 +1142,22 @@ public class GameModel
 				clearFuelOrRepairSlot();
 				return;
 			}
+
+			if (!player.checkCreditsValue(Constants.REPAIR_PRICE))
+			{
+				gameView.notEnoughMoney();
+				return;
+			}
+
 			int value = itemForRepairingOrRefilling.getWearAndTear() + 15 + Tools.getRandomNumber(10);
 			itemForRepairingOrRefilling.setWearAndTear(value > 100 ? 100 : value);
-			player.setCredits(-650 * player.planetMultiplier());
+			player.setCredits(player.getCredits() - (Constants.REPAIR_PRICE * player.planetMultiplier()));
 			itemForRepairingOrRefilling.setMaxRepairPossibleUse(itemForRepairingOrRefilling.getMaxRepairPossibleUse() - 1);
 		}
+
+		if (this.clickedItem != null && this.clickedItem.equals(itemForRepairingOrRefilling))
+			showFeatures(itemForRepairingOrRefilling);
+
 		return;
 	}
 
@@ -1103,41 +1174,55 @@ public class GameModel
 		boolean max = false;
 		switch (idFromSource)
 		{
-			case "up1":
+			case "upButton1":
 			{
 				bet = bet + 100;
 				break;
 			}
-			case "up2":
+			case "upButton2":
 			{
 				bet = bet + 1000;
 				break;
 			}
-			case "up3":
+			case "upButton3":
 			{
 				max = true;
 				break;
 			}
-			case "down1":
+			case "downButton1":
 			{
 				bet = bet - 100;
 				break;
 			}
-			case "down2":
+			case "downButton2":
 			{
 				bet = bet - 1000;
 				break;
 			}
-			case "down3":
+			case "downButton3":
 			{
 				bet = 400;
 				break;
 			}
 			default:
 			{
-				if (player.deckChecker())
+				if (player.getGear()[5] == null)
+					gameView.smallGeneralDialog("Nemáš oblečený oděv. Jelikož jsi polonahý, tak s tebou nikdo nechce hrát karetní hru Paziak.");
+				else if (player.deckChecker())
 				{
+					paziak = new Paziak(this, player);
+					gameView.paziakPointsHider();
+					gameView.paziakDisableOrEnableNextAndStandButtons(true);
+					gameView.paziakResetTheScore();
+					gameView.paziakShowOrHidehandCards(false);
+					gameView.paziakClearImages();
 
+					gameView.paziakMainButtonVisibler(0);
+					
+					gameView.setFieldVisible("panePaziak", true);
+					gameView.keeperNodesVisibler(false);
+					gameView.setFieldVisible("middlePartition", true);
+					gameView.disableTravellingImages(true);
 				} else
 					gameView.smallGeneralDialog("Abys mohl hrát karetní hru Paziak, tak tvůj balíček musí obsahovat 10 karet.");
 				return;
@@ -1148,7 +1233,7 @@ public class GameModel
 
 		int maxPossibleBet = 2500;
 
-		switch (idFromSource)
+		switch (player.getActualPlanet())
 		{
 			case "Kerusant":
 				maxPossibleBet = maxPossibleBet + 2500;
@@ -1158,7 +1243,7 @@ public class GameModel
 				maxPossibleBet = maxPossibleBet + 2500;
 		}
 
-		maxPossibleBet = maxPossibleBet + (player.getAppearance() * 200);
+		maxPossibleBet = maxPossibleBet + (player.getAppearance() * 50);
 
 		if (max)
 			player.setPaziakBet(maxPossibleBet);
@@ -1166,6 +1251,18 @@ public class GameModel
 			player.setPaziakBet(bet > maxPossibleBet ? maxPossibleBet : bet);
 
 		gameView.setBet(player.getPaziakBet());
+	}
+
+	public void paziakNewGameSet()
+	{
+		gameView.paziakResetTheScore();
+		paziak.newCard();
+		gameView.paziakPointsVisibler(paziak.getPlayersSets(), paziak.getOpponentsSets());
+		gameView.paziakHideAllHandButtons();
+		gameView.paziakActivateHandButtons(paziak.getPlayer().getSideDeck());
+		gameView.paziakClearImages();
+		gameView.paziakVisualizationOfTableCards(true, Integer.toString(paziak.getPlayersScore()), paziak.getPlayersLaidCards(),
+				paziak.getPlayer().getSideDeck());
 	}
 
 	public void cantineShopRightClick(ImageView image, int nthSlot)
@@ -1227,5 +1324,120 @@ public class GameModel
 			player.getDeck()[nthSlot] = null;
 		}
 		gameView.removeCardImage(image);
+	}
+
+	public void paziakClicks(String idOfSource)
+	{
+		switch (idOfSource)
+		{
+			case "paziakNextTurnButton":
+			{
+				paziak.nextTurn();
+				/*
+				 * gameView.paziakDisableOrEnableNextAndStandButtons(true);
+				 * gameView.paziakDarkenAllPlayersHandCards();
+				 */
+				break;
+			}
+			case "paziakStandButton":
+			{
+				paziak.stand();
+				/*
+				 * gameView.paziakDisableOrEnableNextAndStandButtons(true);
+				 * gameView.paziakDarkenCards(true);
+				 */
+				break;
+			}
+			case "paziakMainButton":
+				paziak.mainButtonClick(database);
+		}
+	}
+
+	public void paziakHandCardClicked(int numberOfSource)
+	{
+		paziak.paziakHandCardClicked(numberOfSource);
+
+		gameView.paziakVisualizationOfTableCards(true, Integer.toString(paziak.getPlayersScore()), paziak.getPlayersLaidCards(),
+				paziak.getPlayer().getSideDeck());
+		gameView.paziakDarkenPlayersHandCards(numberOfSource);
+	}
+
+	public void paziakTurnCard(String idOfSource)
+	{
+		boolean left = idOfSource.contains("Left");
+		String removeThisFromidOfSource;
+
+		if (left)
+			removeThisFromidOfSource = "handLeft";
+		else
+			removeThisFromidOfSource = "handRight";
+		int numberOfSource = Tools.getNumberFromString(idOfSource, removeThisFromidOfSource) - 1;
+
+		if (!paziak.getPlayer().getSideDeck().get(numberOfSource).isCardUsed())
+		{
+			paziak.getPlayer().getSideDeck().get(numberOfSource).changeValue(left);
+			gameView.paziakVisualizationOfTableCards(true, Integer.toString(paziak.getPlayersScore()), paziak.getPlayersLaidCards(),
+					paziak.getPlayer().getSideDeck());
+		}
+	}
+
+	public void paziakDarkenCards(boolean darkenPlayersCards)
+	{
+		gameView.paziakDarkenCards(darkenPlayersCards);
+	}
+
+	public void paziakSmallGeneralDialog(String dialogContent)
+	{
+		gameView.smallGeneralDialog(dialogContent);
+	}
+
+	public void paziakVsualizationOfTableCards(boolean visualizationOfPlayersSide)
+	{
+		if (visualizationOfPlayersSide)
+			gameView.paziakVisualizationOfTableCards(visualizationOfPlayersSide, Integer.toString(paziak.getPlayersScore()), paziak.getPlayersLaidCards(),
+					paziak.getPlayer().getSideDeck());
+		else
+			gameView.paziakVisualizationOfTableCards(visualizationOfPlayersSide, paziak.getOpponentsScore(), paziak.getOpponentsLaidCards(),
+					paziak.getOpponent().getSideDeck());
+
+	}
+
+	public void mainButtonClick(int mainButtonCode)
+	{
+		switch (mainButtonCode)
+		{
+			case 0:
+			{
+				gameView.paziakActivateHandButtons(paziak.getPlayer().getSideDeck());
+				gameView.paziakVisualizationOfSideDeck(true, paziak.getPlayer().getSideDeck());
+				gameView.paziakShowOrHidehandCards(true);
+				gameView.setFieldVisible("paziakMainButton", false);
+				break;
+			}
+			case 1:
+			{
+				gameView.setFieldVisible("paziakMainButton", false);
+				gameView.paziakDisableOrEnableNextAndStandButtons(false);
+				gameView.paziakVisualizationOfSideDeck(true, paziak.getPlayer().getSideDeck());
+				paziak.unpause();
+				break;
+			}
+			case 2:
+			{
+				gameView.setFieldVisible("panePaziak", false);
+				gameView.keeperNodesVisibler(true);
+				gameView.disableTravellingImages(false);
+				break;
+			}
+
+		}
+
+	}
+
+	public void setPaziakMainButton(int mainButtonCode)
+	{
+		paziak.pause();
+		gameView.paziakDisableOrEnableNextAndStandButtons(true);
+		gameView.paziakMainButtonVisibler(mainButtonCode);
 	}
 }

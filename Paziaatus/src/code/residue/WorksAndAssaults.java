@@ -70,7 +70,7 @@ public class WorksAndAssaults
 		int healthPointsOfEnemy = 70 + (planetMultiplier * 10);
 		int playersStrenght = player.getStrenght();
 		playersStrenght = playersStrenght < 5 ? 5 : playersStrenght;
-		int strengthOfEnemy = (Tools.getRandomNumber(10) + 5 + (planetMultiplier * 5)) - (player.getDefense() / 6);
+		int strengthOfEnemy = (Tools.getRandomNumber(10) + 5 + (planetMultiplier * 5)) - (player.getDefense() / 10);
 		strengthOfEnemy = strengthOfEnemy < 9 ? 9 : strengthOfEnemy;
 		int playersEnergy = player.getEnergy();
 

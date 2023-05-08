@@ -64,21 +64,78 @@ public class Database
 		}
 	}
 
+	public Item[] createDeckForOpponent(int planetCode)
+	{
+		try
+		{
+			Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			Item[] cards = new Item[10];
+			
+			for (int i = 0; i < Constants.PLAYERS_DECK_SIZE; i++)
+			{
+				String whereStatement = " WHERE";
+				switch (planetCode)
+				{
+					case 3:
+						whereStatement = whereStatement + " planet = 3 OR";
+					case 2:
+						whereStatement = whereStatement + " planet = 2 OR";
+					case 1:
+						whereStatement = whereStatement + " planet = 1";
+				}
+
+				ResultSet rs = stmt.executeQuery("SELECT * FROM cards" + whereStatement);
+				String itemType = "karta";
+
+				rs.last();
+				int random = Tools.getRandomNumber(rs.getRow()) + 1;
+				rs.absolute(random);
+
+				int noValue = Constants.NO_VALUE;
+				int primaryFeature = rs.getInt("primary_feature");
+				int secondaryFeature = rs.getInt("secondary_feature");
+				int ternaryFeature = rs.getInt("ternary_feature");
+				String img = rs.getString("img");
+
+				cards[i] = (new Item("", primaryFeature, secondaryFeature, ternaryFeature, noValue, noValue, noValue, noValue,
+						"", img));
+			}
+			
+			stmt.close();
+			
+			return cards;
+			
+		} catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+
 	private void createCardsShopItems(Shop shop, String actualPlanet, int numberOfShopSlots, int planetCode)
 	{
 		try
 		{
 			Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			ResultSet rs;
-			int random;
 			String[] itemTypesOfShop = shop.getItemTypesOfShop();
-
 			shop.clearShopItems();
 
 			for (int i = 0; i < numberOfShopSlots; i++)
 			{
-				random = Tools.getRandomNumber(itemTypesOfShop.length);
-				rs = stmt.executeQuery("SELECT * FROM " + itemTypesOfShop[random] + " WHERE planet = " + planetCode);
+				int random = Tools.getRandomNumber(itemTypesOfShop.length);
+				String whereStatement = " WHERE";
+				switch (planetCode)
+				{
+					case 3:
+						whereStatement = whereStatement + " planet = 3 OR";
+					case 2:
+						whereStatement = whereStatement + " planet = 2 OR";
+					case 1:
+						whereStatement = whereStatement + " planet = 1";
+				}
+
+				ResultSet rs = stmt.executeQuery("SELECT * FROM " + itemTypesOfShop[random] + whereStatement);
 				String itemType = getItemType(itemTypesOfShop[random]);
 
 				rs.last();
@@ -94,9 +151,9 @@ public class Database
 				int price = 1000 * planetCode;
 				String active = rs.getString("active");
 				String img = rs.getString("img");
-				
-				shop.addItemIntoShop(
-						new Item(itemType, primaryFeature, secondaryFeature, ternaryFeature, price, weight, wearAndTear, maxRepairPossibleUse, active, img));
+
+				shop.addItemIntoShop(new Item(itemType, primaryFeature, secondaryFeature, ternaryFeature, price, weight, wearAndTear, maxRepairPossibleUse,
+						active, img));
 			}
 			stmt.close();
 		} catch (SQLException e)
@@ -119,7 +176,18 @@ public class Database
 			for (int i = 0; i < numberOfShopSlots; i++)
 			{
 				random = Tools.getRandomNumber(itemTypesOfShop.length);
-				rs = stmt.executeQuery("SELECT * FROM " + itemTypesOfShop[random] + " WHERE planet = " + planetCode);
+				String whereStatement = " WHERE";
+				switch (planetCode)
+				{
+					case 3:
+						whereStatement = whereStatement + " planet = 3 OR";
+					case 2:
+						whereStatement = whereStatement + " planet = 2 OR";
+					case 1:
+						whereStatement = whereStatement + " planet = 1";
+				}
+
+				rs = stmt.executeQuery("SELECT * FROM " + itemTypesOfShop[random] + whereStatement);
 				String itemType = getItemType(itemTypesOfShop[random]);
 
 				rs.last();
@@ -127,13 +195,20 @@ public class Database
 				rs.absolute(random);
 
 				int primaryFeature = rs.getInt("primary_feature") + Tools.getRandomNumber(4);
-				int secondaryFeature = rs.getInt("secondary_feature") == Constants.NO_VALUE ? Constants.NO_VALUE : rs.getInt("secondary_feature") + Tools.getRandomNumber(4);
-				int ternaryFeature = rs.getInt("ternary_feature") == Constants.NO_VALUE ? Constants.NO_VALUE : rs.getInt("ternary_feature") + Tools.getRandomNumber(4);
+				int secondaryFeature = rs.getInt("secondary_feature") == Constants.NO_VALUE ? Constants.NO_VALUE
+						: rs.getInt("secondary_feature") + Tools.getRandomNumber(4);
+				int ternaryFeature = rs.getInt("ternary_feature") == Constants.NO_VALUE ? Constants.NO_VALUE
+						: rs.getInt("ternary_feature") + Tools.getRandomNumber(4);
 				int weight = rs.getInt("weight") == 0 ? 0 : rs.getInt("weight") + Tools.getRandomNumber(8);
-				int wearAndTear = 100;
 				int maxRepairPossibleUse = rs.getInt("maxrepair");
 				int price;
 				String img = rs.getString("img");
+				int wearAndTear;
+
+				if (itemType.equals("jídlo") || itemType.equals("pití") || itemType.equals("léčivo"))
+					wearAndTear = Constants.NO_VALUE;
+				else
+					wearAndTear = 100;
 
 				if (itemType.equals("jídlo"))
 					price = (secondaryFeature + (ternaryFeature / 2)) * (40 * planetCode);
@@ -156,11 +231,11 @@ public class Database
 				{
 					itemType = "laserová puška";
 					if (specialization.equals("lovec odměn"))
-						primaryFeature = primaryFeature + 5;
+						primaryFeature = primaryFeature + 6;
 				}
 
 				if (itemType.equals("světelný meč") && specialization.equals("šedý válečník"))
-					primaryFeature = primaryFeature + 10;
+					primaryFeature = primaryFeature + 12;
 
 				shop.addItemIntoShop(
 						new Item(itemType, primaryFeature, secondaryFeature, ternaryFeature, price, weight, wearAndTear, maxRepairPossibleUse, "", img));
@@ -188,7 +263,7 @@ public class Database
 			case "WEARS":
 				return "oděv";
 			case "WEAPONS":
-				return "světelný meč"; //TODO laserová puška
+				return "světelný meč";
 			case "TOOLS":
 				return "nástroj";
 			case "SPEEDERS":
