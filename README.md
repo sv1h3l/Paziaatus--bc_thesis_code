@@ -3,7 +3,7 @@
 - V rámci práce jsem se zabýval nejen implementací samotné hry, ale také analýzou herních technologií a metodiky vývoje.
 - Hra implementuje algoritmus počítačového protihráče, který je schopen analyzovat situaci a vytvořit strategii během karetní partie.
 - Herní logika je napsána v programovacím jazyce Java a vizuální prvky jsem vytvořil pomocí modelu DALLE-E 2 a webového editoru Photopea.
-
+ 
 ### Video ukázka: https://youtu.be/hQASELXYlSs
 
 ![Screenshot_1](https://github.com/user-attachments/assets/83aabd30-0344-4683-9622-39a572ed9e66)
